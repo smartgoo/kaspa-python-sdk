@@ -1,10 +1,24 @@
 [package]
-name = "kaspa-python"
+name = "kaspa-python-sdk"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-pyo3 = "0.27.1"
-pyo3-async-runtimes = "0.27.0"
+ahash = "0.8.12"
+futures = "0.3.31"
+paste = "1.0"
+kaspa-addresses = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-consensus-core = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-notify = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-rpc-core = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-rpc-macros = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-wrpc-client = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+pyo3 = { version = "0.27.1", features = ['multiple-pymethods'] }
+pyo3-async-runtimes = { version = "0.27.0", features = ['tokio-runtime'] }
 pyo3-log = "0.13.2"
+serde = "1.0.228"
 serde-pyobject = "0.8.0"
+thiserror = "2.0.17"
+workflow-core = "0.18.0"
+workflow-log = "0.18.0"
+workflow-rpc = "0.18.0"

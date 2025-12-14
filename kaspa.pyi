@@ -1,6 +1,30 @@
 from enum import Enum
 from typing import Any, Callable, Iterator, Optional, TypedDict, Union
 
+
+class Address:
+
+    def __init__(self, address: str) -> None: ...
+
+    @staticmethod
+    def validate(address: str) -> bool: ...
+
+    def to_string(self) -> str: ...
+
+    @property
+    def version(self) -> str: ...
+
+    @property
+    def prefix(self) -> str: ...
+
+    @prefix.setter
+    def set_prefix(self, prefix: str) -> None: ...
+
+    # def payload(self) -> str: ...
+
+    # def short(self, n: int) -> str: ...
+
+
 class Resolver:
 
     def __init__(self, urls: Optional[list[str]] = None, tls: Optional[int] = None) -> None: ...

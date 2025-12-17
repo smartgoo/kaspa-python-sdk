@@ -1,8 +1,7 @@
-use std::str::FromStr;
-
 use kaspa_addresses::Prefix;
-use kaspa_consensus_core::network::{NetworkId, NetworkType};
+use kaspa_consensus_core::network::{NetworkId, NetworkType, NetworkTypeError};
 use pyo3::{exceptions::PyException, prelude::*};
+use std::str::FromStr;
 
 #[derive(Clone)]
 #[pyclass(name = "NetworkType")]
@@ -62,6 +61,14 @@ impl From<NetworkType> for PyNetworkType {
             NetworkType::Devnet => PyNetworkType::Devnet,
             NetworkType::Simnet => PyNetworkType::Simnet,
         }
+    }
+}
+
+impl FromStr for PyNetworkType {
+    type Err = NetworkTypeError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let network_type = NetworkType::from_str(s)?;
+        Ok(PyNetworkType::from(network_type))
     }
 }
 

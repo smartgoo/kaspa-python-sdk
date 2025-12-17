@@ -24,11 +24,7 @@ impl PyResolver {
         if let Some(urls) = urls {
             Ok(Self {
                 inner: Resolver::new(
-                    Some(
-                        urls.into_iter()
-                            .map(Arc::new)
-                            .collect::<Vec<_>>(),
-                    ),
+                    Some(urls.into_iter().map(Arc::new).collect::<Vec<_>>()),
                     tls,
                 ),
             })

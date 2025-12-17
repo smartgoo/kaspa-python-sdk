@@ -9,7 +9,9 @@ pub struct PyAddress(pub Address);
 impl PyAddress {
     #[new]
     pub fn constructor(address: &str) -> PyResult<PyAddress> {
-        Ok(PyAddress(address.try_into().map_err(|err: AddressError| PyException::new_err(err.to_string()))?))
+        Ok(PyAddress(address.try_into().map_err(
+            |err: AddressError| PyException::new_err(err.to_string()),
+        )?))
     }
 
     #[staticmethod]
@@ -38,7 +40,8 @@ impl PyAddress {
     #[setter]
     #[pyo3(name = "prefix")]
     pub fn set_prefix_from_str(&mut self, prefix: &str) -> PyResult<()> {
-        self.0.prefix = Prefix::try_from(prefix).map_err(|err| PyException::new_err(err.to_string()))?;
+        self.0.prefix =
+            Prefix::try_from(prefix).map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(())
     }
 
@@ -60,5 +63,21 @@ impl PyAddress {
 impl From<Address> for PyAddress {
     fn from(value: Address) -> Self {
         PyAddress(value)
+    }
+}
+
+impl From<PyAddress> for Address {
+    fn from(value: PyAddress) -> Address {
+        value.0
+    }
+}
+
+impl TryFrom<String> for PyAddress {
+    type Error = PyErr;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let inner =
+            Address::try_from(value).map_err(|err| PyException::new_err(err.to_string()))?;
+        Ok(PyAddress(inner))
     }
 }

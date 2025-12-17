@@ -171,14 +171,8 @@ impl PyRpcClient {
             .transpose()?;
 
         let client = Arc::new(
-            KaspaRpcClient::new(
-                encoding,
-                url.as_deref(),
-                resolver.clone(),
-                network_id,
-                None,
-            )
-            .map_err(|err| PyException::new_err(err.to_string()))?,
+            KaspaRpcClient::new(encoding, url.as_deref(), resolver.clone(), network_id, None)
+                .map_err(|err| PyException::new_err(err.to_string()))?,
         );
 
         let rpc_client = PyRpcClient {
@@ -284,10 +278,8 @@ impl PyRpcClient {
                 .map_err(|err| PyException::new_err(err.to_string()))?,
             None => ConnectStrategy::Retry,
         };
-        let connect_timeout: Option<Duration> =
-            timeout_duration.map(Duration::from_millis);
-        let retry_interval: Option<Duration> =
-            retry_interval.map(Duration::from_millis);
+        let connect_timeout: Option<Duration> = timeout_duration.map(Duration::from_millis);
+        let retry_interval: Option<Duration> = retry_interval.map(Duration::from_millis);
 
         let options = ConnectOptions {
             block_async_connect,
@@ -496,7 +488,7 @@ impl PyRpcClient {
                                 }
                                 Ctl::Disconnect => {
                                     let listener_id = this.inner.listener_id.lock().unwrap().take();
-                                    if let Some(listener_id) = listener_id 
+                                    if let Some(listener_id) = listener_id
                                         && let Err(err) = this.inner.client.unregister_listener(listener_id).await {
                                             panic!("Error in unregister_listener: {:?}",err);
                                     }

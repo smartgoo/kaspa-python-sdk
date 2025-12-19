@@ -130,6 +130,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<wallet::keys::derivation::PyDerivationPath>()?;
     m.add_class::<wallet::keys::keypair::PyKeypair>()?;
     m.add_class::<wallet::keys::privatekey::PyPrivateKey>()?;
+    m.add_class::<wallet::keys::privkeygen::PyPrivateKeyGenerator>()?;
     m.add_class::<wallet::keys::publickey::PyPublicKey>()?;
     m.add_class::<wallet::keys::publickey::PyXOnlyPublicKey>()?;
     m.add_class::<wallet::keys::xprv::PyXPrv>()?;

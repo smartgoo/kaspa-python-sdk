@@ -76,3 +76,9 @@ impl PyPrivateKey {
         PyKeypair::from_private_key(self).map_err(|err| PyException::new_err(err.to_string()))
     }
 }
+
+impl From<PyPrivateKey> for PrivateKey {
+    fn from(value: PyPrivateKey) -> Self {
+        value.0
+    }
+}

@@ -32,3 +32,12 @@ impl From<Hash> for PyHash {
         PyHash(value)
     }
 }
+
+impl TryFrom<String> for PyHash {
+    type Error = PyErr;
+
+    fn try_from(value: String) -> PyResult<PyHash> {
+        let inner = Hash::from_str(&value).map_err(|err| PyException::new_err(err.to_string()))?;
+        Ok(PyHash(inner))
+    }
+}

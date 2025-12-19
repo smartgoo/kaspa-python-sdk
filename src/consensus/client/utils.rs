@@ -23,7 +23,7 @@ pub fn pay_to_script_hash_signature_script(
     signature: PyBinary,
 ) -> PyResult<String> {
     let script = standard::pay_to_script_hash_signature_script(redeem_script.data, signature.data)
-        .map_err(|err| PyException::new_err(format!("{}", err.to_string())))?;
+        .map_err(|err| PyException::new_err(err.to_string()))?;
     Ok(script.to_hex())
 }
 
@@ -36,7 +36,7 @@ pub fn address_from_script_public_key(
         &script_public_key.into(),
         NetworkType::from_str(network)
             .map_err(|err| PyException::new_err(err.to_string()))?
-            .try_into()?,
+            .into(),
     ) {
         Ok(address) => Ok(address.into()),
         Err(err) => Err(pyo3::exceptions::PyException::new_err(format!("{}", err))),

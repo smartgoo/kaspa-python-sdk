@@ -18,7 +18,6 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<consensus::client::input::PyTransactionInput>()?;
     m.add_class::<consensus::client::outpoint::PyTransactionOutpoint>()?;
     m.add_class::<consensus::client::output::PyTransactionOutput>()?;
-    // TODO UtxoEntries
     m.add_class::<consensus::client::utxo::PyUtxoEntry>()?;
     m.add_class::<consensus::client::utxo::PyUtxoEntryReference>()?;
 
@@ -58,6 +57,21 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         wallet::core::tx::signer::py_sign_transaction,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        wallet::core::tx::signer::create_input_signature,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        wallet::core::tx::signer::sign_script_hash,
+        m
+    )?)?;
+
+    m.add_function(wrap_pyfunction!(wallet::core::utils::kaspa_to_sompi, m)?)?;
+    m.add_function(wrap_pyfunction!(wallet::core::utils::sompi_to_kaspa, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        wallet::core::utils::sompi_to_kaspa_string_with_suffix,
+        m
+    )?)?;
 
     m.add_class::<crypto::hashes::PyHash>()?;
 
@@ -70,19 +84,19 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::calculate_unsigned_transaction_mass,
-        m
-    )?)?;
-    m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::update_unsigned_transaction_mass,
-        m
-    )?)?;
-    m.add_function(wrap_pyfunction!(
         wallet::core::tx::mass::calculate_unsigned_transaction_fee,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
+        wallet::core::tx::mass::calculate_unsigned_transaction_mass,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         wallet::core::tx::mass::calculate_storage_mass,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        wallet::core::tx::mass::update_unsigned_transaction_mass,
         m
     )?)?;
 
@@ -113,9 +127,13 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
 
+    m.add_class::<wallet::keys::derivation::PyDerivationPath>()?;
     m.add_class::<wallet::keys::keypair::PyKeypair>()?;
     m.add_class::<wallet::keys::privatekey::PyPrivateKey>()?;
     m.add_class::<wallet::keys::publickey::PyPublicKey>()?;
+    m.add_class::<wallet::keys::publickey::PyXOnlyPublicKey>()?;
+    m.add_class::<wallet::keys::xprv::PyXPrv>()?;
+    m.add_class::<wallet::keys::xpub::PyXPub>()?;
 
     Ok(())
 }

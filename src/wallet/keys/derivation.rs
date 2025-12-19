@@ -1,0 +1,54 @@
+use kaspa_bip32::ChildNumber;
+use pyo3::{exceptions::PyException, prelude::*};
+use std::str::FromStr;
+
+#[pyclass(name = "DerivationPath")]
+#[derive(Clone)]
+pub struct PyDerivationPath {
+    inner: kaspa_bip32::DerivationPath,
+}
+
+#[pymethods]
+impl PyDerivationPath {
+    #[new]
+    pub fn new_py(path: &str) -> PyResult<PyDerivationPath> {
+        let inner = kaspa_bip32::DerivationPath::from_str(path)
+            .map_err(|err| PyException::new_err(err.to_string()))?;
+        Ok(Self { inner })
+    }
+
+    #[pyo3(name = "is_empty")]
+    pub fn is_empty_py(&self) -> bool {
+        self.inner.is_empty()
+    }
+
+    #[pyo3(name = "length")]
+    pub fn len_py(&self) -> usize {
+        self.inner.len()
+    }
+
+    #[pyo3(name = "parent")]
+    pub fn parent_py(&self) -> Option<PyDerivationPath> {
+        self.inner.parent().map(|inner| Self { inner })
+    }
+
+    #[pyo3(name = "push")]
+    #[pyo3(signature = (child_number, hardened=None))]
+    pub fn push_py(&mut self, child_number: u32, hardened: Option<bool>) -> PyResult<()> {
+        let child = ChildNumber::new(child_number, hardened.unwrap_or(false))
+            .map_err(|err| PyException::new_err(err.to_string()))?;
+        self.inner.push(child);
+        Ok(())
+    }
+
+    #[pyo3(name = "to_string")]
+    pub fn to_str_py(&self) -> String {
+        self.inner.to_string()
+    }
+}
+
+impl From<PyDerivationPath> for kaspa_bip32::DerivationPath {
+    fn from(value: PyDerivationPath) -> Self {
+        value.inner
+    }
+}

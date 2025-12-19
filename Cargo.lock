@@ -2088,6 +2088,7 @@ dependencies = [
  "faster-hex",
  "futures",
  "kaspa-addresses",
+ "kaspa-bip32",
  "kaspa-consensus-client",
  "kaspa-consensus-core",
  "kaspa-hashes",

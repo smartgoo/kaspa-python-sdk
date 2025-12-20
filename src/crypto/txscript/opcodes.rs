@@ -1,31 +1,7 @@
 use kaspa_txscript::wasm::Opcodes;
 use pyo3::prelude::*;
 
-macro_rules! define_py_enum {
-    ($name:ident, $py_name:literal, $source:ty, { $($variant:ident = $val:expr),* $(,)? }) => {
-        #[pyclass(name = $py_name, eq, eq_int)]
-        #[derive(Clone, PartialEq)]
-        pub enum $name { $($variant = $val),* }
-
-        impl From<$source> for $name {
-            fn from(value: $source) -> Self {
-                match value {
-                    $(<$source>::$variant => Self::$variant),*
-                }
-            }
-        }
-
-        impl From<$name> for $source {
-            fn from(value: $name) -> Self {
-                match value {
-                    $(<$name>::$variant => Self::$variant),*
-                }
-            }
-        }
-    };
-}
-
-define_py_enum!(PyOpcodes, "Opcodes", Opcodes, {
+crate::wrap_c_enum_for_py!(PyOpcodes, "Opcodes", Opcodes, {
     OpFalse = 0x00,
     OpData1 = 0x01,
     OpData2 = 0x02,

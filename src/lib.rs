@@ -1,6 +1,7 @@
 mod address;
 mod consensus;
 mod crypto;
+mod macros;
 mod network;
 mod rpc;
 mod types;

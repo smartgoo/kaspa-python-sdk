@@ -3,14 +3,12 @@ use kaspa_consensus_core::network::{NetworkId, NetworkType, NetworkTypeError};
 use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
-#[derive(Clone)]
-#[pyclass(name = "NetworkType")]
-pub enum PyNetworkType {
+crate::wrap_unit_enum_for_py!(PyNetworkType, "NetworkType", NetworkType, {
     Mainnet,
     Testnet,
     Devnet,
     Simnet,
-}
+});
 
 #[pymethods]
 impl PyNetworkType {
@@ -38,28 +36,6 @@ impl PyNetworkType {
             PyNetworkType::Testnet => NetworkType::Testnet.default_rpc_port(),
             PyNetworkType::Devnet => NetworkType::Devnet.default_rpc_port(),
             PyNetworkType::Simnet => NetworkType::Simnet.default_rpc_port(),
-        }
-    }
-}
-
-impl From<PyNetworkType> for NetworkType {
-    fn from(value: PyNetworkType) -> Self {
-        match value {
-            PyNetworkType::Mainnet => NetworkType::Mainnet,
-            PyNetworkType::Testnet => NetworkType::Testnet,
-            PyNetworkType::Devnet => NetworkType::Devnet,
-            PyNetworkType::Simnet => NetworkType::Simnet,
-        }
-    }
-}
-
-impl From<NetworkType> for PyNetworkType {
-    fn from(value: NetworkType) -> Self {
-        match value {
-            NetworkType::Mainnet => PyNetworkType::Mainnet,
-            NetworkType::Testnet => PyNetworkType::Testnet,
-            NetworkType::Devnet => PyNetworkType::Devnet,
-            NetworkType::Simnet => PyNetworkType::Simnet,
         }
     }
 }

@@ -76,17 +76,19 @@ More detailed examples can be found in `./examples`.
 ## Bindings Approach/Design
 
 ### Overview
-This project attempts to leverage native/existing Rusty-Kaspa features as much as possible.
+This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The current approach can be summarized as:
+- Wrappers should perform only type conversion to/from RK native (to the extent possible).
+- When logic is needed, RK native logic should be used (to the extent possible).
 
-To accomplish that goal, the [newtype pattern](https://doc.rust-lang.org/rust-by-example/generics/new_types.html) is used extensively. Methods of the wrapped RK native struct are then leveraged as much as possible, typically by also wrapping the methods themselves for exposure to Python.
+In some areas, due limitations and/or Python interface requirements, this approach does not work (or partially works), resulting in new implementation/re-implementation/etc.
 
-All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix.
+All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix. Rust utility/helper functions are exposed as well.
 
-These `Py` prefixed types exist solely to fulfill Rust/Python interface requirements. When the newtype pattern is used to wrap RK native, these `Py` types are largely wrappers with very little logic, typically just type conversions. When the newtype pattern cannot be used (due to limitations), these `Py` types do more than just type conversions but still attempt to leverage RK native where possible.
+The [newtype pattern](https://doc.rust-lang.org/rust-by-example/generics/new_types.html) is used extensively. Methods of the wrapped RK native struct are then leveraged as much as possible, typically by also wrapping the methods themselves for exposure to Python.
 
-This repository relies on various features in RK native that are gated behind WASM feature flags. As such, WASM features are a common dependency.
+This repository relies on RK features gated behind WASM feature flags. As such, RK WASM features are a dependency.
 
-There are a handful of limitations that cause the need to reimplement code entirely in this repository. Those are detailed below.
+There are a handful of limitations that cause the need for new or re-implementation in this repository. Those are detailed below.
 
 The directory structure of this project approximately mirrors that of rusty-kaspa's workspace. This is likely to change but currently makes development easier.
 

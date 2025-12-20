@@ -76,12 +76,12 @@ More detailed examples can be found in `./examples`.
 ## Bindings Approach/Design
 
 ### Overview
-This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The general approach can be summarized as:
+This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The general approach principles can be summarized as:
 
 - Wrappers should perform only type conversion to/from RK native (to the extent possible).
 - When logic is needed, RK native logic should be used (to the extent possible).
 
-This approach works to varying degrees depending on the area of code, limitations, and Python interface requirements. In a "worst case" scenario, new implementation/re-implementation/etc is done.
+These principles works to varying degrees depending on the area of code, limitations, and Python interface requirements. In a "worst case" scenario, new implementation/re-implementation/etc is done.
 
 All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix. Functions exposed to Python are prefixed with `py_` and are usable from Python without the `py_` prefix.
 
@@ -112,18 +112,12 @@ impl PyMnemonic {
 }
 ```
 
-### Enums
+### Limitations & Challenges
 
-RK native enums cannot be exposed to Python as is. As such, wrapper enums for exposure to Python are defined, with conversion traits to/from the RK native enum.
-
-There is a set of macros, for c-like and unit enums, that assist with definition and conversion trait implementions.
-
-### Limitations
-
-There are a handful of limitations to note.
+Limitations & challenges to note:
 
 - Private code (structs, struct fields, methods, etc.) in RK native. Cannot be leveraged by this repository, results in new/re-implementation.
 - RK native enums cannot be exposed as is. A Python interface compatible enum must be defined, with conversion traits to the corresponding RK native enum.
 - RK native errors cannot be propped. Currently, `map_err()` is used extensively to convert to a generic Python exception. Future work will define explicit exceptions.
 
-The Python package `kaspa` is built from the `kaspa-python` crate, which is located at `./python`. 
+Long term, there may be an opportunity to add "bindings primitives" to RK native. To alleviate some of these challenges and better support other bindings initiatives in the future. This is a separate topic though.

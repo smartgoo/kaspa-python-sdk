@@ -57,7 +57,7 @@ impl PyScriptBuilder {
     pub fn add_ops(&self, opcodes: &Bound<PyAny>) -> PyResult<PyScriptBuilder> {
         let ops = extract_ops(opcodes)?;
         self.inner()
-            .add_ops(&ops.as_slice())
+            .add_ops(ops.as_slice())
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
 
         Ok(self.clone())
@@ -106,6 +106,7 @@ impl PyScriptBuilder {
         Ok(size)
     }
 
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let inner = self.inner();
 
@@ -139,13 +140,13 @@ impl PyScriptBuilder {
             standard::pay_to_script_hash_signature_script(script.into(), signature.into())
                 .map_err(|err| PyException::new_err(format!("{}", err)))?;
 
-        Ok(generated_script.to_hex().into())
+        Ok(generated_script.to_hex())
     }
 }
 
 // PY-TODO change to PyOpcode struct and handle similar to PyBinary?
 fn extract_ops(input: &Bound<PyAny>) -> PyResult<Vec<u8>> {
-    if let Ok(opcode) = extract_op(&input) {
+    if let Ok(opcode) = extract_op(input) {
         // Single u8 or Opcodes variant
         Ok(vec![opcode])
     } else if let Ok(list) = input.cast::<pyo3::types::PyList>() {

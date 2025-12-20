@@ -69,6 +69,7 @@ impl PyXPrv {
         Ok(Self { inner })
     }
 
+    #[allow(clippy::wrong_self_convention)]
     #[pyo3(name = "into_string")]
     pub fn into_string_py(&self, prefix: &str) -> PyResult<String> {
         let str = self

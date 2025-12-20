@@ -173,6 +173,7 @@ impl PyGenerator {
         self.inner.iter()
     }
 
+    #[allow(dead_code)]
     pub fn stream(&self) -> impl Stream<Item = Result<native::PendingTransaction>> {
         self.inner.stream()
     }

@@ -82,7 +82,8 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
 
-    m.add_class::<crytpo::txscript::opcodes::PyOpcodes>()?;
+    m.add_class::<crypto::txscript::builder::PyScriptBuilder>()?;
+    m.add_class::<crypto::txscript::opcodes::PyOpcodes>()?;
     m.add_class::<crypto::hashes::PyHash>()?;
 
     m.add_class::<wallet::core::tx::generator::generator::PyGenerator>()?;

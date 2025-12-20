@@ -283,3 +283,11 @@ define_py_enum!(PyOpcodes, "Opcodes", Opcodes, {
     OpPubKey = 0xfe,
     OpInvalidOpCode = 0xff,
 });
+
+#[pymethods]
+impl PyOpcodes {
+    #[getter]
+    pub fn value(&self) -> u8 {
+        self.clone() as u8
+    }
+}

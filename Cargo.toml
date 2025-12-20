@@ -15,7 +15,7 @@ kaspa-hashes = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "482
 kaspa-notify = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
 kaspa-rpc-core = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
 kaspa-rpc-macros = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
-kaspa-txscript = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
+kaspa-txscript = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38", features = ["wasm32-sdk"]}
 kaspa-utils = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
 kaspa-wallet-core = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }
 kaspa-wallet-keys = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "4826b38" }

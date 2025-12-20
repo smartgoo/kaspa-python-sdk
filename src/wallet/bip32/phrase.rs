@@ -1,6 +1,5 @@
 use crate::wallet::bip32::language::PyLanguage;
 use kaspa_bip32::{Error, Language, Mnemonic};
-use kaspa_utils::hex::FromHex;
 use pyo3::{exceptions::PyException, prelude::*};
 use workflow_core::hex::ToHex;
 

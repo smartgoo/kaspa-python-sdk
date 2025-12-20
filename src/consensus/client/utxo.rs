@@ -1,6 +1,6 @@
 use super::outpoint::PyTransactionOutpoint;
 use crate::{address::PyAddress, consensus::core::script_public_key::PyScriptPublicKey};
-use kaspa_consensus_client::{UtxoEntries, UtxoEntry, UtxoEntryReference};
+use kaspa_consensus_client::{UtxoEntry, UtxoEntryReference};
 use kaspa_utils::hex::FromHex;
 use pyo3::{
     exceptions::{PyException, PyKeyError},

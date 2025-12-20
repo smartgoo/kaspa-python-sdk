@@ -7,14 +7,15 @@ use kaspa_wallet_core::tx::{MAXIMUM_STANDARD_TRANSACTION_MASS, mass};
 // use pyo3::prelude::*;
 
 #[pyfunction]
-pub fn maximum_standard_transaction_mass() -> u64 {
+#[pyo3(name = "maximum_standard_transaction_mass")]
+pub fn py_maximum_standard_transaction_mass() -> u64 {
     MAXIMUM_STANDARD_TRANSACTION_MASS
 }
 
 #[pyfunction]
 #[pyo3(name = "calculate_transaction_mass")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
-pub fn calculate_unsigned_transaction_mass(
+pub fn py_calculate_unsigned_transaction_mass(
     network_id: &str,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
@@ -33,7 +34,7 @@ pub fn calculate_unsigned_transaction_mass(
 #[pyfunction]
 #[pyo3(name = "update_transaction_mass")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
-pub fn update_unsigned_transaction_mass(
+pub fn py_update_unsigned_transaction_mass(
     network_id: &str,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
@@ -57,7 +58,7 @@ pub fn update_unsigned_transaction_mass(
 #[pyfunction]
 #[pyo3(name = "calculate_transaction_fee")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
-pub fn calculate_unsigned_transaction_fee(
+pub fn py_calculate_unsigned_transaction_fee(
     network_id: &str,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
@@ -80,7 +81,8 @@ pub fn calculate_unsigned_transaction_fee(
 }
 
 #[pyfunction]
-pub fn calculate_storage_mass(
+#[pyo3(name = "calculate_storage_mass")]
+pub fn py_calculate_storage_mass(
     network_id: &str,
     input_values: Vec<u64>,
     output_values: Vec<u64>,

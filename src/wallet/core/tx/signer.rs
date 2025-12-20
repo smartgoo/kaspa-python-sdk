@@ -35,8 +35,9 @@ pub fn py_sign_transaction(
 }
 
 #[pyfunction]
+#[pyo3(name = "create_input_signature")]
 #[pyo3(signature = (tx, input_index, private_key, sighash_type=None))]
-pub fn create_input_signature(
+pub fn py_create_input_signature(
     tx: &PyTransaction,
     input_index: u8,
     private_key: &PyPrivateKey,
@@ -60,7 +61,8 @@ pub fn create_input_signature(
 }
 
 #[pyfunction]
-pub fn sign_script_hash(script_hash: String, privkey: &PyPrivateKey) -> PyResult<String> {
+#[pyo3(name = "create_input_signature")]
+pub fn py_sign_script_hash(script_hash: String, privkey: &PyPrivateKey) -> PyResult<String> {
     let script_hash = PyHash::try_from(script_hash)?;
     let privkey: PrivateKey = privkey.clone().into();
     let result = sign_hash(script_hash.into(), &(&(privkey)).into())

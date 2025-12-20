@@ -24,31 +24,31 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<consensus::client::utxo::PyUtxoEntryReference>()?;
 
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::address_from_script_public_key,
+        consensus::client::utils::py_address_from_script_public_key,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::pay_to_address_script,
+        consensus::client::utils::py_pay_to_address_script,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::pay_to_script_hash_script,
+        consensus::client::utils::py_pay_to_script_hash_script,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::pay_to_script_hash_signature_script,
+        consensus::client::utils::py_pay_to_script_hash_signature_script,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::is_script_pay_to_pubkey,
+        consensus::client::utils::py_is_script_pay_to_pubkey,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::is_script_pay_to_pubkey_ecdsa,
+        consensus::client::utils::py_is_script_pay_to_pubkey_ecdsa,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        consensus::client::utils::is_script_pay_to_script_hash,
+        consensus::client::utils::py_is_script_pay_to_script_hash,
         m
     )?)?;
 
@@ -60,7 +60,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<wallet::bip32::phrase::PyMnemonic>()?;
     m.add_class::<wallet::core::account::kind::PyAccountKind>()?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::derivation::create_multisig_address_py,
+        wallet::core::derivation::py_create_multisig_address,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
@@ -68,18 +68,18 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::signer::create_input_signature,
+        wallet::core::tx::signer::py_create_input_signature,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::signer::sign_script_hash,
+        wallet::core::tx::signer::py_sign_script_hash,
         m
     )?)?;
 
-    m.add_function(wrap_pyfunction!(wallet::core::utils::kaspa_to_sompi, m)?)?;
-    m.add_function(wrap_pyfunction!(wallet::core::utils::sompi_to_kaspa, m)?)?;
+    m.add_function(wrap_pyfunction!(wallet::core::utils::py_kaspa_to_sompi, m)?)?;
+    m.add_function(wrap_pyfunction!(wallet::core::utils::py_sompi_to_kaspa, m)?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::utils::sompi_to_kaspa_string_with_suffix,
+        wallet::core::utils::py_sompi_to_kaspa_string_with_suffix,
         m
     )?)?;
 
@@ -92,38 +92,38 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<wallet::core::tx::generator::summary::PyGeneratorSummary>()?;
 
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::maximum_standard_transaction_mass,
+        wallet::core::tx::mass::py_maximum_standard_transaction_mass,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::calculate_unsigned_transaction_fee,
+        wallet::core::tx::mass::py_calculate_unsigned_transaction_fee,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::calculate_unsigned_transaction_mass,
+        wallet::core::tx::mass::py_calculate_unsigned_transaction_mass,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::calculate_storage_mass,
+        wallet::core::tx::mass::py_calculate_storage_mass,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::mass::update_unsigned_transaction_mass,
+        wallet::core::tx::mass::py_update_unsigned_transaction_mass,
         m
     )?)?;
 
     m.add_class::<wallet::core::tx::payment::PyPaymentOutput>()?;
 
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::create_transaction,
+        wallet::core::tx::utils::py_create_transaction,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::create_transactions,
+        wallet::core::tx::utils::py_create_transactions,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::estimate_transactions,
+        wallet::core::tx::utils::py_estimate_transactions,
         m
     )?)?;
 

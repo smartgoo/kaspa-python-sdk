@@ -12,7 +12,7 @@ use crate::{
 #[pyfunction]
 #[pyo3(name = "create_multisig_address")]
 #[pyo3(signature = (minimum_signatures, keys, network_type, ecdsa=false, account_kind=None))]
-pub fn create_multisig_address_py(
+pub fn py_create_multisig_address(
     minimum_signatures: usize,
     keys: Vec<PyPublicKey>,
     network_type: &str,

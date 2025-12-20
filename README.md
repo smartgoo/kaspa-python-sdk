@@ -76,13 +76,13 @@ More detailed examples can be found in `./examples`.
 ## Bindings Approach/Design
 
 ### Overview
-This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The current approach can be summarized as:
+This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The general approach can be summarized as:
 - Wrappers should perform only type conversion to/from RK native (to the extent possible).
 - When logic is needed, RK native logic should be used (to the extent possible).
 
-In some areas, due limitations and/or Python interface requirements, this approach does not work (or partially works), resulting in new implementation/re-implementation/etc.
+In some areas, due limitations and/or Python interface requirements, this approach works to varying degrees. Which results in new implementation/re-implementation/etc.
 
-All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix. Rust utility/helper functions are exposed as well.
+All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix. Functions exposed to Python are prefixed with `py_`.
 
 The [newtype pattern](https://doc.rust-lang.org/rust-by-example/generics/new_types.html) is used extensively. Methods of the wrapped RK native struct are then leveraged as much as possible, typically by also wrapping the methods themselves for exposure to Python.
 

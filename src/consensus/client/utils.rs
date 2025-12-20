@@ -8,17 +8,20 @@ use std::str::FromStr;
 use workflow_core::hex::ToHex;
 
 #[pyfunction]
-pub fn pay_to_address_script(address: PyAddress) -> PyResult<PyScriptPublicKey> {
+#[pyo3(name = "pay_to_address_script")]
+pub fn py_pay_to_address_script(address: PyAddress) -> PyResult<PyScriptPublicKey> {
     Ok(standard::pay_to_address_script(&address.into()).into())
 }
 
 #[pyfunction]
-pub fn pay_to_script_hash_script(redeem_script: PyBinary) -> PyResult<PyScriptPublicKey> {
+#[pyo3(name = "pay_to_script_hash_script")]
+pub fn py_pay_to_script_hash_script(redeem_script: PyBinary) -> PyResult<PyScriptPublicKey> {
     Ok(standard::pay_to_script_hash_script(redeem_script.data.as_slice()).into())
 }
 
 #[pyfunction]
-pub fn pay_to_script_hash_signature_script(
+#[pyo3(name = "pay_to_script_hash_signature_script")]
+pub fn py_pay_to_script_hash_signature_script(
     redeem_script: PyBinary,
     signature: PyBinary,
 ) -> PyResult<String> {
@@ -28,7 +31,8 @@ pub fn pay_to_script_hash_signature_script(
 }
 
 #[pyfunction]
-pub fn address_from_script_public_key(
+#[pyo3(name = "address_from_script_public_key")]
+pub fn py_address_from_script_public_key(
     script_public_key: PyScriptPublicKey,
     network: &str,
 ) -> PyResult<PyAddress> {
@@ -44,16 +48,19 @@ pub fn address_from_script_public_key(
 }
 
 #[pyfunction]
-pub fn is_script_pay_to_pubkey(script: PyBinary) -> PyResult<bool> {
+#[pyo3(name = "is_script_pay_to_pubkey")]
+pub fn py_is_script_pay_to_pubkey(script: PyBinary) -> PyResult<bool> {
     Ok(ScriptClass::is_pay_to_pubkey(script.data.as_slice()))
 }
 
 #[pyfunction]
-pub fn is_script_pay_to_pubkey_ecdsa(script: PyBinary) -> PyResult<bool> {
+#[pyo3(name = "is_script_pay_to_pubkey_ecdsa")]
+pub fn py_is_script_pay_to_pubkey_ecdsa(script: PyBinary) -> PyResult<bool> {
     Ok(ScriptClass::is_pay_to_pubkey_ecdsa(script.data.as_slice()))
 }
 
 #[pyfunction]
-pub fn is_script_pay_to_script_hash(script: PyBinary) -> PyResult<bool> {
+#[pyo3(name = "is_script_pay_to_script_hash")]
+pub fn py_is_script_pay_to_script_hash(script: PyBinary) -> PyResult<bool> {
     Ok(ScriptClass::is_pay_to_script_hash(script.data.as_slice()))
 }

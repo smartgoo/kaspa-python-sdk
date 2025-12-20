@@ -19,6 +19,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<consensus::client::outpoint::PyTransactionOutpoint>()?;
     m.add_class::<consensus::client::output::PyTransactionOutput>()?;
     m.add_class::<consensus::client::utxo::PyUtxoEntry>()?;
+    m.add_class::<consensus::client::utxo::PyUtxoEntries>()?;
     m.add_class::<consensus::client::utxo::PyUtxoEntryReference>()?;
 
     m.add_function(wrap_pyfunction!(

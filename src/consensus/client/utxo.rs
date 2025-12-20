@@ -1,6 +1,6 @@
 use super::outpoint::PyTransactionOutpoint;
 use crate::{address::PyAddress, consensus::core::script_public_key::PyScriptPublicKey};
-use kaspa_consensus_client::{UtxoEntry, UtxoEntryReference};
+use kaspa_consensus_client::{UtxoEntries, UtxoEntry, UtxoEntryReference};
 use kaspa_utils::hex::FromHex;
 use pyo3::{
     exceptions::{PyException, PyKeyError},
@@ -58,6 +58,42 @@ impl From<UtxoEntry> for PyUtxoEntry {
     }
 }
 
+#[pyclass(name = "UtxoEntries")]
+#[derive(Clone)]
+pub struct PyUtxoEntries(Arc<Vec<UtxoEntryReference>>);
+
+#[pymethods]
+impl PyUtxoEntries {
+    #[getter]
+    #[pyo3(name = "items")]
+    pub fn get_items_as_py_list(&self) -> Vec<PyUtxoEntryReference> {
+        self.0
+            .as_ref()
+            .clone()
+            .into_iter()
+            .map(PyUtxoEntryReference::from)
+            .collect()
+    }
+
+    #[setter]
+    #[pyo3(name = "items")]
+    pub fn set_items_from_py_list(&mut self, v: Vec<PyUtxoEntryReference>) {
+        self.0 = Arc::new(v.iter().map(UtxoEntryReference::from).collect());
+    }
+
+    #[pyo3(name = "sort")]
+    pub fn sort_py(&mut self) {
+        let mut items = (*self.0).clone();
+        items.sort_by_key(|e| e.amount());
+        self.0 = Arc::new(items);
+    }
+
+    #[pyo3(name = "amount")]
+    pub fn amount_py(&self) -> u64 {
+        self.0.iter().map(|e| e.amount()).sum()
+    }
+}
+
 #[pyclass(name = "UtxoEntryReference")]
 #[derive(Clone)]
 pub struct PyUtxoEntryReference(pub UtxoEntryReference);
@@ -103,6 +139,12 @@ impl PyUtxoEntryReference {
 impl From<PyUtxoEntryReference> for UtxoEntryReference {
     fn from(value: PyUtxoEntryReference) -> Self {
         value.0
+    }
+}
+
+impl From<&PyUtxoEntryReference> for UtxoEntryReference {
+    fn from(value: &PyUtxoEntryReference) -> Self {
+        value.0.clone()
     }
 }
 

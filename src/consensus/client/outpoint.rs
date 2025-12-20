@@ -10,7 +10,7 @@ pub struct PyTransactionOutpoint(pub TransactionOutpoint);
 #[pymethods]
 impl PyTransactionOutpoint {
     #[new]
-    pub fn ctor_py(transaction_id: PyTransactionId, index: u32) -> PyTransactionOutpoint {
+    pub fn ctor(transaction_id: PyTransactionId, index: u32) -> PyTransactionOutpoint {
         let inner = TransactionOutpoint::new(transaction_id.into(), index);
         PyTransactionOutpoint(inner)
     }

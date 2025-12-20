@@ -54,7 +54,7 @@ impl PyPrivateKey {
     }
 
     #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa_py(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
         // let public_key = secp256k1::PublicKey::from_secret_key_global(&self.inner);
         let public_key = self
             .0
@@ -72,7 +72,7 @@ impl PyPrivateKey {
     }
 
     #[pyo3(name = "to_keypair")]
-    pub fn to_keypair_py(&self) -> PyResult<PyKeypair> {
+    pub fn to_keypair(&self) -> PyResult<PyKeypair> {
         PyKeypair::from_private_key(self).map_err(|err| PyException::new_err(err.to_string()))
     }
 }

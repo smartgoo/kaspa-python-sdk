@@ -66,7 +66,7 @@ pub struct PyUtxoEntries(Arc<Vec<UtxoEntryReference>>);
 impl PyUtxoEntries {
     #[getter]
     #[pyo3(name = "items")]
-    pub fn get_items_as_py_list(&self) -> Vec<PyUtxoEntryReference> {
+    pub fn get_items_as_list(&self) -> Vec<PyUtxoEntryReference> {
         self.0
             .as_ref()
             .clone()
@@ -77,19 +77,19 @@ impl PyUtxoEntries {
 
     #[setter]
     #[pyo3(name = "items")]
-    pub fn set_items_from_py_list(&mut self, v: Vec<PyUtxoEntryReference>) {
+    pub fn set_items_from_list(&mut self, v: Vec<PyUtxoEntryReference>) {
         self.0 = Arc::new(v.iter().map(UtxoEntryReference::from).collect());
     }
 
     #[pyo3(name = "sort")]
-    pub fn sort_py(&mut self) {
+    pub fn sort(&mut self) {
         let mut items = (*self.0).clone();
         items.sort_by_key(|e| e.amount());
         self.0 = Arc::new(items);
     }
 
     #[pyo3(name = "amount")]
-    pub fn amount_py(&self) -> u64 {
+    pub fn amount(&self) -> u64 {
         self.0.iter().map(|e| e.amount()).sum()
     }
 }

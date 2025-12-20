@@ -10,7 +10,7 @@ pub struct PyAccountKind(pub AccountKind);
 #[pymethods]
 impl PyAccountKind {
     #[new]
-    pub fn ctor_py(kind: &str) -> PyResult<PyAccountKind> {
+    pub fn ctor(kind: &str) -> PyResult<PyAccountKind> {
         let inner =
             AccountKind::from_str(kind).map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(PyAccountKind(inner))

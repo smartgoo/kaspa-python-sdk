@@ -12,7 +12,7 @@ use kaspa_wallet_core::result::Result;
 #[pyfunction]
 #[pyo3(name = "create_transaction")]
 #[pyo3(signature = (utxo_entry_source, outputs, priority_fee, payload=None, sig_op_count=None))]
-pub fn create_transaction_py(
+pub fn create_transaction(
     utxo_entry_source: PyUtxoEntries,
     outputs: PyOutputs,
     priority_fee: u64,
@@ -74,7 +74,7 @@ pub fn create_transaction_py(
 #[pyfunction]
 #[pyo3(name = "create_transactions")]
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
-pub fn create_transactions_py<'a>(
+pub fn create_transactions<'a>(
     py: Python<'a>,
     network_id: &str,
     entries: PyUtxoEntries,
@@ -115,7 +115,7 @@ pub fn create_transactions_py<'a>(
 #[pyfunction]
 #[pyo3(name = "estimate_transactions")]
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
-pub fn estimate_transactions_py(
+pub fn estimate_transactions(
     network_id: &str,
     entries: PyUtxoEntries,
     change_address: PyAddress,

@@ -20,12 +20,12 @@ pub struct PyTransaction(pub Transaction);
 #[pymethods]
 impl PyTransaction {
     #[pyo3(name = "is_coinbase")]
-    pub fn is_coinbase_py(&self) -> bool {
+    pub fn is_coinbase(&self) -> bool {
         self.0.inner().subnetwork_id == subnets::SUBNETWORK_ID_COINBASE
     }
 
     #[pyo3(name = "finalize")]
-    pub fn finalize_py(&self) -> PyResult<PyTransactionId> {
+    pub fn finalize(&self) -> PyResult<PyTransactionId> {
         let tx: cctx::Transaction = self.into();
         self.0.inner().id = tx.id();
         Ok(self.0.inner().id.into())
@@ -33,12 +33,12 @@ impl PyTransaction {
 
     #[getter]
     #[pyo3(name = "id")]
-    pub fn id_string_py(&self) -> String {
+    pub fn id_string(&self) -> String {
         self.0.inner().id.to_string()
     }
 
     #[new]
-    pub fn constructor_py(
+    pub fn constructor(
         version: u16,
         inputs: Vec<PyTransactionInput>,
         outputs: Vec<PyTransactionOutput>,
@@ -71,7 +71,7 @@ impl PyTransaction {
 
     #[getter]
     #[pyo3(name = "inputs")]
-    pub fn get_inputs_as_py_list(&self) -> PyResult<Vec<PyTransactionInput>> {
+    pub fn get_inputs_as_list(&self) -> PyResult<Vec<PyTransactionInput>> {
         Ok(self
             .0
             .inner()
@@ -84,12 +84,12 @@ impl PyTransaction {
 
     #[setter]
     #[pyo3(name = "inputs")]
-    pub fn set_inputs_from_py_list(&mut self, v: Vec<PyTransactionInput>) {
+    pub fn set_inputs_from_list(&mut self, v: Vec<PyTransactionInput>) {
         self.0.inner().inputs = v.into_iter().map(TransactionInput::from).collect();
     }
 
     #[pyo3(name = "addresses")]
-    pub fn addresses_py(&self, network_type: &str) -> PyResult<Vec<PyAddress>> {
+    pub fn addresses(&self, network_type: &str) -> PyResult<Vec<PyAddress>> {
         let network_type = NetworkType::from_str(network_type)
             .map_err(|err| PyException::new_err(err.to_string()))?;
         let mut list = std::collections::HashSet::new();
@@ -110,7 +110,7 @@ impl PyTransaction {
 
     #[getter]
     #[pyo3(name = "outputs")]
-    pub fn get_outputs_as_py_list(&self) -> PyResult<Vec<PyTransactionOutput>> {
+    pub fn get_outputs_as_list(&self) -> PyResult<Vec<PyTransactionOutput>> {
         Ok(self
             .0
             .inner()
@@ -123,55 +123,55 @@ impl PyTransaction {
 
     #[setter]
     #[pyo3(name = "outputs")]
-    pub fn set_outputs_from_py_list(&mut self, v: Vec<PyTransactionOutput>) {
+    pub fn set_outputs_from_list(&mut self, v: Vec<PyTransactionOutput>) {
         self.0.inner().outputs = v.into_iter().map(TransactionOutput::from).collect();
     }
 
     #[getter]
     #[pyo3(name = "version")]
-    pub fn get_version_py(&self) -> u16 {
+    pub fn get_version(&self) -> u16 {
         self.0.inner().version
     }
 
     #[setter]
     #[pyo3(name = "version")]
-    pub fn set_version_py(&mut self, v: u16) {
+    pub fn set_version(&mut self, v: u16) {
         self.0.inner().version = v;
     }
 
     #[getter]
     #[pyo3(name = "lock_time")]
-    pub fn get_lock_time_py(&self) -> u64 {
+    pub fn get_lock_time(&self) -> u64 {
         self.0.inner().lock_time
     }
 
     #[setter]
     #[pyo3(name = "lock_time")]
-    pub fn set_lock_time_py(&mut self, v: u64) {
+    pub fn set_lock_time(&mut self, v: u64) {
         self.0.inner().lock_time = v;
     }
 
     #[getter]
     #[pyo3(name = "gas")]
-    pub fn get_gas_py(&self) -> u64 {
+    pub fn get_gas(&self) -> u64 {
         self.0.inner().gas
     }
 
     #[setter]
     #[pyo3(name = "gas")]
-    pub fn set_gas_py(&mut self, v: u64) {
+    pub fn set_gas(&mut self, v: u64) {
         self.0.inner().gas = v;
     }
 
     #[getter]
     #[pyo3(name = "subnetwork_id")]
-    pub fn get_subnetwork_id_as_hex_py(&self) -> String {
+    pub fn get_subnetwork_id_as_hex(&self) -> String {
         self.0.inner().subnetwork_id.to_string()
     }
 
     #[setter]
     #[pyo3(name = "subnetwork_id")]
-    pub fn set_subnetwork_id_from_py_value(&mut self, v: &str) -> PyResult<()> {
+    pub fn set_subnetwork_id_from_value(&mut self, v: &str) -> PyResult<()> {
         let subnetwork_id = Vec::from_hex(v)
             .unwrap_or_else(|err| panic!("subnetwork_id decode error {}", err))
             .as_slice()
@@ -185,25 +185,25 @@ impl PyTransaction {
 
     #[getter]
     #[pyo3(name = "payload")]
-    pub fn get_payload_as_hex_string_py(&self) -> String {
+    pub fn get_payload_as_hex_string(&self) -> String {
         self.0.inner().payload.to_hex()
     }
 
     #[setter]
     #[pyo3(name = "payload")]
-    pub fn set_payload_from_py_value(&mut self, v: PyBinary) {
+    pub fn set_payload_from_value(&mut self, v: PyBinary) {
         self.0.inner().payload = v.into();
     }
 
     #[getter]
     #[pyo3(name = "mass")]
-    pub fn get_mass_py(&self) -> u64 {
+    pub fn get_mass(&self) -> u64 {
         self.0.inner().mass
     }
 
     #[setter]
     #[pyo3(name = "mass")]
-    pub fn set_mass_py(&self, v: u64) {
+    pub fn set_mass(&self, v: u64) {
         self.0.inner().mass = v;
     }
 }

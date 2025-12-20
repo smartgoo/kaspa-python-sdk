@@ -20,7 +20,7 @@ impl PyPublicKeyGenerator {
     #[staticmethod]
     #[pyo3(name = "from_xpub")]
     #[pyo3(signature = (kpub, cosigner_index=None))]
-    fn from_xpub_py(kpub: &str, cosigner_index: Option<u32>) -> PyResult<PyPublicKeyGenerator> {
+    fn from_xpub(kpub: &str, cosigner_index: Option<u32>) -> PyResult<PyPublicKeyGenerator> {
         let kpub = XPub::try_new(kpub).map_err(|err| PyException::new_err(err.to_string()))?;
         let xpub = kpub.inner();
         let hd_wallet =
@@ -32,7 +32,7 @@ impl PyPublicKeyGenerator {
     #[staticmethod]
     #[pyo3(name = "from_master_xprv")]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
-    fn from_master_xprv_py(
+    fn from_master_xprv(
         xprv: String,
         is_multisig: bool,
         account_index: u64,
@@ -54,7 +54,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_pubkeys")]
-    fn receive_pubkeys_py(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
+    fn receive_pubkeys(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
         if start > end {
             (start, end) = (end, start)
         }
@@ -70,7 +70,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_pubkey")]
-    pub fn receive_pubkey_py(&self, index: u32) -> PyResult<PyPublicKey> {
+    pub fn receive_pubkey(&self, index: u32) -> PyResult<PyPublicKey> {
         let inner = self
             .hd_wallet
             .receive_pubkey_manager()
@@ -82,7 +82,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_pubkeys_as_strings")]
-    fn receive_pubkeys_as_strings_py(&self, mut start: u32, mut end: u32) -> PyResult<Vec<String>> {
+    fn receive_pubkeys_as_strings(&self, mut start: u32, mut end: u32) -> PyResult<Vec<String>> {
         if start > end {
             (start, end) = (end, start);
         }
@@ -98,7 +98,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_pubkey_as_string")]
-    pub fn receive_pubkey_as_string_py(&self, index: u32) -> PyResult<String> {
+    pub fn receive_pubkey_as_string(&self, index: u32) -> PyResult<String> {
         Ok(self
             .hd_wallet
             .receive_pubkey_manager()
@@ -108,7 +108,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_addresses")]
-    fn receive_addresses_py(
+    fn receive_addresses(
         &self,
         network_type: &str,
         mut start: u32,
@@ -134,7 +134,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_address")]
-    fn receive_address_py(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
+    fn receive_address(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
         let network_type = NetworkType::from_str(network_type)
             .map_err(|err| PyException::new_err(err.to_string()))?;
         let inner = PublicKey::from(
@@ -150,7 +150,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_addresses_as_strings")]
-    fn receive_addresses_as_strings_py(
+    fn receive_addresses_as_strings(
         &self,
         network_type: &str,
         mut start: u32,
@@ -178,7 +178,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_address_as_string")]
-    fn receive_address_as_string_py(&self, network_type: &str, index: u32) -> PyResult<String> {
+    fn receive_address_as_string(&self, network_type: &str, index: u32) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
@@ -194,7 +194,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_pubkeys")]
-    pub fn change_pubkeys_py(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
+    pub fn change_pubkeys(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
         if start > end {
             (start, end) = (end, start);
         }
@@ -212,7 +212,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_pubkey")]
-    pub fn change_pubkey_py(&self, index: u32) -> PyResult<PyPublicKey> {
+    pub fn change_pubkey(&self, index: u32) -> PyResult<PyPublicKey> {
         let inner: PublicKey = self
             .hd_wallet
             .change_pubkey_manager()
@@ -224,11 +224,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_pubkeys_as_strings")]
-    pub fn change_pubkeys_as_strings_py(
-        &self,
-        mut start: u32,
-        mut end: u32,
-    ) -> PyResult<Vec<String>> {
+    pub fn change_pubkeys_as_strings(&self, mut start: u32, mut end: u32) -> PyResult<Vec<String>> {
         if start > end {
             (start, end) = (end, start);
         }
@@ -244,7 +240,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_pubkey_as_string")]
-    pub fn change_pubkey_as_string_py(&self, index: u32) -> PyResult<String> {
+    pub fn change_pubkey_as_string(&self, index: u32) -> PyResult<String> {
         Ok(self
             .hd_wallet
             .change_pubkey_manager()
@@ -254,7 +250,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_addresses")]
-    pub fn change_addresses_py(
+    pub fn change_addresses(
         &self,
         network_type: &str,
         mut start: u32,
@@ -280,7 +276,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_address")]
-    pub fn change_address_py(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
+    pub fn change_address(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
         let network_type = NetworkType::from_str(network_type)
             .map_err(|err| PyException::new_err(err.to_string()))?;
         let inner = PublicKey::from(
@@ -296,7 +292,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_addresses_as_strings")]
-    pub fn change_addresses_as_strings_py(
+    pub fn change_addresses_as_strings(
         &self,
         network_type: &str,
         mut start: u32,
@@ -324,7 +320,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_address_as_string")]
-    pub fn change_address_as_string_py(&self, network_type: &str, index: u32) -> PyResult<String> {
+    pub fn change_address_as_string(&self, network_type: &str, index: u32) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
@@ -340,7 +336,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "to_string")]
-    pub fn to_string_py(&self) -> PyResult<String> {
+    pub fn to_string(&self) -> PyResult<String> {
         Ok(self.hd_wallet.to_string(None).to_string())
     }
 }

@@ -9,7 +9,7 @@ pub struct PyHash(pub Hash);
 #[pymethods]
 impl PyHash {
     #[new]
-    pub fn constructor_py(hex_str: &str) -> PyResult<Self> {
+    pub fn constructor(hex_str: &str) -> PyResult<Self> {
         let inner =
             Hash::from_str(hex_str).map_err(|err| PyException::new_err(format!("{}", err)))?;
         Ok(PyHash(inner))

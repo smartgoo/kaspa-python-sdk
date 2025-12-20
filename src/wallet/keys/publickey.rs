@@ -19,7 +19,7 @@ impl PyPublicKey {
     }
 
     #[pyo3(name = "to_string")]
-    pub fn to_string_impl_py(&self) -> String {
+    pub fn to_string_impl(&self) -> String {
         self.0
             .public_key
             .as_ref()
@@ -28,7 +28,7 @@ impl PyPublicKey {
     }
 
     #[pyo3(name = "to_address")]
-    pub fn to_address_py(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address(
@@ -40,7 +40,7 @@ impl PyPublicKey {
     }
 
     #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa_py(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address_ecdsa(
@@ -52,12 +52,12 @@ impl PyPublicKey {
     }
 
     #[pyo3(name = "to_x_only_public_key")]
-    pub fn to_x_only_public_key_py(&self) -> PyXOnlyPublicKey {
+    pub fn to_x_only_public_key(&self) -> PyXOnlyPublicKey {
         PyXOnlyPublicKey(self.0.xonly_public_key.into())
     }
 
     #[pyo3(name = "fingerprint")]
-    pub fn fingerprint_py(&self) -> Option<String> {
+    pub fn fingerprint(&self) -> Option<String> {
         // if let Some(public_key) = self.0.public_key.as_ref() {
         //     let digest = Ripemd160::digest(Sha256::digest(public_key.serialize().as_slice()));
         //     Some(digest[..4].as_ref().to_hex().into())

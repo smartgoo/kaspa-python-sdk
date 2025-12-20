@@ -4,7 +4,6 @@ use crate::rpc::notification::PyNotification;
 use crate::rpc::wrpc::resolver::PyResolver;
 use ahash::AHashMap;
 use futures::*;
-// use kaspa_addresses::Address;
 use kaspa_notify::listener::ListenerId;
 use kaspa_notify::notification::Notification;
 use kaspa_notify::scope::{
@@ -16,7 +15,6 @@ use kaspa_notify::{connection::ChannelType, events::EventType};
 use kaspa_rpc_core::api::rpc::RpcApi;
 use kaspa_rpc_core::model::*;
 use kaspa_rpc_core::notify::connection::ChannelConnection;
-// use kaspa_rpc_macros::{build_wrpc_python_interface, build_wrpc_python_subscriptions};
 use kaspa_wrpc_client::{
     KaspaRpcClient, WrpcEncoding, client::ConnectOptions, error::Error, prelude::*, result::Result,
 };

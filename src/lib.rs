@@ -115,15 +115,15 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<wallet::core::tx::payment::PyPaymentOutput>()?;
 
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::create_transaction_py,
+        wallet::core::tx::utils::create_transaction,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::create_transactions_py,
+        wallet::core::tx::utils::create_transactions,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
-        wallet::core::tx::utils::estimate_transactions_py,
+        wallet::core::tx::utils::estimate_transactions,
         m
     )?)?;
 

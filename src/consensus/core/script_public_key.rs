@@ -11,14 +11,14 @@ pub struct PyScriptPublicKey(pub ScriptPublicKey);
 #[pymethods]
 impl PyScriptPublicKey {
     #[new]
-    pub fn constructor_py(version: u16, script: PyBinary) -> PyResult<PyScriptPublicKey> {
+    pub fn constructor(version: u16, script: PyBinary) -> PyResult<PyScriptPublicKey> {
         let inner = ScriptPublicKey::new(version, script.data.into());
         Ok(PyScriptPublicKey(inner))
     }
 
     #[getter]
     #[pyo3(name = "script")]
-    pub fn script_as_hex_py(&self) -> String {
+    pub fn script_as_hex(&self) -> String {
         // self.0.script.to_hex()
         self.0.script_as_hex()
     }

@@ -10,32 +10,32 @@ pub struct PyTransactionOutput(pub TransactionOutput);
 #[pymethods]
 impl PyTransactionOutput {
     #[new]
-    pub fn ctor_py(value: u64, script_public_key: PyScriptPublicKey) -> PyTransactionOutput {
+    pub fn ctor(value: u64, script_public_key: PyScriptPublicKey) -> PyTransactionOutput {
         let inner = TransactionOutput::new(value, script_public_key.into());
         PyTransactionOutput(inner)
     }
 
     #[getter]
     #[pyo3(name = "value")]
-    pub fn get_value_py(&self) -> u64 {
+    pub fn get_value(&self) -> u64 {
         self.0.inner().value
     }
 
     #[setter]
     #[pyo3(name = "value")]
-    pub fn set_value_py(&self, v: u64) {
+    pub fn set_value(&self, v: u64) {
         self.0.inner().value = v;
     }
 
     #[getter]
     #[pyo3(name = "script_public_key")]
-    pub fn get_script_public_key_py(&self) -> PyScriptPublicKey {
+    pub fn get_script_public_key(&self) -> PyScriptPublicKey {
         self.0.inner().script_public_key.clone().into()
     }
 
     #[setter]
     #[pyo3(name = "script_public_key")]
-    pub fn set_script_public_key_py(&self, v: PyScriptPublicKey) {
+    pub fn set_script_public_key(&self, v: PyScriptPublicKey) {
         self.0.inner().script_public_key = v.clone().into();
     }
 }

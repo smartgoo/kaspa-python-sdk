@@ -18,7 +18,7 @@ pub struct PyPrivateKeyGenerator {
 impl PyPrivateKeyGenerator {
     #[new]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
-    pub fn new_py(
+    pub fn new(
         xprv: String,
         is_multisig: bool,
         account_index: u64,

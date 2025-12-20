@@ -53,6 +53,12 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<consensus::core::hashing::PySighashType>()?;
     m.add_class::<consensus::core::script_public_key::PyScriptPublicKey>()?;
     m.add_class::<consensus::core::tx::PyTransactionId>()?;
+
+    m.add_class::<wallet::core::account::kind::PyAccountKind>()?;
+    m.add_function(wrap_pyfunction!(
+        wallet::core::derivation::create_multisig_address_py,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(
         wallet::core::tx::signer::py_sign_transaction,
         m

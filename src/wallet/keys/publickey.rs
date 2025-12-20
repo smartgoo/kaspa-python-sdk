@@ -74,6 +74,12 @@ impl From<PublicKey> for PyPublicKey {
     }
 }
 
+impl From<PyPublicKey> for PublicKey {
+    fn from(value: PyPublicKey) -> Self {
+        value.0
+    }
+}
+
 #[pyclass(name = "XOnlyPublicKey")]
 pub struct PyXOnlyPublicKey(XOnlyPublicKey);
 

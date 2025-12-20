@@ -1,14 +1,16 @@
-> [!WARNING]
-> This repository is currently in proof of concept status. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.
+> [!CAUTION]
+> **This repository is a proof of concept. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.**
 >
-> Do NOT use this in production.
+> **Do NOT use this repository.**
+> 
+> **The current `kaspa` Python package source can be found [here](https://github.com/aspectron/rusty-kaspa/tree/python).**
 
 # Kaspa Python SDK
 The Rusty-Kaspa Python SDK exposes select Rusty-Kaspa source for use in Python applications, allowing Python developers to interact with the Kaspa BlockDAG.
 
 The resulting Python package `kaspa` is a native extensino module, built from Rust wrappers around Rusty-Kaspa's Rust source code using [PyO3](https://pyo3.rs/v0.20.0/) and [Maturin](https://www.maturin.rs).
 
-> [!WARNING]
+> [!IMPORTANT]
 > The Kaspa Python SDK is currently in Beta (maybe even Alpha in some regards) status. Please use accordingly.
 
 ## Features
@@ -22,7 +24,15 @@ The following main feature categories are currently exposed for use from Python:
 This package does not yet fully mirror WASM SDK, gaps mostly exist around wallet functionality. Future work will bring this as close as possible. Potential future features include the ability to read Rusty-Kaspa's RocksDB database, specific exceptions, etc.
 
 ## Installing
-This package can currently be installed from source or from PyPi. With any crypto project, it's always recommended to install from source when possible.
+
+> [!CAUTION]
+> **This repository is a proof of concept. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.**
+>
+> **Do NOT use this repository.**
+> 
+> **The current `kaspa` Python package source can be found [here](https://github.com/aspectron/rusty-kaspa/tree/python).**
+
+This package can currently be installed from source or from PyPi. With any crypto project, it's recommended to install from source when possible.
 
 ### Installing from PyPi
 `pip install kaspa`

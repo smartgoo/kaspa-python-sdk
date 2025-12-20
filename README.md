@@ -78,6 +78,8 @@ This repository relies on various features in RK native that are gated behind WA
 
 There are a handful of limitations that cause the need to reimplement code entirely in this repository. Those are detailed below.
 
+The directory structure of this project approximately mirrors that of rusty-kaspa's workspace. This is likely to change but currently makes development easier.
+
 ### Newtype pattern example
 
 For example:

@@ -91,7 +91,7 @@ impl PyXPrv {
     pub fn to_xpub(&self) -> PyResult<PyXPub> {
         let public_key = self.0.public_key();
         let inner = XPub::from(public_key);
-        Ok(PyXPub(inner))
+        Ok(PyXPub::new(inner))
     }
 
     pub fn to_private_key(&self) -> PyResult<PyPrivateKey> {

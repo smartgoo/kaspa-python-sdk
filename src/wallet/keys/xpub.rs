@@ -9,7 +9,13 @@ use workflow_core::hex::ToHex;
 
 #[pyclass(name = "XPub")]
 #[derive(Clone)]
-pub struct PyXPub(pub XPub);
+pub struct PyXPub(XPub);
+
+impl PyXPub {
+    pub fn new(xpub: XPub) -> Self {
+        Self(xpub)
+    }
+}
 
 #[pymethods]
 impl PyXPub {
@@ -22,7 +28,6 @@ impl PyXPub {
         Ok(PyXPub(inner))
     }
 
-    #[pyo3(name = "derive_child")]
     #[pyo3(signature = (child_number, hardened = None))]
     pub fn derive_child(&self, child_number: u32, hardened: Option<bool>) -> PyResult<PyXPub> {
         let child_number = ChildNumber::new(child_number, hardened.unwrap_or(false))
@@ -36,7 +41,6 @@ impl PyXPub {
         Ok(PyXPub(inner))
     }
 
-    #[pyo3(name = "derive_path")]
     pub fn derive_path(&self, path: &str) -> PyResult<PyXPub> {
         let path =
             DerivationPath::new(path).map_err(|err| PyException::new_err(err.to_string()))?;
@@ -68,7 +72,6 @@ impl PyXPub {
     }
 
     #[getter]
-    #[pyo3(name = "xpub")]
     pub fn xpub(&self) -> PyResult<String> {
         let str = self
             .0
@@ -79,7 +82,6 @@ impl PyXPub {
     }
 
     #[getter]
-    #[pyo3(name = "depth")]
     pub fn depth(&self) -> u8 {
         self.0.inner().attrs().depth
     }
@@ -91,7 +93,6 @@ impl PyXPub {
     }
 
     #[getter]
-    #[pyo3(name = "child_number")]
     pub fn child_number(&self) -> u32 {
         self.0.inner().attrs().child_number.into()
     }

@@ -13,30 +13,21 @@ crate::wrap_unit_enum_for_py!(PyNetworkType, "NetworkType", NetworkType, {
 #[pymethods]
 impl PyNetworkType {
     pub fn default_rpc_port(&self) -> u16 {
-        match self {
-            PyNetworkType::Mainnet => NetworkType::Mainnet.default_rpc_port(),
-            PyNetworkType::Testnet => NetworkType::Testnet.default_rpc_port(),
-            PyNetworkType::Devnet => NetworkType::Devnet.default_rpc_port(),
-            PyNetworkType::Simnet => NetworkType::Simnet.default_rpc_port(),
-        }
+        NetworkType::from(self).default_rpc_port()
     }
 
     pub fn default_borsh_rpc_port(&self) -> u16 {
-        match self {
-            PyNetworkType::Mainnet => NetworkType::Mainnet.default_rpc_port(),
-            PyNetworkType::Testnet => NetworkType::Testnet.default_rpc_port(),
-            PyNetworkType::Devnet => NetworkType::Devnet.default_rpc_port(),
-            PyNetworkType::Simnet => NetworkType::Simnet.default_rpc_port(),
-        }
+        NetworkType::from(self).default_borsh_rpc_port()
     }
 
     pub fn default_json_rpc_port(&self) -> u16 {
-        match self {
-            PyNetworkType::Mainnet => NetworkType::Mainnet.default_rpc_port(),
-            PyNetworkType::Testnet => NetworkType::Testnet.default_rpc_port(),
-            PyNetworkType::Devnet => NetworkType::Devnet.default_rpc_port(),
-            PyNetworkType::Simnet => NetworkType::Simnet.default_rpc_port(),
-        }
+        NetworkType::from(self).default_json_rpc_port()
+    }
+}
+
+impl From<&PyNetworkType> for NetworkType {
+    fn from(value: &PyNetworkType) -> Self {
+        value.clone().into()
     }
 }
 

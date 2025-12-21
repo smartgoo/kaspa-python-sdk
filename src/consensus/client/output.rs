@@ -10,9 +10,9 @@ pub struct PyTransactionOutput(TransactionOutput);
 #[pymethods]
 impl PyTransactionOutput {
     #[new]
-    pub fn ctor(value: u64, script_public_key: PyScriptPublicKey) -> PyTransactionOutput {
+    pub fn ctor(value: u64, script_public_key: PyScriptPublicKey) -> Self {
         let inner = TransactionOutput::new(value, script_public_key.into());
-        PyTransactionOutput(inner)
+        Self(inner)
     }
 
     #[getter]
@@ -42,7 +42,7 @@ impl PyTransactionOutput {
 
 impl From<TransactionOutput> for PyTransactionOutput {
     fn from(value: TransactionOutput) -> Self {
-        PyTransactionOutput(value)
+        Self(value)
     }
 }
 

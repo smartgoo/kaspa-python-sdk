@@ -11,14 +11,14 @@ pub struct PyMnemonic(Mnemonic);
 impl PyMnemonic {
     #[new]
     #[pyo3(signature = (phrase, language=None))]
-    pub fn constructor(phrase: &str, language: Option<PyLanguage>) -> PyResult<PyMnemonic> {
+    pub fn constructor(phrase: &str, language: Option<PyLanguage>) -> PyResult<Self> {
         let inner = Mnemonic::new(
             phrase,
             language.map(Language::from).unwrap_or(Language::English),
         )
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
-        Ok(PyMnemonic(inner))
+        Ok(Self(inner))
     }
 
     #[staticmethod]
@@ -54,7 +54,7 @@ impl PyMnemonic {
     #[staticmethod]
     #[pyo3(name = "random")]
     #[pyo3(signature = (word_count=None))]
-    pub fn create_random(word_count: Option<u32>) -> PyResult<PyMnemonic> {
+    pub fn create_random(word_count: Option<u32>) -> PyResult<Self> {
         let word_count = word_count.unwrap_or(24) as usize;
         let inner = Mnemonic::random(
             word_count
@@ -63,7 +63,7 @@ impl PyMnemonic {
             Default::default(),
         )
         .map_err(|err: Error| PyException::new_err(err.to_string()))?;
-        Ok(PyMnemonic(inner))
+        Ok(Self(inner))
     }
 
     #[getter]

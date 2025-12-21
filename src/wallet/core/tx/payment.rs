@@ -41,6 +41,6 @@ impl TryFrom<&Bound<'_, PyDict>> for PyPaymentOutput {
 
         let inner = PaymentOutput::new(address.into(), amount);
 
-        Ok(PyPaymentOutput(inner))
+        Ok(Self(inner))
     }
 }

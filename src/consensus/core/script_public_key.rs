@@ -11,9 +11,9 @@ pub struct PyScriptPublicKey(ScriptPublicKey);
 #[pymethods]
 impl PyScriptPublicKey {
     #[new]
-    pub fn constructor(version: u16, script: PyBinary) -> PyResult<PyScriptPublicKey> {
+    pub fn constructor(version: u16, script: PyBinary) -> PyResult<Self> {
         let inner = ScriptPublicKey::new(version, script.data.into());
-        Ok(PyScriptPublicKey(inner))
+        Ok(Self(inner))
     }
 
     #[getter]
@@ -32,7 +32,7 @@ impl From<PyScriptPublicKey> for ScriptPublicKey {
 
 impl From<ScriptPublicKey> for PyScriptPublicKey {
     fn from(value: ScriptPublicKey) -> Self {
-        PyScriptPublicKey(value)
+        Self(value)
     }
 }
 
@@ -42,6 +42,6 @@ impl FromHex for PyScriptPublicKey {
     fn from_hex(hex_str: &str) -> Result<Self, Self::Error> {
         let inner = ScriptPublicKey::from_str(hex_str)
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        Ok(PyScriptPublicKey(inner))
+        Ok(Self(inner))
     }
 }

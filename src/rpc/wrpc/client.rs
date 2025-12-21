@@ -146,9 +146,7 @@ impl Inner {
 
 #[pyclass(name = "RpcClient")]
 #[derive(Clone)]
-pub struct PyRpcClient {
-    inner: Arc<Inner>,
-}
+pub struct PyRpcClient(Arc<Inner>);
 
 impl PyRpcClient {
     pub fn new(
@@ -156,7 +154,7 @@ impl PyRpcClient {
         url: Option<String>,
         encoding: Option<WrpcEncoding>,
         network_id: Option<NetworkId>,
-    ) -> PyResult<PyRpcClient> {
+    ) -> PyResult<Self> {
         let encoding = encoding.unwrap_or(Encoding::Borsh);
         let url = url
             .map(|url| {
@@ -173,17 +171,15 @@ impl PyRpcClient {
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         );
 
-        let rpc_client = PyRpcClient {
-            inner: Arc::new(Inner {
-                client,
-                resolver,
-                notification_task: Arc::new(AtomicBool::new(false)),
-                notification_ctl: DuplexChannel::oneshot(),
-                callbacks: Arc::new(Default::default()),
-                listener_id: Arc::new(Mutex::new(None)),
-                notification_channel: Channel::unbounded(),
-            }),
-        };
+        let rpc_client = PyRpcClient(Arc::new(Inner {
+            client,
+            resolver,
+            notification_task: Arc::new(AtomicBool::new(false)),
+            notification_ctl: DuplexChannel::oneshot(),
+            callbacks: Arc::new(Default::default()),
+            listener_id: Arc::new(Mutex::new(None)),
+            notification_channel: Channel::unbounded(),
+        }));
 
         Ok(rpc_client)
     }
@@ -214,16 +210,16 @@ impl PyRpcClient {
 
     #[getter]
     fn url(&self) -> Option<String> {
-        self.inner.client.url()
+        self.0.client.url()
     }
 
     #[getter]
     fn resolver(&self) -> Option<PyResolver> {
-        self.inner.resolver.clone().map(PyResolver::new)
+        self.0.resolver.clone().map(PyResolver::new)
     }
 
     fn set_resolver(&self, resolver: PyResolver) -> PyResult<()> {
-        self.inner
+        self.0
             .client
             .set_resolver(resolver.into())
             .map_err(|err| PyException::new_err(err.to_string()))?;
@@ -233,7 +229,7 @@ impl PyRpcClient {
     fn set_network_id(&self, network_id: String) -> PyResult<()> {
         let network_id = NetworkId::from_str(&network_id)
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        self.inner
+        self.0
             .client
             .set_network_id(&network_id)
             .map_err(|err| PyException::new_err(err.to_string()))?;
@@ -242,21 +238,18 @@ impl PyRpcClient {
 
     #[getter]
     fn is_connected(&self) -> bool {
-        self.inner.client.is_connected()
+        self.0.client.is_connected()
     }
 
     #[getter]
     fn encoding(&self) -> String {
-        self.inner.client.encoding().to_string()
+        self.0.client.encoding().to_string()
     }
 
     #[getter]
     #[pyo3(name = "node_id")]
     fn resolver_node_id(&self) -> Option<String> {
-        self.inner
-            .client
-            .node_descriptor()
-            .map(|node| node.uid.clone())
+        self.0.client.node_descriptor().map(|node| node.uid.clone())
     }
 
     #[pyo3(signature = (block_async_connect=None, strategy=None, url=None, timeout_duration=None, retry_interval=None))]
@@ -290,7 +283,7 @@ impl PyRpcClient {
         self.start_notification_task(py)
             .map_err(|err| PyException::new_err(err.to_string()))?;
 
-        let client = self.inner.client.clone();
+        let client = self.0.client.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             client
                 .connect(Some(options))
@@ -305,7 +298,7 @@ impl PyRpcClient {
 
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             client
-                .inner
+                .0
                 .client
                 .disconnect()
                 .await
@@ -321,7 +314,7 @@ impl PyRpcClient {
     fn start<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         self.start_notification_task(py)
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        let inner = self.inner.clone();
+        let inner = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             inner
                 .client
@@ -360,7 +353,7 @@ impl PyRpcClient {
             kwargs: Some(Arc::new(kwargs)),
         };
 
-        self.inner
+        self.0
             .callbacks
             .lock()
             .unwrap()
@@ -374,7 +367,7 @@ impl PyRpcClient {
     fn remove_event_listener(&self, event: String, callback: Option<Py<PyAny>>) -> PyResult<()> {
         let event = NotificationEvent::from_str(event.as_str())
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        let mut callbacks = self.inner.callbacks.lock().unwrap();
+        let mut callbacks = self.0.callbacks.lock().unwrap();
 
         match (&event, callback) {
             (NotificationEvent::All, None) => {
@@ -415,7 +408,7 @@ impl PyRpcClient {
     // fn default_port PY-TODO
 
     fn remove_all_event_listeners(&self) -> PyResult<()> {
-        *self.inner.callbacks.lock().unwrap() = Default::default();
+        *self.0.callbacks.lock().unwrap() = Default::default();
         Ok(())
     }
 }
@@ -432,35 +425,35 @@ impl PyRpcClient {
     // fn new_with_rpc_client() PY-TODO
 
     pub fn listener_id(&self) -> Option<ListenerId> {
-        *self.inner.listener_id.lock().unwrap()
+        *self.0.listener_id.lock().unwrap()
     }
 
     #[allow(dead_code)]
     pub fn client(&self) -> &Arc<KaspaRpcClient> {
-        &self.inner.client
+        &self.0.client
     }
 
     async fn stop_notification_task(&self) -> Result<()> {
-        if self.inner.notification_task.load(Ordering::SeqCst) {
-            self.inner.notification_ctl.signal(()).await?;
-            self.inner.notification_task.store(false, Ordering::SeqCst);
+        if self.0.notification_task.load(Ordering::SeqCst) {
+            self.0.notification_ctl.signal(()).await?;
+            self.0.notification_task.store(false, Ordering::SeqCst);
         }
         Ok(())
     }
 
     #[allow(clippy::result_large_err)]
     fn start_notification_task(&self, py: Python) -> Result<()> {
-        if self.inner.notification_task.load(Ordering::SeqCst) {
+        if self.0.notification_task.load(Ordering::SeqCst) {
             return Ok(());
         }
 
-        self.inner.notification_task.store(true, Ordering::SeqCst);
+        self.0.notification_task.store(true, Ordering::SeqCst);
 
-        let ctl_receiver = self.inner.notification_ctl.request.receiver.clone();
-        let ctl_sender = self.inner.notification_ctl.response.sender.clone();
-        let notification_receiver = self.inner.notification_channel.receiver.clone();
+        let ctl_receiver = self.0.notification_ctl.request.receiver.clone();
+        let ctl_sender = self.0.notification_ctl.response.sender.clone();
+        let notification_receiver = self.0.notification_channel.receiver.clone();
         let ctl_multiplexer_channel = self
-            .inner
+            .0
             .client
             .rpc_client()
             .ctl_multiplexer()
@@ -477,24 +470,24 @@ impl PyRpcClient {
 
                             match ctl {
                                 Ctl::Connect => {
-                                    let listener_id = this.inner.client.register_new_listener(ChannelConnection::new(
+                                    let listener_id = this.0.client.register_new_listener(ChannelConnection::new(
                                         "kaspapy-wrpc-client-python",
-                                        this.inner.notification_channel.sender.clone(),
+                                        this.0.notification_channel.sender.clone(),
                                         ChannelType::Persistent,
                                     ));
-                                    *this.inner.listener_id.lock().unwrap() = Some(listener_id);
+                                    *this.0.listener_id.lock().unwrap() = Some(listener_id);
                                 }
                                 Ctl::Disconnect => {
-                                    let listener_id = this.inner.listener_id.lock().unwrap().take();
+                                    let listener_id = this.0.listener_id.lock().unwrap().take();
                                     if let Some(listener_id) = listener_id
-                                        && let Err(err) = this.inner.client.unregister_listener(listener_id).await {
+                                        && let Err(err) = this.0.client.unregister_listener(listener_id).await {
                                             panic!("Error in unregister_listener: {:?}",err);
                                     }
                                 }
                             }
 
                             let event = NotificationEvent::RpcCtl(ctl);
-                            if let Some(handlers) = this.inner.notification_callbacks(event) {
+                            if let Some(handlers) = this.0.notification_callbacks(event) {
                                 for handler in handlers.into_iter() {
                                     Python::attach(|py| {
                                         let event = PyDict::new(py);
@@ -513,7 +506,7 @@ impl PyRpcClient {
                                 kaspa_rpc_core::Notification::UtxosChanged(utxos_changed_notification) => {
                                     let event_type = notification.event_type();
                                     let notification_event = NotificationEvent::Notification(event_type);
-                                    if let Some(handlers) = this.inner.notification_callbacks(notification_event) {
+                                    if let Some(handlers) = this.0.notification_callbacks(notification_event) {
                                         let UtxosChangedNotification { added, removed } = utxos_changed_notification;
 
                                         for handler in handlers.into_iter() {
@@ -534,7 +527,7 @@ impl PyRpcClient {
                                 _ => {
                                     let event_type = notification.event_type();
                                     let notification_event = NotificationEvent::Notification(event_type);
-                                    if let Some(handlers) = this.inner.notification_callbacks(notification_event) {
+                                    if let Some(handlers) = this.0.notification_callbacks(notification_event) {
                                         for handler in handlers.into_iter() {
                                             Python::attach(|py| {
                                                 let event = PyDict::new(py);
@@ -557,8 +550,8 @@ impl PyRpcClient {
             }
 
             if let Some(listener_id) = this.listener_id() {
-                this.inner.listener_id.lock().unwrap().take();
-                if let Err(err) = this.inner.client.unregister_listener(listener_id).await {
+                this.0.listener_id.lock().unwrap().take();
+                if let Err(err) = this.0.client.unregister_listener(listener_id).await {
                     log_error!("Error in unregister_listener: {:?}", err);
                 }
             }
@@ -580,7 +573,7 @@ impl PyRpcClient {
         addresses: Vec<PyAddress>,
     ) -> PyResult<Bound<'py, PyAny>> {
         if let Some(listener_id) = self.listener_id() {
-            let client = self.inner.client.clone();
+            let client = self.0.client.clone();
             let addresses = addresses.iter().map(|a| a.0.clone()).collect();
             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                 client
@@ -603,7 +596,7 @@ impl PyRpcClient {
         addresses: Vec<PyAddress>,
     ) -> PyResult<Bound<'py, PyAny>> {
         if let Some(listener_id) = self.listener_id() {
-            let client = self.inner.client.clone();
+            let client = self.0.client.clone();
             let addresses = addresses.iter().map(|a| a.0.clone()).collect();
             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                 client
@@ -628,7 +621,7 @@ impl PyRpcClient {
         include_accepted_transaction_ids: bool,
     ) -> PyResult<Bound<'py, PyAny>> {
         if let Some(listener_id) = self.listener_id() {
-            let client = self.inner.client.clone();
+            let client = self.0.client.clone();
             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                 client
                     .start_notify(
@@ -652,7 +645,7 @@ impl PyRpcClient {
         include_accepted_transaction_ids: bool,
     ) -> PyResult<Bound<'py, PyAny>> {
         if let Some(listener_id) = self.listener_id() {
-            let client = self.inner.client.clone();
+            let client = self.0.client.clone();
             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                 client
                     .stop_notify(
@@ -686,7 +679,7 @@ macro_rules! build_wrpc_python_subscriptions {
                 $(
                     fn [<subscribe_ $scope:snake>]<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
                         if let Some(listener_id) = self.listener_id() {
-                            let client = self.inner.client.clone();
+                            let client = self.0.client.clone();
                             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                                 client.start_notify(listener_id, Scope::$scope([<$scope Scope>] {})).await
                                     .map_err(|err| PyException::new_err(err.to_string()))?;
@@ -699,7 +692,7 @@ macro_rules! build_wrpc_python_subscriptions {
 
                     fn [<unsubscribe_ $scope:snake>]<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
                         if let Some(listener_id) = self.listener_id() {
-                            let client = self.inner.client.clone();
+                            let client = self.0.client.clone();
                             pyo3_async_runtimes::tokio::future_into_py(py, async move {
                                 client.stop_notify(listener_id, Scope::$scope([<$scope Scope>] {})).await
                                     .map_err(|err| PyException::new_err(err.to_string()))?;
@@ -744,7 +737,7 @@ macro_rules! build_wrpc_python_interface {
                         py: Python<'py>,
                         request: Option<Bound<'_, PyDict>>
                     ) -> PyResult<Bound<'py, PyAny>> {
-                        let client = self.inner.client.clone();
+                        let client = self.0.client.clone();
 
                         let request: [<Py $name Request>] = request
                             .unwrap_or_else(|| PyDict::new(py))
@@ -802,7 +795,7 @@ macro_rules! build_wrpc_python_interface_with_args {
                         py: Python<'py>,
                         request: Bound<'_, PyDict>
                     ) -> PyResult<Bound<'py, PyAny>> {
-                        let client = self.inner.client.clone();
+                        let client = self.0.client.clone();
 
                         let request: [<Py $name Request>] = request.try_into()?;
 

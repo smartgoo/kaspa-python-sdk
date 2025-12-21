@@ -29,8 +29,10 @@ impl PyXPrv {
     #[staticmethod]
     #[pyo3(name = "from_xprv")]
     pub fn from_xprv_str(xprv: &str) -> PyResult<PyXPrv> {
-        Ok(Self(ExtendedPrivateKey::<SecretKey>::from_str(xprv)
-                .map_err(|err| PyException::new_err(err.to_string()))?))
+        Ok(Self(
+            ExtendedPrivateKey::<SecretKey>::from_str(xprv)
+                .map_err(|err| PyException::new_err(err.to_string()))?,
+        ))
     }
 
     #[pyo3(signature = (child_number, hardened=None))]

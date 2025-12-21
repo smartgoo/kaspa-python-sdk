@@ -10,10 +10,10 @@ pub struct PyAccountKind(AccountKind);
 #[pymethods]
 impl PyAccountKind {
     #[new]
-    pub fn ctor(kind: &str) -> PyResult<PyAccountKind> {
+    pub fn ctor(kind: &str) -> PyResult<Self> {
         let inner =
             AccountKind::from_str(kind).map_err(|err| PyException::new_err(err.to_string()))?;
-        Ok(PyAccountKind(inner))
+        Ok(Self(inner))
     }
 
     pub fn __str__(&self) -> String {
@@ -28,7 +28,7 @@ impl PyAccountKind {
 
 impl From<AccountKind> for PyAccountKind {
     fn from(value: AccountKind) -> Self {
-        PyAccountKind(value)
+        Self(value)
     }
 }
 

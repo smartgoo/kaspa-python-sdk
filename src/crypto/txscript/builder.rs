@@ -9,22 +9,18 @@ use workflow_core::hex::ToHex;
 
 #[pyclass(name = "ScriptBuilder")]
 #[derive(Clone)]
-pub struct PyScriptBuilder {
-    script_builder: Arc<Mutex<native::ScriptBuilder>>,
-}
+pub struct PyScriptBuilder(Arc<Mutex<native::ScriptBuilder>>);
 
 impl PyScriptBuilder {
     #[inline]
     pub fn inner(&self) -> MutexGuard<'_, native::ScriptBuilder> {
-        self.script_builder.lock().unwrap()
+        self.0.lock().unwrap()
     }
 }
 
 impl Default for PyScriptBuilder {
     fn default() -> Self {
-        Self {
-            script_builder: Arc::new(Mutex::new(native::ScriptBuilder::new())),
-        }
+        Self(Arc::new(Mutex::new(native::ScriptBuilder::new())))
     }
 }
 
@@ -36,7 +32,7 @@ impl PyScriptBuilder {
     }
 
     #[staticmethod]
-    pub fn from_script(script: PyBinary) -> PyResult<PyScriptBuilder> {
+    pub fn from_script(script: PyBinary) -> PyResult<Self> {
         let builder = PyScriptBuilder::default();
         let script: Vec<u8> = script.into();
         builder.inner().script_mut().extend(&script);
@@ -44,7 +40,7 @@ impl PyScriptBuilder {
         Ok(builder)
     }
 
-    pub fn add_op(&self, op: &Bound<PyAny>) -> PyResult<PyScriptBuilder> {
+    pub fn add_op(&self, op: &Bound<PyAny>) -> PyResult<Self> {
         let op = extract_ops(op)?;
         let mut inner = self.inner();
         inner
@@ -54,7 +50,7 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
-    pub fn add_ops(&self, opcodes: &Bound<PyAny>) -> PyResult<PyScriptBuilder> {
+    pub fn add_ops(&self, opcodes: &Bound<PyAny>) -> PyResult<Self> {
         let ops = extract_ops(opcodes)?;
         self.inner()
             .add_ops(ops.as_slice())
@@ -63,7 +59,7 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
-    pub fn add_data(&self, data: PyBinary) -> PyResult<PyScriptBuilder> {
+    pub fn add_data(&self, data: PyBinary) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
             .add_data(data.as_ref())
@@ -72,7 +68,7 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
-    pub fn add_i64(&self, value: i64) -> PyResult<PyScriptBuilder> {
+    pub fn add_i64(&self, value: i64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
             .add_i64(value)
@@ -81,7 +77,7 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
-    pub fn add_lock_time(&self, lock_time: u64) -> PyResult<PyScriptBuilder> {
+    pub fn add_lock_time(&self, lock_time: u64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
             .add_lock_time(lock_time)
@@ -90,7 +86,7 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
-    pub fn add_sequence(&self, sequence: u64) -> PyResult<PyScriptBuilder> {
+    pub fn add_sequence(&self, sequence: u64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
             .add_sequence(sequence)

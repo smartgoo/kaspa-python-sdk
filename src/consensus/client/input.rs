@@ -28,7 +28,7 @@ impl PyTransactionInput {
             sig_op_count,
             utxo.map(UtxoEntryReference::from),
         );
-        Ok(PyTransactionInput(inner))
+        Ok(Self(inner))
     }
 
     #[getter]
@@ -94,7 +94,7 @@ impl PyTransactionInput {
 
 impl From<TransactionInput> for PyTransactionInput {
     fn from(value: TransactionInput) -> Self {
-        PyTransactionInput(value)
+        Self(value)
     }
 }
 

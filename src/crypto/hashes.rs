@@ -12,7 +12,7 @@ impl PyHash {
     pub fn constructor(hex_str: &str) -> PyResult<Self> {
         let inner =
             Hash::from_str(hex_str).map_err(|err| PyException::new_err(format!("{}", err)))?;
-        Ok(PyHash(inner))
+        Ok(Self(inner))
     }
 
     #[pyo3(name = "to_string")]
@@ -36,8 +36,8 @@ impl From<Hash> for PyHash {
 impl TryFrom<String> for PyHash {
     type Error = PyErr;
 
-    fn try_from(value: String) -> PyResult<PyHash> {
+    fn try_from(value: String) -> PyResult<Self> {
         let inner = Hash::from_str(&value).map_err(|err| PyException::new_err(err.to_string()))?;
-        Ok(PyHash(inner))
+        Ok(Self(inner))
     }
 }

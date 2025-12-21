@@ -54,7 +54,7 @@ impl From<PyUtxoEntry> for UtxoEntry {
 
 impl From<UtxoEntry> for PyUtxoEntry {
     fn from(value: UtxoEntry) -> Self {
-        PyUtxoEntry(value)
+        Self(value)
     }
 }
 
@@ -150,7 +150,7 @@ impl From<&PyUtxoEntryReference> for UtxoEntryReference {
 
 impl From<UtxoEntryReference> for PyUtxoEntryReference {
     fn from(value: UtxoEntryReference) -> Self {
-        PyUtxoEntryReference(value)
+        Self(value)
     }
 }
 
@@ -210,6 +210,6 @@ impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntryReference {
             utxo: Arc::new(utxo),
         };
 
-        Ok(PyUtxoEntryReference(inner))
+        Ok(Self(inner))
     }
 }

@@ -14,61 +14,59 @@ use workflow_core::hex::ToHex;
 use zeroize::Zeroize;
 
 #[pyclass]
-pub struct PendingTransaction {
-    inner: native::PendingTransaction,
-}
+pub struct PendingTransaction(native::PendingTransaction);
 
 #[pymethods]
 impl PendingTransaction {
     #[getter]
     fn id(&self) -> String {
-        self.inner.id().to_string()
+        self.0.id().to_string()
     }
 
     #[getter]
     #[pyo3(name = "payment_amount")]
     fn payment_value(&self) -> Option<u64> {
-        self.inner.payment_value()
+        self.0.payment_value()
     }
 
     #[getter]
     #[pyo3(name = "change_amount")]
     fn change_value(&self) -> u64 {
-        self.inner.change_value()
+        self.0.change_value()
     }
 
     #[getter]
     #[pyo3(name = "fee_amount")]
     fn fees(&self) -> u64 {
-        self.inner.fees()
+        self.0.fees()
     }
 
     #[getter]
     fn mass(&self) -> u64 {
-        self.inner.mass()
+        self.0.mass()
     }
 
     #[getter]
     fn minimum_signatures(&self) -> u16 {
-        self.inner.minimum_signatures()
+        self.0.minimum_signatures()
     }
 
     #[getter]
     #[pyo3(name = "aggregate_input_amount")]
     fn aggregate_input_value(&self) -> u64 {
-        self.inner.aggregate_input_value()
+        self.0.aggregate_input_value()
     }
 
     #[getter]
     #[pyo3(name = "aggregate_output_amount")]
     fn aggregate_output_value(&self) -> u64 {
-        self.inner.aggregate_output_value()
+        self.0.aggregate_output_value()
     }
 
     #[getter]
     #[pyo3(name = "transaction_type")]
     fn kind(&self) -> String {
-        if self.inner.is_batch() {
+        if self.0.is_batch() {
             "batch".to_string()
         } else {
             "final".to_string()
@@ -76,7 +74,7 @@ impl PendingTransaction {
     }
 
     fn addresses(&self) -> Vec<PyAddress> {
-        self.inner
+        self.0
             .addresses()
             .clone()
             .into_iter()
@@ -85,7 +83,7 @@ impl PendingTransaction {
     }
 
     fn get_utxo_entries(&self) -> Vec<PyUtxoEntryReference> {
-        self.inner
+        self.0
             .utxo_entries()
             .values()
             .map(|utxo_entry| PyUtxoEntryReference::from(utxo_entry.clone()))
@@ -102,7 +100,7 @@ impl PendingTransaction {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
 
         let signature = self
-            .inner
+            .0
             .create_input_signature(
                 input_index.into(),
                 &private_key.0.secret_bytes(),
@@ -114,7 +112,7 @@ impl PendingTransaction {
     }
 
     fn fill_input(&self, input_index: u8, signature_script: PyBinary) -> PyResult<()> {
-        self.inner
+        self.0
             .fill_input(input_index.into(), signature_script.into())
             .map_err(|err| PyException::new_err(err.to_string()))?;
 
@@ -130,7 +128,7 @@ impl PendingTransaction {
     ) -> PyResult<()> {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
 
-        self.inner
+        self.0
             .sign_input(
                 input_index.into(),
                 &private_key.0.secret_bytes(),
@@ -151,7 +149,7 @@ impl PendingTransaction {
             .iter()
             .map(|key| key.0.secret_bytes())
             .collect::<Vec<_>>();
-        self.inner
+        self.0
             .try_sign_with_keys(&keys, check_fully_signed)
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
         keys.zeroize();
@@ -163,7 +161,7 @@ impl PendingTransaction {
         py: Python<'py>,
         rpc_client: &PyRpcClient,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let inner = self.inner.clone();
+        let inner = self.0.clone();
         let rpc: Arc<DynRpcApi> = rpc_client.client().clone();
 
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -177,20 +175,12 @@ impl PendingTransaction {
 
     #[getter]
     fn transaction(&self) -> PyResult<PyTransaction> {
-        Ok(
-            Transaction::from_cctx_transaction(
-                &self.inner.transaction(),
-                self.inner.utxo_entries(),
-            )
-            .into(),
-        )
+        Ok(Transaction::from_cctx_transaction(&self.0.transaction(), self.0.utxo_entries()).into())
     }
 }
 
 impl From<native::PendingTransaction> for PendingTransaction {
     fn from(pending_transaction: native::PendingTransaction) -> Self {
-        Self {
-            inner: pending_transaction,
-        }
+        Self(pending_transaction)
     }
 }

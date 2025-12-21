@@ -10,9 +10,9 @@ pub struct PyTransactionOutpoint(TransactionOutpoint);
 #[pymethods]
 impl PyTransactionOutpoint {
     #[new]
-    pub fn ctor(transaction_id: PyTransactionId, index: u32) -> PyTransactionOutpoint {
+    pub fn ctor(transaction_id: PyTransactionId, index: u32) -> Self {
         let inner = TransactionOutpoint::new(transaction_id.into(), index);
-        PyTransactionOutpoint(inner)
+        Self(inner)
     }
 
     #[pyo3(name = "get_id")]
@@ -45,7 +45,7 @@ impl From<PyTransactionOutpoint> for TransactionOutpoint {
 
 impl From<TransactionOutpoint> for PyTransactionOutpoint {
     fn from(value: TransactionOutpoint) -> Self {
-        PyTransactionOutpoint(value)
+        Self(value)
     }
 }
 
@@ -54,6 +54,6 @@ impl TryFrom<&Bound<'_, PyDict>> for PyTransactionOutpoint {
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
         let inner: TransactionOutpointInner = serde_pyobject::from_pyobject(dict.clone())?;
         let outpoint = TransactionOutpoint::new(inner.transaction_id, inner.index);
-        Ok(PyTransactionOutpoint(outpoint))
+        Ok(Self(outpoint))
     }
 }

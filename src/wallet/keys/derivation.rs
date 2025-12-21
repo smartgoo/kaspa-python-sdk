@@ -25,7 +25,7 @@ impl PyDerivationPath {
     }
 
     pub fn parent(&self) -> Option<PyDerivationPath> {
-        self.0.parent().map(|inner| PyDerivationPath(inner))
+        self.0.parent().map(PyDerivationPath)
     }
 
     #[pyo3(signature = (child_number, hardened=None))]

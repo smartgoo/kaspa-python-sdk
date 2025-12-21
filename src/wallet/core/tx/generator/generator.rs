@@ -81,9 +81,7 @@ impl<'py> FromPyObject<'_, 'py> for PyOutputs {
 }
 
 #[pyclass(name = "Generator")]
-pub struct PyGenerator {
-    inner: Arc<native::Generator>,
-}
+pub struct PyGenerator(Arc<native::Generator>);
 
 #[pymethods]
 impl PyGenerator {
@@ -100,7 +98,7 @@ impl PyGenerator {
         priority_entries: Option<PyUtxoEntries>,
         sig_op_count: Option<u8>,
         minimum_signatures: Option<u16>,
-    ) -> PyResult<PyGenerator> {
+    ) -> PyResult<Self> {
         let settings = GeneratorSettings::new(
             outputs,
             change_address.into(),
@@ -150,43 +148,41 @@ impl PyGenerator {
         let generator = native::Generator::try_new(settings, None, Some(&abortable))
             .map_err(|err| PyException::new_err(err.to_string()))?;
 
-        Ok(Self {
-            inner: Arc::new(generator),
-        })
+        Ok(Self(Arc::new(generator)))
     }
 
     pub fn estimate(&self) -> PyResult<PyGeneratorSummary> {
-        self.inner
+        self.0
             .iter()
             .collect::<Result<Vec<_>>>()
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        Ok(self.inner.summary().into())
+        Ok(self.0.summary().into())
     }
 
     pub fn summary(&self) -> PyGeneratorSummary {
-        self.inner.summary().into()
+        self.0.summary().into()
     }
 }
 
 impl PyGenerator {
     pub fn iter(&self) -> impl Iterator<Item = Result<native::PendingTransaction>> {
-        self.inner.iter()
+        self.0.iter()
     }
 
     #[allow(dead_code)]
     pub fn stream(&self) -> impl Stream<Item = Result<native::PendingTransaction>> {
-        self.inner.stream()
+        self.0.stream()
     }
 }
 
 #[pymethods]
 impl PyGenerator {
-    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<PyGenerator>> {
+    fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<Self>> {
         Ok(slf.into())
     }
 
     fn __next__(slf: PyRefMut<Self>) -> PyResult<Option<PendingTransaction>> {
-        match slf.inner.iter().next() {
+        match slf.0.iter().next() {
             Some(result) => match result {
                 Ok(transaction) => Ok(Some(transaction.into())),
                 Err(e) => Err(PyErr::new::<pyo3::exceptions::PyException, _>(format!(

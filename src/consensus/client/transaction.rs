@@ -72,7 +72,7 @@ impl PyTransaction {
         )
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
-        Ok(PyTransaction(inner))
+        Ok(Self(inner))
     }
 
     #[getter]

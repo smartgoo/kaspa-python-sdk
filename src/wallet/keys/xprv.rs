@@ -12,9 +12,7 @@ use workflow_core::hex::ToHex;
 
 #[pyclass(name = "XPrv")]
 #[derive(Clone)]
-pub struct PyXPrv {
-    inner: ExtendedPrivateKey<SecretKey>,
-}
+pub struct PyXPrv(ExtendedPrivateKey<SecretKey>);
 
 #[pymethods]
 impl PyXPrv {
@@ -25,31 +23,27 @@ impl PyXPrv {
 
         let inner = ExtendedPrivateKey::<SecretKey>::new(seed_bytes)
             .map_err(|err: Error| PyException::new_err(err.to_string()))?;
-        Ok(Self { inner })
+        Ok(Self(inner))
     }
 
     #[staticmethod]
     #[pyo3(name = "from_xprv")]
     pub fn from_xprv_str(xprv: &str) -> PyResult<PyXPrv> {
-        Ok(Self {
-            inner: ExtendedPrivateKey::<SecretKey>::from_str(xprv)
-                .map_err(|err| PyException::new_err(err.to_string()))?,
-        })
+        Ok(Self(ExtendedPrivateKey::<SecretKey>::from_str(xprv)
+                .map_err(|err| PyException::new_err(err.to_string()))?))
     }
 
-    #[pyo3(name = "derive_child")]
     #[pyo3(signature = (child_number, hardened=None))]
     pub fn derive_child(&self, child_number: u32, hardened: Option<bool>) -> PyResult<PyXPrv> {
         let child_number = ChildNumber::new(child_number, hardened.unwrap_or(false))
             .map_err(|err: Error| PyException::new_err(err.to_string()))?;
         let inner = self
-            .inner
+            .0
             .derive_child(child_number)
             .map_err(|err: Error| PyException::new_err(err.to_string()))?;
-        Ok(Self { inner })
+        Ok(Self(inner))
     }
 
-    #[pyo3(name = "derive_path")]
     pub fn derive_path(&self, path: &Bound<PyAny>) -> PyResult<PyXPrv> {
         let path = if let Ok(path_str) = path.extract::<String>() {
             Ok(PyDerivationPath::new(path_str.as_str())?)
@@ -62,18 +56,17 @@ impl PyXPrv {
         }?;
 
         let inner = self
-            .inner
+            .0
             .clone()
             .derive_path(&(path).into())
             .map_err(|err| PyException::new_err(err.to_string()))?;
-        Ok(Self { inner })
+        Ok(Self(inner))
     }
 
     #[allow(clippy::wrong_self_convention)]
-    #[pyo3(name = "into_string")]
     pub fn into_string(&self, prefix: &str) -> PyResult<String> {
         let str = self
-            .inner
+            .0
             .to_extended_key(
                 prefix
                     .try_into()
@@ -83,10 +76,9 @@ impl PyXPrv {
         Ok(str)
     }
 
-    #[pyo3(name = "to_string")]
     pub fn to_string(&self) -> PyResult<String> {
         let str = self
-            .inner
+            .0
             .to_extended_key(
                 "kprv"
                     .try_into()
@@ -96,25 +88,22 @@ impl PyXPrv {
         Ok(str)
     }
 
-    #[pyo3(name = "to_xpub")]
     pub fn to_xpub(&self) -> PyResult<PyXPub> {
-        let public_key = self.inner.public_key();
+        let public_key = self.0.public_key();
         let inner = XPub::from(public_key);
         Ok(PyXPub(inner))
     }
 
-    #[pyo3(name = "to_private_key")]
     pub fn to_private_key(&self) -> PyResult<PyPrivateKey> {
-        let private_key = self.inner.private_key();
+        let private_key = self.0.private_key();
         let inner = PrivateKey::from(private_key);
         Ok(PyPrivateKey(inner))
     }
 
     #[getter]
-    #[pyo3(name = "xprv")]
     pub fn xprv(&self) -> PyResult<String> {
         let str = self
-            .inner
+            .0
             .to_extended_key(
                 "kprv"
                     .try_into()
@@ -128,30 +117,28 @@ impl PyXPrv {
     #[pyo3(name = "private_key")]
     pub fn private_key_as_hex_string(&self) -> String {
         use kaspa_bip32::PrivateKey;
-        self.inner.private_key().to_bytes().to_vec().to_hex()
+        self.0.private_key().to_bytes().to_vec().to_hex()
     }
 
     #[getter]
-    #[pyo3(name = "depth")]
     pub fn depth(&self) -> u8 {
-        self.inner.attrs().depth
+        self.0.attrs().depth
     }
 
     #[getter]
     #[pyo3(name = "parent_fingerprint")]
     pub fn parent_fingerprint_as_hex_string(&self) -> String {
-        self.inner.attrs().parent_fingerprint.to_vec().to_hex()
+        self.0.attrs().parent_fingerprint.to_vec().to_hex()
     }
 
     #[getter]
-    #[pyo3(name = "child_number")]
     pub fn child_number(&self) -> u32 {
-        self.inner.attrs().child_number.into()
+        self.0.attrs().child_number.into()
     }
 
     #[getter]
     #[pyo3(name = "chain_code")]
     pub fn chain_code_as_hex_string(&self) -> String {
-        self.inner.attrs().chain_code.to_vec().to_hex()
+        self.0.attrs().chain_code.to_vec().to_hex()
     }
 }

@@ -30,7 +30,6 @@ impl PyPrivateKey {
         self.0.to_hex()
     }
 
-    #[pyo3(name = "to_public_key")]
     pub fn to_public_key(&self) -> PyResult<PyPublicKey> {
         let public_key = self
             .0
@@ -40,13 +39,11 @@ impl PyPrivateKey {
         Ok(public_key.into())
     }
 
-    #[pyo3(name = "to_address")]
     pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
         let public_key = self
             .0
             .to_public_key()
             .map_err(|_| PyException::new_err("Failed to derive public key"))?;
-        // let public_key = secp256k1::PublicKey::from_secret_key_global(&self.inner);
         let (x_only_public_key, _) = public_key.public_key.unwrap().x_only_public_key();
         let payload = x_only_public_key.serialize();
         let address = Address::new(
@@ -59,9 +56,7 @@ impl PyPrivateKey {
         Ok(address.into())
     }
 
-    #[pyo3(name = "to_address_ecdsa")]
     pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
-        // let public_key = secp256k1::PublicKey::from_secret_key_global(&self.inner);
         let public_key = self
             .0
             .to_public_key()
@@ -77,7 +72,6 @@ impl PyPrivateKey {
         Ok(address.into())
     }
 
-    #[pyo3(name = "to_keypair")]
     pub fn to_keypair(&self) -> PyResult<PyKeypair> {
         PyKeypair::from_private_key(self).map_err(|err| PyException::new_err(err.to_string()))
     }

@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 #[pyclass(name = "Hash")]
 #[derive(Clone)]
-pub struct PyHash(pub Hash);
+pub struct PyHash(Hash);
 
 #[pymethods]
 impl PyHash {

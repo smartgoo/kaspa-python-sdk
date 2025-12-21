@@ -43,9 +43,10 @@ pub fn py_create_input_signature(
     private_key: &PyPrivateKey,
     sighash_type: Option<PySighashType>,
 ) -> PyResult<String> {
-    let (cctx, utxos) =
-        tx.0.tx_and_utxos()
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    let (cctx, utxos) = tx
+        .inner()
+        .tx_and_utxos()
+        .map_err(|err| PyException::new_err(err.to_string()))?;
     let populated_transaction = PopulatedTransaction::new(&cctx, utxos);
 
     let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();

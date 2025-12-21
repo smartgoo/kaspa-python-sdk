@@ -5,7 +5,7 @@ use crate::consensus::core::script_public_key::PyScriptPublicKey;
 
 #[pyclass(name = "TransactionOutput")]
 #[derive(Clone)]
-pub struct PyTransactionOutput(pub TransactionOutput);
+pub struct PyTransactionOutput(TransactionOutput);
 
 #[pymethods]
 impl PyTransactionOutput {

@@ -10,6 +10,12 @@ use std::str::FromStr;
 #[derive(Clone)]
 pub struct PyPrivateKey(pub PrivateKey);
 
+impl PyPrivateKey {
+    pub fn inner(&self) -> PrivateKey {
+        self.0.clone()
+    }
+}
+
 #[pymethods]
 impl PyPrivateKey {
     #[new]

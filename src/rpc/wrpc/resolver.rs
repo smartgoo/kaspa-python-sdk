@@ -6,12 +6,16 @@ use std::{str::FromStr, sync::Arc};
 #[pyclass(name = "Resolver")]
 #[derive(Debug, Clone)]
 pub struct PyResolver {
-    pub inner: Resolver,
+    inner: Resolver,
 }
 
 impl PyResolver {
     pub fn new(resolver: Resolver) -> Self {
         Self { inner: resolver }
+    }
+
+    pub fn inner(&self) -> Resolver {
+        self.inner.clone()
     }
 }
 

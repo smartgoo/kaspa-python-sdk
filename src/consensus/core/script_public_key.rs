@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 #[pyclass(name = "ScriptPublicKey")]
 #[derive(Clone)]
-pub struct PyScriptPublicKey(pub ScriptPublicKey);
+pub struct PyScriptPublicKey(ScriptPublicKey);
 
 #[pymethods]
 impl PyScriptPublicKey {

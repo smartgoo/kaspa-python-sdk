@@ -205,7 +205,7 @@ impl PyRpcClient {
             .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Self::new(
-            resolver.map(|r| r.inner),
+            resolver.map(|r| r.inner()),
             url,
             Some(encoding),
             Some(network_id),

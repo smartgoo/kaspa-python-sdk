@@ -8,7 +8,7 @@ use workflow_core::hex::ToHex;
 
 #[pyclass(name = "TransactionInput")]
 #[derive(Clone)]
-pub struct PyTransactionInput(pub TransactionInput);
+pub struct PyTransactionInput(TransactionInput);
 
 #[pymethods]
 impl PyTransactionInput {

@@ -5,7 +5,7 @@ use workflow_core::hex::ToHex;
 
 #[pyclass(name = "Mnemonic")]
 #[derive(Clone)]
-pub struct PyMnemonic(pub Mnemonic);
+pub struct PyMnemonic(Mnemonic);
 
 #[pymethods]
 impl PyMnemonic {

@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 #[pyclass(name = "UtxoEntry")]
 #[derive(Clone)]
-pub struct PyUtxoEntry(pub UtxoEntry);
+pub struct PyUtxoEntry(UtxoEntry);
 
 #[pymethods]
 impl PyUtxoEntry {
@@ -96,7 +96,7 @@ impl PyUtxoEntries {
 
 #[pyclass(name = "UtxoEntryReference")]
 #[derive(Clone)]
-pub struct PyUtxoEntryReference(pub UtxoEntryReference);
+pub struct PyUtxoEntryReference(UtxoEntryReference);
 
 #[pymethods]
 impl PyUtxoEntryReference {

@@ -5,7 +5,7 @@ use pyo3::{prelude::*, types::PyDict};
 
 #[pyclass(name = "TransactionOutpoint")]
 #[derive(Clone)]
-pub struct PyTransactionOutpoint(pub TransactionOutpoint);
+pub struct PyTransactionOutpoint(TransactionOutpoint);
 
 #[pymethods]
 impl PyTransactionOutpoint {

@@ -203,7 +203,7 @@ try_from_args! ( dict : PySubmitTransactionRequest, {
     let transaction: PyTransaction = dict.get_item("transaction")?
         .ok_or_else(|| PyKeyError::new_err("Key `transaction` not present"))?
         .extract()?;
-    let inner = transaction.0.inner();
+    let inner = transaction.inner().inner();
 
     // Deprecate allow_orphan in favor of allowOrphan for case consistency
     // Deprecation warning added September 2025, version 1.0.1.post1
@@ -251,6 +251,6 @@ try_from_args! ( dict : PySubmitTransactionReplacementRequest, {
         .ok_or_else(|| PyKeyError::new_err("Key `transactions` not present"))?
         .extract()?;
 
-    let inner = SubmitTransactionReplacementRequest { transaction: transaction.0.into() };
+    let inner = SubmitTransactionReplacementRequest { transaction: transaction.inner().into() };
     Ok(PySubmitTransactionReplacementRequest(inner))
 });

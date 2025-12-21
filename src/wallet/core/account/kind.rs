@@ -5,7 +5,7 @@ use pyo3::{exceptions::PyException, prelude::*};
 
 #[pyclass(name = "AccountKind")]
 #[derive(Clone)]
-pub struct PyAccountKind(pub AccountKind);
+pub struct PyAccountKind(AccountKind);
 
 #[pymethods]
 impl PyAccountKind {

@@ -15,7 +15,13 @@ use workflow_core::hex::{FromHex, ToHex};
 
 #[pyclass(name = "Transaction")]
 #[derive(Clone)]
-pub struct PyTransaction(pub Transaction);
+pub struct PyTransaction(Transaction);
+
+impl PyTransaction {
+    pub fn inner(&self) -> &Transaction {
+        &self.0
+    }
+}
 
 #[pymethods]
 impl PyTransaction {

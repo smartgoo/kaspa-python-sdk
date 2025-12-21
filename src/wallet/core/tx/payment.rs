@@ -9,7 +9,7 @@ use crate::address::PyAddress;
 
 #[pyclass(name = "PaymentOutput")]
 #[derive(Clone)]
-pub struct PyPaymentOutput(pub PaymentOutput);
+pub struct PyPaymentOutput(PaymentOutput);
 
 impl From<PyPaymentOutput> for PaymentOutput {
     fn from(value: PyPaymentOutput) -> Self {

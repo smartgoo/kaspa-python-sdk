@@ -1309,6 +1309,16 @@ class RpcClient:
                 - minConfirmationCount (int, optional): Minimum confirmation count
         """
         ...
+
+    async def get_virtual_chain_from_block(self, request: dict) -> dict:
+        """
+        Args:
+            request (dict): Containing keys:
+                - startHash (str): Starting block hash
+                - verbosityLevel (str, optional): Verbosity level, accepted values are "none", "low", "high", or "full"
+                - minConfirmationCount (int, optional): Minimum confirmation count
+        """
+        ...
     
     async def resolve_finality_conflict(self, request: dict) -> dict:
         """

@@ -70,6 +70,7 @@ impl_try_from_pydict!([
     // GetUtxosByAddresses,
     GetUtxoReturnAddress,
     GetVirtualChainFromBlock,
+    GetVirtualChainFromBlockV2,
     ResolveFinalityConflict,
     // SubmitBlock,
     // SubmitTransaction,

@@ -836,6 +836,7 @@ build_wrpc_python_interface_with_args!([
     GetUtxosByAddresses,
     GetUtxoReturnAddress,
     GetVirtualChainFromBlock,
+    GetVirtualChainFromBlockV2,
     ResolveFinalityConflict,
     SubmitBlock,
     SubmitTransaction,

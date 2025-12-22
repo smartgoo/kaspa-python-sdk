@@ -200,6 +200,13 @@ async def main():
         "minConfirmationCount": 10
     })
 
+    print("Starting call: get_virtual_chain_from_block_v2")
+    x = await client.get_virtual_chain_from_block_v2(request={
+        "startHash": tip_hashes[0],
+        "verbosityLevel": "full",
+        "minConfirmationCount": 10
+    })
+
     # await client.resolve_finality_conflict(request)
 
     # await client.submit_transaction(request)

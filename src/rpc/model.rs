@@ -59,6 +59,7 @@ define_py_request_types!([
     GetUtxosByAddresses,
     GetUtxoReturnAddress,
     GetVirtualChainFromBlock,
+    GetVirtualChainFromBlockV2,
     ResolveFinalityConflict,
     SubmitBlock,
     SubmitTransaction,

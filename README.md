@@ -1,29 +1,4 @@
-> [!CAUTION]
-> **This repository is a proof of concept. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.**
->
-> **Do NOT use this repository.**
-> 
-> **The current `kaspa` Python package source can be found [here](https://github.com/aspectron/rusty-kaspa/tree/python).**
-
 # Kaspa Python SDK
-The Rusty-Kaspa Python SDK exposes select Rusty-Kaspa source for use in Python applications, allowing Python developers to interact with the Kaspa BlockDAG.
-
-The resulting Python package `kaspa` is a native extensino module, built from Rust wrappers around Rusty-Kaspa's Rust source code using [PyO3](https://pyo3.rs/v0.20.0/) and [Maturin](https://www.maturin.rs).
-
-> [!IMPORTANT]
-> The Kaspa Python SDK is currently in Beta (maybe even Alpha in some regards) status. Please use accordingly.
-
-## Features
-One goal for this package is to mirror Kaspa's WASM SDK as closely as possible. From both a feature coverage and usage perspective.
-
-The following main feature categories are currently exposed for use from Python:
-- wRPC Client
-- Transaction generation
-- Key management
-
-This package does not yet fully mirror WASM SDK, gaps mostly exist around wallet functionality. Future work will bring this as close as possible. Potential future features include the ability to read Rusty-Kaspa's RocksDB database, specific exceptions, etc.
-
-## Installing
 
 > [!CAUTION]
 > **This repository is a proof of concept. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.**
@@ -31,57 +6,14 @@ This package does not yet fully mirror WASM SDK, gaps mostly exist around wallet
 > **Do NOT use this repository.**
 > 
 > **The current `kaspa` Python package source can be found [here](https://github.com/aspectron/rusty-kaspa/tree/python).**
-
-This package can currently be installed from source or from PyPi. With any crypto project, it's recommended to install from source when possible.
-
-### Installing from PyPi
-`pip install kaspa`
-
-[See the Kaspa package on PyPi here](https://pypi.org/project/kaspa/)
-
-### Installing from Source
-
-1. To build the Python SDK from source, you need to have the Rust environment installed. To do that, follow instructions in the [Installation section of Rusty Kaspa README](https://github.com/kaspanet/rusty-kaspa?tab=readme-ov-file#installation).
-2. `cd rusty-kaspa/python` to enter Python SDK crate
-3. Run `./build-release` script to build source and built (wheel) dists.
-4. The resulting wheel (`.whl`) file location will be printed: `Built wheel for CPython 3.x to <filepath>`. The `.whl` file can be copied to another location or machine and installed there with `pip install <.whl filepath>`
-
-#### `maturin develop` vs. `maturin build`
-For full details, please see `build-release` script, `build-dev` script, and [Maturin](https://www.maturin.rs) documentation.
-
-Build & install in current active virtual env: `maturin develop --release --features py-sdk`
-
-Build source and built (wheel) distributions: `maturin build --release --strip --sdist --features py-sdk`.
-
-## Usage from Python
-
-The Python SDK module name is `kaspa`. The following example shows how to connect an RPC client to Kaspa's PNN (Public Node Network).
-
-```python
-import asyncio
-from kaspa import Resolver, RpcClient
-
-async def main():
-    resolver = Resolver()
-    client = RpcClient(resolver)
-    await client.connect()
-    print(await client.get_server_info())
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-More detailed examples can be found in `./examples`.
 
 ## Bindings Approach/Design
-
-### Overview
-This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. The general approach principles can be summarized as:
+This project attempts to leverage native/existing Rusty-Kaspa source as much as possible. This is accomplished by defining Python-compatible code that wraps RK native. Generally, this repository tries to adhere to the following:
 
 - Wrappers should perform only type conversion to/from RK native (to the extent possible).
 - When logic is needed, RK native logic should be used (to the extent possible).
 
-These principles works to varying degrees depending on the area of code, limitations, and Python interface requirements. In a "worst case" scenario, new implementation/re-implementation/etc is done.
+These principles work to varying degrees depending on the area of code, limitations, and Python interface requirements. In a "worst case" scenario, new/re-implementation is done in this repository.
 
 All Python exposed structs and enums defined in this repository are prefixed with `Py` (e.g. `PyRpcClient`). These are then exposed to for use in Python without the prefix. Functions exposed to Python are prefixed with `py_` and are usable from Python without the `py_` prefix.
 
@@ -93,31 +25,13 @@ There are a handful of limitations that cause the need for new or re-implementat
 
 The directory structure of this project approximately mirrors that of rusty-kaspa's workspace. This is likely to change but currently makes development easier.
 
-### Newtype pattern example
-
-For example:
-```rust
-#[pyclass(name = "Mnemonic")]
-pub struct PyMnemonic(pub Mnemonic);
-
-#[pymethods]
-impl PyMnemonic {
-	#[getter]
-    #[pyo3(name = "phrase")]
-    pub fn phrase_string_py(&self) -> String {
-        self.0.phrase().to_string()
-    }
-	
-	...
-}
-```
-
-### Limitations & Challenges
+## Limitations & Challenges
 
 Limitations & challenges to note:
 
 - Private code (structs, struct fields, methods, etc.) in RK native. Cannot be leveraged by this repository, results in new/re-implementation.
-- RK native enums cannot be exposed as is. A Python interface compatible enum must be defined, with conversion traits to the corresponding RK native enum.
+- RK native enums cannot be exposed as is. A Python interface compatible enum must be defined. To reduce boilerplate, some macros are included in this repository. 
 - RK native errors cannot be propped. Currently, `map_err()` is used extensively to convert to a generic Python exception. Future work will define explicit exceptions.
+- Python interface requires
 
-Long term, there may be an opportunity to add "bindings primitives" to RK native. To alleviate some of these challenges and better support other bindings initiatives in the future. This is a separate topic though.
+Long term, to alleviate some challenges, there may be an opportunity to add "bindings primitives" to RK native. This is a separate topic though.

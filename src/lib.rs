@@ -2,7 +2,6 @@ mod address;
 mod consensus;
 mod crypto;
 mod macros;
-mod network;
 mod rpc;
 mod types;
 mod wallet;
@@ -53,6 +52,8 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
 
     m.add_class::<consensus::core::hashing::PySighashType>()?;
+    m.add_class::<consensus::core::network::PyNetworkId>()?;
+    m.add_class::<consensus::core::network::PyNetworkType>()?;
     m.add_class::<consensus::core::script_public_key::PyScriptPublicKey>()?;
     m.add_class::<consensus::core::tx::PyTransactionId>()?;
 
@@ -126,9 +127,6 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         wallet::core::tx::utils::py_estimate_transactions,
         m
     )?)?;
-
-    m.add_class::<network::PyNetworkId>()?;
-    m.add_class::<network::PyNetworkType>()?;
 
     m.add_class::<rpc::wrpc::resolver::PyResolver>()?;
     m.add_class::<rpc::wrpc::client::PyRpcClient>()?;

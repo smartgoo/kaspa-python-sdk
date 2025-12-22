@@ -1,4 +1,4 @@
-use crate::network::PyNetworkId;
+use crate::consensus::core::network::PyNetworkId;
 use kaspa_wrpc_client::{Resolver, WrpcEncoding};
 use pyo3::{exceptions::PyException, prelude::*};
 use std::{str::FromStr, sync::Arc};

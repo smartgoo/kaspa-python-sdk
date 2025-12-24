@@ -11,7 +11,6 @@ use std::str::FromStr;
 use workflow_core::hex::ToHex;
 
 #[pyclass(name = "XPrv")]
-#[derive(Clone)]
 pub struct PyXPrv(ExtendedPrivateKey<SecretKey>);
 
 #[pymethods]

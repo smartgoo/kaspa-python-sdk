@@ -51,12 +51,14 @@ pub fn py_create_input_signature(
 
     let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
 
+    let mut key_bytes = private_key.secret_bytes();
     let signature = sign_input(
         &populated_transaction,
         input_index.into(),
-        &private_key.secret_bytes(),
+        &key_bytes,
         sighash_type.into(),
     );
+    key_bytes.zeroize();
 
     Ok(signature.to_hex())
 }

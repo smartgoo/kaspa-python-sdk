@@ -100,14 +100,12 @@ impl PendingTransaction {
     ) -> PyResult<String> {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
 
+        let mut key_bytes = private_key.secret_bytes();
         let signature = self
             .0
-            .create_input_signature(
-                input_index.into(),
-                &private_key.secret_bytes(),
-                sighash_type.into(),
-            )
+            .create_input_signature(input_index.into(), &key_bytes, sighash_type.into())
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
+        key_bytes.zeroize();
 
         Ok(signature.to_hex())
     }
@@ -129,13 +127,11 @@ impl PendingTransaction {
     ) -> PyResult<()> {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
 
+        let mut key_bytes = private_key.secret_bytes();
         self.0
-            .sign_input(
-                input_index.into(),
-                &private_key.secret_bytes(),
-                sighash_type.into(),
-            )
+            .sign_input(input_index.into(), &key_bytes, sighash_type.into())
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
+        key_bytes.zeroize();
 
         Ok(())
     }

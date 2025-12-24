@@ -4,6 +4,7 @@ use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::{privatekey::PrivateKey, publickey::PublicKey};
 use pyo3::{exceptions::PyException, prelude::*};
+use zeroize::Zeroize;
 use std::str::FromStr;
 
 #[pyclass(name = "Keypair")]
@@ -90,10 +91,12 @@ impl PyKeypair {
 
     #[staticmethod]
     #[pyo3(name = "from_private_key")]
-    pub fn from_private_key(secret_key: &PyPrivateKey) -> PyResult<PyKeypair> {
+    pub fn from_private_key(private_key: &PyPrivateKey) -> PyResult<PyKeypair> {
         let secp = secp256k1::Secp256k1::new();
-        let secret_key = secp256k1::SecretKey::from_slice(&secret_key.inner().secret_bytes())
+        let mut key_bytes = private_key.secret_bytes();
+        let secret_key = secp256k1::SecretKey::from_slice(&key_bytes)
             .map_err(|e| PyException::new_err(format!("{e}")))?;
+        key_bytes.zeroize();
         let public_key = secp256k1::PublicKey::from_secret_key(&secp, &secret_key);
         let (xonly_public_key, _) = public_key.x_only_public_key();
         Ok(PyKeypair {

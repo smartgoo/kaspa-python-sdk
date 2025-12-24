@@ -8,7 +8,6 @@ use secp256k1::SecretKey;
 use crate::wallet::keys::privatekey::PyPrivateKey;
 
 #[pyclass(name = "PrivateKeyGenerator")]
-#[derive(Clone)]
 pub struct PyPrivateKeyGenerator {
     receive: ExtendedPrivateKey<SecretKey>,
     change: ExtendedPrivateKey<SecretKey>,

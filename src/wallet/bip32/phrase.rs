@@ -4,7 +4,6 @@ use pyo3::{exceptions::PyException, prelude::*};
 use workflow_core::hex::ToHex;
 
 #[pyclass(name = "Mnemonic")]
-#[derive(Clone)]
 pub struct PyMnemonic(Mnemonic);
 
 #[pymethods]

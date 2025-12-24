@@ -11,20 +11,20 @@ use kaspa_consensus_core::{
 };
 use kaspa_hashes::Hash;
 use kaspa_wallet_core::result::Result;
-use kaspa_wallet_keys::prelude::PrivateKey;
-use pyo3::{exceptions::PyException, prelude::*};
+use pyo3::{exceptions::PyException, prelude::*, types::PyList};
 use workflow_core::hex::ToHex;
 use zeroize::Zeroize;
 
 #[pyfunction(name = "sign_transaction")]
-pub fn py_sign_transaction(
+pub fn py_sign_transaction<'py>(
     tx: PyTransaction,
-    signer: Vec<PyPrivateKey>,
+    signer: Bound<'py, PyList>,
     verify_sig: bool,
 ) -> PyResult<PyTransaction> {
-    let mut private_keys: Vec<[u8; 32]> = vec![];
-    for key in signer.iter() {
-        private_keys.push(key.inner().secret_bytes());
+    let mut private_keys: Vec<[u8; 32]> = Vec::with_capacity(signer.len());
+    for item in signer.iter() {
+        let key: PyRef<'_, PyPrivateKey> = item.extract()?;
+        private_keys.push(key.secret_bytes());
     }
 
     let transaction: Transaction = tx.into();
@@ -40,7 +40,7 @@ pub fn py_sign_transaction(
 pub fn py_create_input_signature(
     tx: &PyTransaction,
     input_index: u8,
-    private_key: PyPrivateKey,
+    private_key: &PyPrivateKey,
     sighash_type: Option<PySighashType>,
 ) -> PyResult<String> {
     let (cctx, utxos) = tx
@@ -54,7 +54,7 @@ pub fn py_create_input_signature(
     let signature = sign_input(
         &populated_transaction,
         input_index.into(),
-        &private_key.inner().secret_bytes(),
+        &private_key.secret_bytes(),
         sighash_type.into(),
     );
 
@@ -62,12 +62,13 @@ pub fn py_create_input_signature(
 }
 
 #[pyfunction]
-#[pyo3(name = "create_input_signature")]
+#[pyo3(name = "sign_script_hash")]
 pub fn py_sign_script_hash(script_hash: String, privkey: &PyPrivateKey) -> PyResult<String> {
     let script_hash = PyHash::try_from(script_hash)?;
-    let privkey: PrivateKey = privkey.clone().into();
-    let result = sign_hash(script_hash.into(), &(&(privkey)).into())
+    let mut key_bytes = privkey.secret_bytes();
+    let result = sign_hash(script_hash.into(), &key_bytes)
         .map_err(|err| PyException::new_err(err.to_string()))?;
+    key_bytes.zeroize();
     Ok(result.to_hex())
 }
 

@@ -10,6 +10,7 @@ use crate::{
 use kaspa_consensus_client::Transaction;
 use kaspa_consensus_core::hashing::wasm::SighashType;
 use kaspa_wallet_core::tx::generator as native;
+use pyo3::types::PyList;
 use workflow_core::hex::ToHex;
 use zeroize::Zeroize;
 
@@ -103,7 +104,7 @@ impl PendingTransaction {
             .0
             .create_input_signature(
                 input_index.into(),
-                &private_key.inner().secret_bytes(),
+                &private_key.secret_bytes(),
                 sighash_type.into(),
             )
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
@@ -131,7 +132,7 @@ impl PendingTransaction {
         self.0
             .sign_input(
                 input_index.into(),
-                &private_key.inner().secret_bytes(),
+                &private_key.secret_bytes(),
                 sighash_type.into(),
             )
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
@@ -140,15 +141,16 @@ impl PendingTransaction {
     }
 
     #[pyo3(signature = (private_keys, check_fully_signed=None))]
-    fn sign(
+    fn sign<'py>(
         &self,
-        private_keys: Vec<PyPrivateKey>,
+        private_keys: Bound<'py, PyList>,
         check_fully_signed: Option<bool>,
     ) -> PyResult<()> {
-        let mut keys = private_keys
-            .iter()
-            .map(|key| key.inner().secret_bytes())
-            .collect::<Vec<_>>();
+        let mut keys: Vec<[u8; 32]> = Vec::with_capacity(private_keys.len());
+        for item in private_keys.iter() {
+            let key: PyRef<'_, PyPrivateKey> = item.extract()?;
+            keys.push(key.secret_bytes());
+        }
         self.0
             .try_sign_with_keys(&keys, check_fully_signed)
             .map_err(|err| PyException::new_err(format!("{}", err)))?;

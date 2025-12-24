@@ -7,7 +7,6 @@ use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
 #[pyclass(name = "PrivateKey")]
-#[derive(Clone)]
 pub struct PyPrivateKey(PrivateKey);
 
 impl PyPrivateKey {
@@ -17,6 +16,10 @@ impl PyPrivateKey {
 
     pub fn inner(&self) -> &PrivateKey {
         &self.0
+    }
+
+    pub fn secret_bytes(&self) -> [u8; 32] {
+        self.0.secret_bytes()
     }
 }
 

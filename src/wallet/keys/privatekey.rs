@@ -15,8 +15,8 @@ impl PyPrivateKey {
         Self(key)
     }
 
-    pub fn inner(&self) -> PrivateKey {
-        self.0.clone()
+    pub fn inner(&self) -> &PrivateKey {
+        &self.0
     }
 }
 

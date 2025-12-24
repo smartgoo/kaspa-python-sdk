@@ -24,7 +24,7 @@ pub fn py_sign_transaction(
 ) -> PyResult<PyTransaction> {
     let mut private_keys: Vec<[u8; 32]> = vec![];
     for key in signer.iter() {
-        private_keys.push(key.0.secret_bytes());
+        private_keys.push(key.inner().secret_bytes());
     }
 
     let transaction: Transaction = tx.into();
@@ -40,7 +40,7 @@ pub fn py_sign_transaction(
 pub fn py_create_input_signature(
     tx: &PyTransaction,
     input_index: u8,
-    private_key: &PyPrivateKey,
+    private_key: PyPrivateKey,
     sighash_type: Option<PySighashType>,
 ) -> PyResult<String> {
     let (cctx, utxos) = tx
@@ -54,7 +54,7 @@ pub fn py_create_input_signature(
     let signature = sign_input(
         &populated_transaction,
         input_index.into(),
-        &private_key.0.secret_bytes(),
+        &private_key.inner().secret_bytes(),
         sighash_type.into(),
     );
 

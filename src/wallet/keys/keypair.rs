@@ -92,7 +92,7 @@ impl PyKeypair {
     #[pyo3(name = "from_private_key")]
     pub fn from_private_key(secret_key: &PyPrivateKey) -> PyResult<PyKeypair> {
         let secp = secp256k1::Secp256k1::new();
-        let secret_key = secp256k1::SecretKey::from_slice(&secret_key.0.secret_bytes())
+        let secret_key = secp256k1::SecretKey::from_slice(&secret_key.inner().secret_bytes())
             .map_err(|e| PyException::new_err(format!("{e}")))?;
         let public_key = secp256k1::PublicKey::from_secret_key(&secp, &secret_key);
         let (xonly_public_key, _) = public_key.x_only_public_key();

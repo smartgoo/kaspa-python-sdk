@@ -99,7 +99,7 @@ impl PyXPrv {
     pub fn to_private_key(&self) -> PyResult<PyPrivateKey> {
         let private_key = self.0.private_key();
         let inner = PrivateKey::from(private_key);
-        Ok(PyPrivateKey(inner))
+        Ok(PyPrivateKey::new(inner))
     }
 
     #[getter]

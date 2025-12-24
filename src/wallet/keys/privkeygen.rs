@@ -64,7 +64,7 @@ impl PyPrivateKeyGenerator {
             )
             .map_err(|err| PyException::new_err(err.to_string()))?;
         let inner = PrivateKey::from(xkey.private_key());
-        Ok(PyPrivateKey(inner))
+        Ok(PyPrivateKey::new(inner))
     }
 
     pub fn change_key(&self, index: u32) -> PyResult<PyPrivateKey> {
@@ -76,6 +76,6 @@ impl PyPrivateKeyGenerator {
             )
             .map_err(|err| PyException::new_err(err.to_string()))?;
         let inner = PrivateKey::from(xkey.private_key());
-        Ok(PyPrivateKey(inner))
+        Ok(PyPrivateKey::new(inner))
     }
 }

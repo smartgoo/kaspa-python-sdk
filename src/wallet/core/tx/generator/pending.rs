@@ -103,7 +103,7 @@ impl PendingTransaction {
             .0
             .create_input_signature(
                 input_index.into(),
-                &private_key.0.secret_bytes(),
+                &private_key.inner().secret_bytes(),
                 sighash_type.into(),
             )
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
@@ -131,7 +131,7 @@ impl PendingTransaction {
         self.0
             .sign_input(
                 input_index.into(),
-                &private_key.0.secret_bytes(),
+                &private_key.inner().secret_bytes(),
                 sighash_type.into(),
             )
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
@@ -147,7 +147,7 @@ impl PendingTransaction {
     ) -> PyResult<()> {
         let mut keys = private_keys
             .iter()
-            .map(|key| key.0.secret_bytes())
+            .map(|key| key.inner().secret_bytes())
             .collect::<Vec<_>>();
         self.0
             .try_sign_with_keys(&keys, check_fully_signed)

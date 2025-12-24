@@ -8,9 +8,13 @@ use std::str::FromStr;
 
 #[pyclass(name = "PrivateKey")]
 #[derive(Clone)]
-pub struct PyPrivateKey(pub PrivateKey);
+pub struct PyPrivateKey(PrivateKey);
 
 impl PyPrivateKey {
+    pub fn new(key: PrivateKey) -> Self {
+        Self(key)
+    }
+
     pub fn inner(&self) -> PrivateKey {
         self.0.clone()
     }

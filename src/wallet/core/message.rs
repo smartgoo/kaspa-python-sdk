@@ -9,11 +9,11 @@ use zeroize::Zeroize;
 #[pyo3(signature = (message, private_key, no_aux_rand=false))]
 pub fn py_sign_message(
     message: String,
-    private_key: PyPrivateKey,
+    private_key: &PyPrivateKey,
     no_aux_rand: bool,
 ) -> PyResult<String> {
     let mut privkey_bytes = [0u8; 32];
-    privkey_bytes.copy_from_slice(&private_key.0.secret_bytes());
+    privkey_bytes.copy_from_slice(&private_key.inner().secret_bytes());
     let pm = PersonalMessage(&message);
     let sign_options = SignMessageOptions { no_aux_rand };
     let sig_vec = sign_message(&pm, &privkey_bytes, &sign_options)

@@ -1,5 +1,5 @@
 use kaspa_addresses::Prefix;
-use kaspa_consensus_core::network::{self, NetworkId, NetworkType, NetworkTypeError};
+use kaspa_consensus_core::network::{NetworkId, NetworkType, NetworkTypeError};
 use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
@@ -111,8 +111,7 @@ impl FromStr for PyNetworkId {
     type Err = PyErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let inner = NetworkId::from_str(s)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let inner = NetworkId::from_str(s).map_err(|err| PyException::new_err(err.to_string()))?;
 
         Ok(Self(inner))
     }

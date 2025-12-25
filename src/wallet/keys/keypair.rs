@@ -4,8 +4,8 @@ use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::{privatekey::PrivateKey, publickey::PublicKey};
 use pyo3::{exceptions::PyException, prelude::*};
-use zeroize::Zeroize;
 use std::str::FromStr;
+use zeroize::Zeroize;
 
 #[pyclass(name = "Keypair")]
 pub struct PyKeypair {

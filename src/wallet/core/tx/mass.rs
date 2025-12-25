@@ -1,4 +1,5 @@
 use crate::consensus::client::transaction::PyTransaction;
+use crate::consensus::core::network::PyNetworkId;
 
 use super::super::imports::*;
 use kaspa_consensus_core::config::params::Params;
@@ -16,12 +17,11 @@ pub fn py_maximum_standard_transaction_mass() -> u64 {
 #[pyo3(name = "calculate_transaction_mass")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
 pub fn py_calculate_unsigned_transaction_mass(
-    network_id: &str,
+    network_id: PyNetworkId,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
 ) -> PyResult<u64> {
-    let network_id =
-        NetworkId::from_str(network_id).map_err(|err| PyException::new_err(err.to_string()))?;
+    let network_id: NetworkId = network_id.into();
     let consensus_params = Params::from(network_id);
     let mc = mass::MassCalculator::new(&consensus_params);
     mc.calc_overall_mass_for_unsigned_client_transaction(
@@ -35,12 +35,11 @@ pub fn py_calculate_unsigned_transaction_mass(
 #[pyo3(name = "update_transaction_mass")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
 pub fn py_update_unsigned_transaction_mass(
-    network_id: &str,
+    network_id: PyNetworkId,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
 ) -> PyResult<bool> {
-    let network_id =
-        NetworkId::from_str(network_id).map_err(|err| PyException::new_err(err.to_string()))?;
+    let network_id: NetworkId = network_id.into();
     let consensus_params = Params::from(network_id);
     let mc = mass::MassCalculator::new(&consensus_params);
     let tx: kaspa_consensus_client::Transaction = tx.into();
@@ -59,12 +58,11 @@ pub fn py_update_unsigned_transaction_mass(
 #[pyo3(name = "calculate_transaction_fee")]
 #[pyo3(signature = (network_id, tx, minimum_signatures=None))]
 pub fn py_calculate_unsigned_transaction_fee(
-    network_id: &str,
+    network_id: PyNetworkId,
     tx: PyTransaction,
     minimum_signatures: Option<u16>,
 ) -> PyResult<Option<u64>> {
-    let network_id =
-        NetworkId::from_str(network_id).map_err(|err| PyException::new_err(err.to_string()))?;
+    let network_id: NetworkId = network_id.into();
     let consensus_params = Params::from(network_id);
     let mc = mass::MassCalculator::new(&consensus_params);
     let mass = mc
@@ -83,12 +81,11 @@ pub fn py_calculate_unsigned_transaction_fee(
 #[pyfunction]
 #[pyo3(name = "calculate_storage_mass")]
 pub fn py_calculate_storage_mass(
-    network_id: &str,
+    network_id: PyNetworkId,
     input_values: Vec<u64>,
     output_values: Vec<u64>,
 ) -> PyResult<Option<u64>> {
-    let network_id =
-        NetworkId::from_str(network_id).map_err(|err| PyException::new_err(err.to_string()))?;
+    let network_id: NetworkId = network_id.into();
     let consensus_params = Params::from(network_id);
 
     let input_values = input_values

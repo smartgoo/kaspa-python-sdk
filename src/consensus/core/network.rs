@@ -1,5 +1,5 @@
 use kaspa_addresses::Prefix;
-use kaspa_consensus_core::network::{NetworkId, NetworkType, NetworkTypeError};
+use kaspa_consensus_core::network::{self, NetworkId, NetworkType, NetworkTypeError};
 use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
@@ -40,7 +40,7 @@ impl FromStr for PyNetworkType {
 }
 
 #[derive(Clone)]
-#[pyclass(name = "NetworkId")]
+#[pyclass(name = "NetworkId", skip_from_py_object)]
 pub struct PyNetworkId(NetworkId);
 
 #[pymethods]
@@ -48,8 +48,7 @@ impl PyNetworkId {
     #[new]
     pub fn new(network_id: Bound<PyAny>) -> PyResult<Self> {
         if let Ok(network_id) = network_id.extract::<String>() {
-            let inner = NetworkId::from_str(&network_id).unwrap();
-            Ok(Self(inner))
+            PyNetworkId::from_str(&network_id)
         } else if let Ok(network_type) = network_id.extract::<PyNetworkType>() {
             let inner = NetworkId::new(network_type.into());
             Ok(Self(inner))
@@ -104,6 +103,36 @@ impl From<PyNetworkId> for NetworkId {
         Self {
             network_type: value.0.network_type,
             suffix: value.0.suffix,
+        }
+    }
+}
+
+impl FromStr for PyNetworkId {
+    type Err = PyErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let inner = NetworkId::from_str(s)
+            .map_err(|err| PyException::new_err(err.to_string()))?;
+
+        Ok(Self(inner))
+    }
+}
+
+impl<'py> FromPyObject<'_, 'py> for PyNetworkId {
+    type Error = PyErr;
+
+    fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
+        if let Ok(s) = obj.extract::<String>() {
+            PyNetworkId::from_str(&s)
+        } else if let Ok(network_type) = obj.extract::<PyNetworkType>() {
+            let inner = NetworkId::new(network_type.into());
+            Ok(Self(inner))
+        } else if let Ok(network_id) = obj.extract::<Self>() {
+            Ok(network_id)
+        } else {
+            Err(PyException::new_err(
+                "`network_id` must be a String or NetworkId instance",
+            ))
         }
     }
 }

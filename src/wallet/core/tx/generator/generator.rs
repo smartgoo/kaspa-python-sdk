@@ -1,6 +1,7 @@
 use super::super::super::imports::*;
 use super::pending::PendingTransaction;
 use super::summary::PyGeneratorSummary;
+use crate::consensus::core::network::PyNetworkId;
 use crate::{
     consensus::client::utxo::PyUtxoEntryReference, wallet::core::tx::payment::PyPaymentOutput,
 };
@@ -88,7 +89,7 @@ impl PyGenerator {
     #[new]
     #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
     pub fn ctor(
-        network_id: &str,
+        network_id: PyNetworkId,
         entries: PyUtxoEntries,
         change_address: PyAddress,
         outputs: Option<PyOutputs>,
@@ -109,7 +110,7 @@ impl PyGenerator {
             sig_op_count,
             minimum_signatures,
             payload.map(Into::into),
-            network_id,
+            &network_id.to_string(),
         );
 
         let settings = match settings.source {

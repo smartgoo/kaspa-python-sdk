@@ -33,6 +33,38 @@ class SighashType(Enum):
     SingleAnyOneCanPay = 6
 
 
+class NetworkId:
+
+    def __init__(self, network_id: Union[str, NetworkType]) -> None: ...
+
+    @staticmethod
+    def with_suffix(network_type: NetworkType, suffix: u32) -> NetworkId: ...
+
+    @property
+    def network_type(self) -> NetworkType: ...
+
+    def is_mainnet(self) -> bool: ...
+
+    @property
+    def suffix(self) -> Optional[int]: ...
+
+    @property
+    def default_p2p_port(self) -> int: ...
+
+    def to_prefixed(self) -> str: ...
+
+    def to_string(self) -> str: ...
+
+    def address_prefix(self) -> str: ...
+
+
+class NetworkType(Enum):
+    Mainnet = 1
+    Testnet = 2,
+    Devnet = 3,
+    Simnet = 4,
+
+
 class ScriptPublicKey:
 
     def __init__(self, version: int, script: Union[str, bytes, list[int]]) -> None: ...
@@ -628,7 +660,7 @@ class Generator:
 
     def __init__(
         self,
-        network_id: str,
+        network_id: Union[str, NetworkId],
         entries: list[Union[UtxoEntryReference, dict]],
         change_address: Address,
         outputs: Optional[list[Union[PaymentOutput, dict]]] = None,
@@ -728,13 +760,13 @@ class GeneratorSummary:
 
 def maximum_standard_transaction_mass() -> int: ...
 
-def calculate_transaction_fee(network_id: str, tx: Transaction, minimum_signatures: Optional[int] = None) -> Optional[int]: ...
+def calculate_transaction_fee(network_id: Union[str, NetworkId], tx: Transaction, minimum_signatures: Optional[int] = None) -> Optional[int]: ...
 
-def calculate_transaction_mass(network_id: str, tx: Transaction, minimum_signatures: Optional[int] = None) -> int: ...
+def calculate_transaction_mass(network_id: Union[str, NetworkId], tx: Transaction, minimum_signatures: Optional[int] = None) -> int: ...
 
-def update_transaction_mass(network_id: str, tx: Transaction, minimum_signatures: Optional[int] = None) -> bool: ...
+def update_transaction_mass(network_id: Union[str, NetworkId], tx: Transaction, minimum_signatures: Optional[int] = None) -> bool: ...
 
-def calculate_storage_mass(network_id: str, input_values: list[int], output_values: list[int]) -> int: ...
+def calculate_storage_mass(network_id: Union[str, NetworkId], input_values: list[int], output_values: list[int]) -> int: ...
 
 def create_transaction(
     utxo_entry_source: list[dict],
@@ -749,7 +781,7 @@ class CreateTransactionsDict(TypedDict):
     summary: GeneratorSummary
 
 def create_transactions(
-    network_id: str,
+    network_id: Union[str, NetworkId],
     entries: list[dict],
     change_address: Address,
     outputs: Optional[list[dict]] = None,
@@ -761,7 +793,7 @@ def create_transactions(
 ) -> CreateTransactionsDict: ...
 
 def estimate_transactions(
-    network_id: str,
+    network_id: Union[str, NetworkId],
     entries: list[dict],
     change_address: Address,
     outputs: Optional[list[dict]] = None,
@@ -1005,16 +1037,16 @@ class Resolver:
 
     def urls(self) -> list[str]: ...
 
-    def get_node(self, encoding: str, network_id: str) -> dict: ...
+    async def get_node(self, encoding: str, network_id: Union[str, NetworkId]) -> dict: ...
 
-    def get_url(self, encoding: str, network_id: str) -> str: ...
+    async def get_url(self, encoding: str, network_id: Union[str, NetworkId]) -> str: ...
 
-    def connect(self, encoding: str, network_id: str) -> RpcClient: ...
+    # def connect(self, encoding: str, network_id: str) -> RpcClient: ...
 
 
 class RpcClient:
 
-    def __init__(self, resolver: Optional[Resolver] = None, url: Optional[str] = None, encoding: Optional[str] = None, network_id: Optional[str] = None) -> None: ...
+    def __init__(self, resolver: Optional[Resolver] = None, url: Optional[str] = None, encoding: Optional[str] = None, network_id: Optional[Union[str, NetworkId]] = None) -> None: ...
 
     @property
     def url(self) -> str: ...
@@ -1024,7 +1056,7 @@ class RpcClient:
 
     def set_resolver(self, Resolver) -> None: ...
 
-    def set_network_id(self, network_id: str) -> None: ...
+    def set_network_id(self, network_id: Union[str, NetworkId]) -> None: ...
 
     @property
     def is_connected(self) -> bool: ...

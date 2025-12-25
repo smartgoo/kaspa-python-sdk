@@ -1,4 +1,5 @@
 use crate::address::PyAddress;
+use crate::consensus::core::network::PyNetworkId;
 use crate::rpc::model::*;
 use crate::rpc::notification::PyNotification;
 use crate::rpc::wrpc::resolver::PyResolver;
@@ -193,18 +194,16 @@ impl PyRpcClient {
         resolver: Option<PyResolver>,
         url: Option<String>,
         encoding: Option<String>,
-        network_id: Option<String>,
+        network_id: Option<PyNetworkId>,
     ) -> PyResult<PyRpcClient> {
         let encoding = WrpcEncoding::from_str(&encoding.unwrap_or("borsh".to_string()))
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
-        let network_id = NetworkId::from_str(&network_id.unwrap_or(String::from("mainnet")))
-            .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Self::new(
             resolver.map(|r| r.inner()),
             url,
             Some(encoding),
-            Some(network_id),
+            network_id.map(PyNetworkId::into),
         )
     }
 
@@ -226,12 +225,10 @@ impl PyRpcClient {
         Ok(())
     }
 
-    fn set_network_id(&self, network_id: String) -> PyResult<()> {
-        let network_id = NetworkId::from_str(&network_id)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    fn set_network_id(&self, network_id: PyNetworkId) -> PyResult<()> {
         self.0
             .client
-            .set_network_id(&network_id)
+            .set_network_id(&network_id.into())
             .map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(())
     }

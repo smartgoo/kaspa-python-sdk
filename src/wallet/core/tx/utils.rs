@@ -1,4 +1,5 @@
 use crate::consensus::client::transaction::PyTransaction;
+use crate::consensus::core::network::PyNetworkId;
 
 use super::super::imports::*;
 use super::generator::{
@@ -76,7 +77,7 @@ pub fn py_create_transaction(
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
 pub fn py_create_transactions<'a>(
     py: Python<'a>,
-    network_id: &str,
+    network_id: PyNetworkId,
     entries: PyUtxoEntries,
     change_address: PyAddress,
     outputs: Option<PyOutputs>,
@@ -116,7 +117,7 @@ pub fn py_create_transactions<'a>(
 #[pyo3(name = "estimate_transactions")]
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
 pub fn py_estimate_transactions(
-    network_id: &str,
+    network_id: PyNetworkId,
     entries: PyUtxoEntries,
     change_address: PyAddress,
     outputs: Option<PyOutputs>,

@@ -49,12 +49,11 @@ impl PyResolver {
         &self,
         py: Python<'py>,
         encoding: &str,
-        network_id: Py<PyAny>,
+        network_id: Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let encoding = WrpcEncoding::from_str(encoding)
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
-        // let network_id = NetworkId::from_str(network_id)?;
-        let network_id = network_id.extract::<PyNetworkId>(py)?;
+        let network_id = PyNetworkId::new(network_id)?;
 
         let resolver = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -70,12 +69,11 @@ impl PyResolver {
         &self,
         py: Python<'py>,
         encoding: &str,
-        network_id: Py<PyAny>,
+        network_id: Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let encoding = WrpcEncoding::from_str(encoding)
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
-        // let network_id = NetworkId::from_str(network_id)?;
-        let network_id = network_id.extract::<PyNetworkId>(py)?;
+        let network_id = PyNetworkId::new(network_id)?;
 
         let resolver = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {

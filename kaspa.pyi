@@ -671,18 +671,7 @@ class Generator:
         minimun_signatures: Optional[int] = None
     ) -> None: ...
 
-    def estimate(
-        self,
-        network_id: str,
-        entries: list[dict],
-        outputs: list[dict],
-        change_address: Address,
-        payload: Optional[str],
-        priority_fee: Optional[str],
-        priority_entries: Optional[list[dict]],
-        sig_op_count: Optional[int],
-        minimun_signatures: Optional[int]
-    ) -> GeneratorSummary: ...
+    def estimate(self) -> GeneratorSummary: ...
 
     def summary(self) -> GeneratorSummary: ...
 

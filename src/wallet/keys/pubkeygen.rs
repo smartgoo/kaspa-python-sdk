@@ -1,5 +1,5 @@
 use kaspa_addresses::Address;
-use kaspa_consensus_core::network::NetworkType;
+use kaspa_consensus_core::network::{self, NetworkType};
 use kaspa_wallet_core::derivation::WalletDerivationManagerTrait;
 use kaspa_wallet_keys::publickey::PublicKey;
 use kaspa_wallet_keys::result::Result;
@@ -7,6 +7,7 @@ use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, xprv::XPrv, x
 use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
+use crate::consensus::core::network::PyNetworkType;
 use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
 
 #[pyclass(name = "PublicKeyGenerator")]
@@ -110,15 +111,14 @@ impl PyPublicKeyGenerator {
     #[pyo3(name = "receive_addresses")]
     fn receive_addresses(
         &self,
-        network_type: &str,
+        network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<PyAddress>> {
         if start > end {
             (start, end) = (end, start);
         }
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let network_type: NetworkType = network_type.into();
         let pubkeys = self
             .hd_wallet
             .receive_pubkey_manager()
@@ -134,16 +134,14 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_address")]
-    fn receive_address(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    fn receive_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(network_type)
+        .to_address(NetworkType::from(network_type).into())
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Ok(PyAddress(inner))
@@ -152,15 +150,14 @@ impl PyPublicKeyGenerator {
     #[pyo3(name = "receive_addresses_as_strings")]
     fn receive_addresses_as_strings(
         &self,
-        network_type: &str,
+        network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<String>> {
         if start > end {
             (start, end) = (end, start);
         }
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let network_type: NetworkType = network_type.into();
         let pubkeys = self
             .hd_wallet
             .receive_pubkey_manager()
@@ -178,7 +175,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_address_as_string")]
-    fn receive_address_as_string(&self, network_type: &str, index: u32) -> PyResult<String> {
+    fn receive_address_as_string(&self, network_type: PyNetworkType, index: u32) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
@@ -186,8 +183,7 @@ impl PyPublicKeyGenerator {
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
         .to_address(
-            NetworkType::from_str(network_type)
-                .map_err(|err| PyException::new_err(err.to_string()))?,
+            NetworkType::from(network_type).into()
         )
         .map_err(|err| PyException::new_err(err.to_string()))?
         .to_string())
@@ -252,15 +248,14 @@ impl PyPublicKeyGenerator {
     #[pyo3(name = "change_addresses")]
     pub fn change_addresses(
         &self,
-        network_type: &str,
+        network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<PyAddress>> {
         if start > end {
             (start, end) = (end, start);
         }
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let network_type: NetworkType = network_type.into();
         let pubkeys = self
             .hd_wallet
             .receive_pubkey_manager()
@@ -276,16 +271,14 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_address")]
-    pub fn change_address(&self, network_type: &str, index: u32) -> PyResult<PyAddress> {
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    pub fn change_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
             self.hd_wallet
                 .change_pubkey_manager()
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(network_type)
+        .to_address(NetworkType::from(network_type).into())
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Ok(PyAddress(inner))
@@ -294,15 +287,14 @@ impl PyPublicKeyGenerator {
     #[pyo3(name = "change_addresses_as_strings")]
     pub fn change_addresses_as_strings(
         &self,
-        network_type: &str,
+        network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<String>> {
         if start > end {
             (start, end) = (end, start);
         }
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let network_type: NetworkType = network_type.into();
         let pubkeys = self
             .hd_wallet
             .change_pubkey_manager()
@@ -320,7 +312,7 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_address_as_string")]
-    pub fn change_address_as_string(&self, network_type: &str, index: u32) -> PyResult<String> {
+    pub fn change_address_as_string(&self, network_type: PyNetworkType, index: u32) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
@@ -328,8 +320,7 @@ impl PyPublicKeyGenerator {
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
         .to_address(
-            NetworkType::from_str(network_type)
-                .map_err(|err| PyException::new_err(err.to_string()))?,
+            NetworkType::from(network_type).into()
         )
         .map_err(|err| PyException::new_err(err.to_string()))?
         .to_string())

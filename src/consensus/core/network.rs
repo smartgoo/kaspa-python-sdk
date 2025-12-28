@@ -1,5 +1,5 @@
 use kaspa_addresses::Prefix;
-use kaspa_consensus_core::network::{NetworkId, NetworkType, NetworkTypeError};
+use kaspa_consensus_core::network::{NetworkId, NetworkType};
 use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
@@ -9,6 +9,30 @@ crate::wrap_unit_enum_for_py!(PyNetworkType, "NetworkType", NetworkType, {
     Devnet,
     Simnet,
 });
+
+impl FromStr for PyNetworkType {
+    type Err = PyErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let inner =
+            NetworkType::from_str(s).map_err(|err| PyException::new_err(err.to_string()))?;
+        Ok(inner.into())
+    }
+}
+
+impl<'py> FromPyObject<'_, 'py> for PyNetworkType {
+    type Error = PyErr;
+
+    fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
+        if let Ok(s) = obj.extract::<String>() {
+            PyNetworkType::from_str(&s).map_err(|err| PyException::new_err(err.to_string()))
+        } else if let Ok(t) = obj.cast::<PyNetworkType>() {
+            Ok(t.borrow().clone())
+        } else {
+            Err(PyException::new_err("Expected type `str` or `NetworkType`"))
+        }
+    }
+}
 
 #[pymethods]
 impl PyNetworkType {
@@ -28,14 +52,6 @@ impl PyNetworkType {
 impl From<&PyNetworkType> for NetworkType {
     fn from(value: &PyNetworkType) -> Self {
         value.clone().into()
-    }
-}
-
-impl FromStr for PyNetworkType {
-    type Err = NetworkTypeError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let network_type = NetworkType::from_str(s)?;
-        Ok(Self::from(network_type))
     }
 }
 
@@ -123,11 +139,11 @@ impl<'py> FromPyObject<'_, 'py> for PyNetworkId {
     fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
         if let Ok(s) = obj.extract::<String>() {
             PyNetworkId::from_str(&s)
-        } else if let Ok(network_type) = obj.extract::<PyNetworkType>() {
-            let inner = NetworkId::new(network_type.into());
+        } else if let Ok(network_type) = obj.cast::<PyNetworkType>() {
+            let inner = NetworkId::new(network_type.borrow().clone().into());
             Ok(Self(inner))
-        } else if let Ok(network_id) = obj.extract::<Self>() {
-            Ok(network_id)
+        } else if let Ok(network_id) = obj.cast::<Self>() {
+            Ok(network_id.borrow().clone())
         } else {
             Err(PyException::new_err(
                 "`network_id` must be a String or NetworkId instance",

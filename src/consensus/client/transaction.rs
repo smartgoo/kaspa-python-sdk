@@ -1,6 +1,7 @@
 use crate::address::PyAddress;
 use crate::consensus::client::input::PyTransactionInput;
 use crate::consensus::client::output::PyTransactionOutput;
+use crate::consensus::core::network::PyNetworkType;
 use crate::{consensus::core::tx::PyTransactionId, types::PyBinary};
 use kaspa_consensus_client::{Transaction, TransactionInput, TransactionOutput};
 use kaspa_consensus_core::network::NetworkType;
@@ -95,9 +96,8 @@ impl PyTransaction {
     }
 
     #[pyo3(name = "addresses")]
-    pub fn addresses(&self, network_type: &str) -> PyResult<Vec<PyAddress>> {
-        let network_type = NetworkType::from_str(network_type)
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    pub fn addresses(&self, network_type: PyNetworkType) -> PyResult<Vec<PyAddress>> {
+        let network_type: NetworkType = network_type.into();
         let mut list = std::collections::HashSet::new();
         for input in &self.0.inner().inputs {
             if let Some(utxo) = input.get_utxo() {

@@ -5,8 +5,7 @@ use pyo3::{exceptions::PyException, prelude::*};
 use std::str::FromStr;
 
 use crate::{
-    address::PyAddress,
-    wallet::{core::account::kind::PyAccountKind, keys::publickey::PyPublicKey},
+    address::PyAddress, consensus::core::network::PyNetworkType, wallet::{core::account::kind::PyAccountKind, keys::publickey::PyPublicKey}
 };
 
 #[pyfunction]
@@ -15,12 +14,10 @@ use crate::{
 pub fn py_create_multisig_address(
     minimum_signatures: usize,
     keys: Vec<PyPublicKey>,
-    network_type: &str,
+    network_type: PyNetworkType,
     ecdsa: Option<bool>,
     account_kind: Option<PyAccountKind>,
 ) -> PyResult<PyAddress> {
-    let network_type =
-        NetworkType::from_str(network_type).map_err(|err| PyException::new_err(err.to_string()))?;
     let keys = keys
         .into_iter()
         .map(|pk| PublicKey::from(pk).try_into())
@@ -29,7 +26,7 @@ pub fn py_create_multisig_address(
     Ok(create_address(
         minimum_signatures,
         keys,
-        network_type.into(),
+        NetworkType::from(network_type).into(),
         ecdsa.unwrap_or(false),
         account_kind.map(AccountKind::from),
     )

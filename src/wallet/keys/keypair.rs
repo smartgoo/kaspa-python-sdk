@@ -1,5 +1,5 @@
 use super::privatekey::PyPrivateKey;
-use crate::address::PyAddress;
+use crate::{address::PyAddress, consensus::core::network::PyNetworkType};
 use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::{privatekey::PrivateKey, publickey::PublicKey};
@@ -51,12 +51,10 @@ impl PyKeypair {
     }
 
     #[pyo3(name = "to_address")]
-    pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.xonly_public_key.serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKey,
             payload,
         );
@@ -64,12 +62,10 @@ impl PyKeypair {
     }
 
     #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.public_key.serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKeyECDSA,
             payload,
         );

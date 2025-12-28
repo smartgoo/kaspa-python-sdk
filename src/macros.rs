@@ -26,7 +26,7 @@ macro_rules! wrap_c_enum_for_py {
 #[macro_export]
 macro_rules! wrap_unit_enum_for_py {
     ($name:ident, $py_name:literal, $source:ty, { $($variant:ident),* $(,)? }) => {
-        #[pyclass(name = $py_name, eq, eq_int)]
+        #[pyclass(name = $py_name, skip_from_py_object, eq, eq_int)]
         #[derive(Clone, PartialEq)]
         pub enum $name { $($variant),* }
 

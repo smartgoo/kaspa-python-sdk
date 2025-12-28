@@ -1,5 +1,5 @@
 use crate::{
-    address::PyAddress, consensus::core::script_public_key::PyScriptPublicKey, types::PyBinary,
+    address::PyAddress, consensus::core::{network::PyNetworkType, script_public_key::PyScriptPublicKey}, types::PyBinary,
 };
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_txscript::{script_class::ScriptClass, standard};
@@ -34,13 +34,11 @@ pub fn py_pay_to_script_hash_signature_script(
 #[pyo3(name = "address_from_script_public_key")]
 pub fn py_address_from_script_public_key(
     script_public_key: PyScriptPublicKey,
-    network: &str,
+    network: PyNetworkType,
 ) -> PyResult<PyAddress> {
     match standard::extract_script_pub_key_address(
         &script_public_key.into(),
-        NetworkType::from_str(network)
-            .map_err(|err| PyException::new_err(err.to_string()))?
-            .into(),
+        NetworkType::from(network).into(),
     ) {
         Ok(address) => Ok(address.into()),
         Err(err) => Err(pyo3::exceptions::PyException::new_err(format!("{}", err))),

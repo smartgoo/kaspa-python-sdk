@@ -1,4 +1,4 @@
-use crate::address::PyAddress;
+use crate::{address::PyAddress, consensus::core::network::PyNetworkType};
 use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::{prelude::XOnlyPublicKey, publickey::PublicKey};
@@ -28,24 +28,22 @@ impl PyPublicKey {
     }
 
     #[pyo3(name = "to_address")]
-    pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address(
-                NetworkType::from_str(network)
-                    .map_err(|err| PyException::new_err(err.to_string()))?,
+                NetworkType::from(network).into(),
             )
             .map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(PyAddress(address))
     }
 
     #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address_ecdsa(
-                NetworkType::from_str(network)
-                    .map_err(|err| PyException::new_err(err.to_string()))?,
+                NetworkType::from(network).into(),
             )
             .map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(PyAddress(address))
@@ -99,12 +97,10 @@ impl PyXOnlyPublicKey {
     }
 
     #[pyo3(name = "to_address")]
-    pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.0.inner.serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKey,
             payload,
         );
@@ -112,12 +108,10 @@ impl PyXOnlyPublicKey {
     }
 
     #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.0.inner.serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKeyECDSA,
             payload,
         );

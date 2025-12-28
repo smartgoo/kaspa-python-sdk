@@ -1,5 +1,5 @@
 use super::publickey::PyPublicKey;
-use crate::{address::PyAddress, wallet::keys::keypair::PyKeypair};
+use crate::{address::PyAddress, consensus::core::network::PyNetworkType, wallet::keys::keypair::PyKeypair};
 use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::privatekey::PrivateKey;
@@ -46,7 +46,7 @@ impl PyPrivateKey {
         Ok(public_key.into())
     }
 
-    pub fn to_address(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let public_key = self
             .0
             .to_public_key()
@@ -54,25 +54,21 @@ impl PyPrivateKey {
         let (x_only_public_key, _) = public_key.public_key.unwrap().x_only_public_key();
         let payload = x_only_public_key.serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKey,
             &payload,
         );
         Ok(address.into())
     }
 
-    pub fn to_address_ecdsa(&self, network: &str) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let public_key = self
             .0
             .to_public_key()
             .map_err(|_| PyException::new_err("Failed to derive public key"))?;
         let payload = public_key.public_key.unwrap().serialize();
         let address = Address::new(
-            NetworkType::from_str(network)
-                .map_err(|err| PyException::new_err(err.to_string()))?
-                .into(),
+            NetworkType::from(network).into(),
             Version::PubKeyECDSA,
             &payload,
         );

@@ -15,13 +15,13 @@ impl FromStr for PySighashType {
     type Err = PyErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "All" => Ok(PySighashType::All),
-            "None" => Ok(PySighashType::None),
-            "Single" => Ok(PySighashType::Single),
-            "AllAnyOneCanPay" => Ok(PySighashType::AllAnyOneCanPay),
-            "NoneAnyOneCanPay" => Ok(PySighashType::NoneAnyOneCanPay),
-            "SingleAnyOneCanPay" => Ok(PySighashType::SingleAnyOneCanPay),
+        match s.to_lowercase().as_str() {
+            "all" => Ok(PySighashType::All),
+            "none" => Ok(PySighashType::None),
+            "single" => Ok(PySighashType::Single),
+            "allanyonecanpay" => Ok(PySighashType::AllAnyOneCanPay),
+            "noneanyonecanpay" => Ok(PySighashType::NoneAnyOneCanPay),
+            "singleanyonecanpay" => Ok(PySighashType::SingleAnyOneCanPay),
             _ => Err(PyException::new_err(
                 "Unsupported string value for SighashType",
             )),

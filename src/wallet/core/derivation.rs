@@ -2,10 +2,11 @@ use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_core::{derivation::create_address, prelude::AccountKind};
 use kaspa_wallet_keys::publickey::PublicKey;
 use pyo3::{exceptions::PyException, prelude::*};
-use std::str::FromStr;
 
 use crate::{
-    address::PyAddress, consensus::core::network::PyNetworkType, wallet::{core::account::kind::PyAccountKind, keys::publickey::PyPublicKey}
+    address::PyAddress,
+    consensus::core::network::PyNetworkType,
+    wallet::{core::account::kind::PyAccountKind, keys::publickey::PyPublicKey},
 };
 
 #[pyfunction]

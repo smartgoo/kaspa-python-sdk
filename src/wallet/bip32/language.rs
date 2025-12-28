@@ -8,8 +8,8 @@ impl FromStr for PyLanguage {
     type Err = PyErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "English" => Ok(PyLanguage::English),
+        match s.to_lowercase().as_str() {
+            "english" => Ok(PyLanguage::English),
             _ => Err(PyException::new_err(
                 "Unsupported string value for Language",
             )),

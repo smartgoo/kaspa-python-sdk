@@ -1,10 +1,11 @@
 use crate::{
-    address::PyAddress, consensus::core::{network::PyNetworkType, script_public_key::PyScriptPublicKey}, types::PyBinary,
+    address::PyAddress,
+    consensus::core::{network::PyNetworkType, script_public_key::PyScriptPublicKey},
+    types::PyBinary,
 };
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_txscript::{script_class::ScriptClass, standard};
 use pyo3::{exceptions::PyException, prelude::*};
-use std::str::FromStr;
 use workflow_core::hex::ToHex;
 
 #[pyfunction]

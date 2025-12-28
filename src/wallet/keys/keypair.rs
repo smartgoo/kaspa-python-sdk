@@ -53,11 +53,7 @@ impl PyKeypair {
     #[pyo3(name = "to_address")]
     pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.xonly_public_key.serialize();
-        let address = Address::new(
-            NetworkType::from(network).into(),
-            Version::PubKey,
-            payload,
-        );
+        let address = Address::new(NetworkType::from(network).into(), Version::PubKey, payload);
         Ok(address.into())
     }
 

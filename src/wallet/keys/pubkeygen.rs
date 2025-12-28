@@ -1,11 +1,10 @@
 use kaspa_addresses::Address;
-use kaspa_consensus_core::network::{self, NetworkType};
+use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_core::derivation::WalletDerivationManagerTrait;
 use kaspa_wallet_keys::publickey::PublicKey;
 use kaspa_wallet_keys::result::Result;
 use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, xprv::XPrv, xpub::XPub};
 use pyo3::{exceptions::PyException, prelude::*};
-use std::str::FromStr;
 
 use crate::consensus::core::network::PyNetworkType;
 use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
@@ -141,7 +140,7 @@ impl PyPublicKeyGenerator {
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(NetworkType::from(network_type).into())
+        .to_address(NetworkType::from(network_type))
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Ok(PyAddress(inner))
@@ -175,16 +174,18 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "receive_address_as_string")]
-    fn receive_address_as_string(&self, network_type: PyNetworkType, index: u32) -> PyResult<String> {
+    fn receive_address_as_string(
+        &self,
+        network_type: PyNetworkType,
+        index: u32,
+    ) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(
-            NetworkType::from(network_type).into()
-        )
+        .to_address(NetworkType::from(network_type))
         .map_err(|err| PyException::new_err(err.to_string()))?
         .to_string())
     }
@@ -278,7 +279,7 @@ impl PyPublicKeyGenerator {
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(NetworkType::from(network_type).into())
+        .to_address(NetworkType::from(network_type))
         .map_err(|err| PyException::new_err(err.to_string()))?;
 
         Ok(PyAddress(inner))
@@ -312,16 +313,18 @@ impl PyPublicKeyGenerator {
     }
 
     #[pyo3(name = "change_address_as_string")]
-    pub fn change_address_as_string(&self, network_type: PyNetworkType, index: u32) -> PyResult<String> {
+    pub fn change_address_as_string(
+        &self,
+        network_type: PyNetworkType,
+        index: u32,
+    ) -> PyResult<String> {
         Ok(PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
                 .derive_pubkey(index)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         )
-        .to_address(
-            NetworkType::from(network_type).into()
-        )
+        .to_address(NetworkType::from(network_type))
         .map_err(|err| PyException::new_err(err.to_string()))?
         .to_string())
     }

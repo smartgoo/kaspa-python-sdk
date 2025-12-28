@@ -1,10 +1,11 @@
 use super::publickey::PyPublicKey;
-use crate::{address::PyAddress, consensus::core::network::PyNetworkType, wallet::keys::keypair::PyKeypair};
+use crate::{
+    address::PyAddress, consensus::core::network::PyNetworkType, wallet::keys::keypair::PyKeypair,
+};
 use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::privatekey::PrivateKey;
 use pyo3::{exceptions::PyException, prelude::*};
-use std::str::FromStr;
 
 #[pyclass(name = "PrivateKey")]
 pub struct PyPrivateKey(PrivateKey);
@@ -53,11 +54,7 @@ impl PyPrivateKey {
             .map_err(|_| PyException::new_err("Failed to derive public key"))?;
         let (x_only_public_key, _) = public_key.public_key.unwrap().x_only_public_key();
         let payload = x_only_public_key.serialize();
-        let address = Address::new(
-            NetworkType::from(network).into(),
-            Version::PubKey,
-            &payload,
-        );
+        let address = Address::new(NetworkType::from(network).into(), Version::PubKey, &payload);
         Ok(address.into())
     }
 

@@ -11,7 +11,6 @@ use kaspa_consensus_core::tx as cctx;
 use kaspa_txscript::extract_script_pub_key_address;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
-use std::str::FromStr;
 use workflow_core::hex::{FromHex, ToHex};
 
 #[pyclass(name = "Transaction")]

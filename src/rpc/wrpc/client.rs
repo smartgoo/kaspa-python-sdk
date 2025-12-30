@@ -199,11 +199,16 @@ impl PyRpcClient {
         let encoding = WrpcEncoding::from_str(&encoding.unwrap_or("borsh".to_string()))
             .map_err(|err| PyException::new_err(format!("{}", err)))?;
 
+        let network_id = match network_id {
+            Some(id) => id,
+            None => PyNetworkId::from_str("mainnet")?,
+        };
+
         Self::new(
             resolver.map(|r| r.inner()),
             url,
             Some(encoding),
-            network_id.map(PyNetworkId::into),
+            Some(network_id.into()),
         )
     }
 

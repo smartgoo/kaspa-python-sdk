@@ -78,13 +78,6 @@ PyO3 provides low-level (one-to-one) bindings to Python's C-API via Rust's FFI f
 
 PyO3 also provides abstractions on top of these lower-level bindings that help avoid common pitfalls of working with Python. These abstractions also bridge the Rust and Python memory models, providing an ergonomic and safe solution.
 
----
-
-## Kaspa Python SDK Technical Notes
-
-### Function Parameter Types
-The following is a higher level summary covering parameter types in Python-exposed functions.
-
 #### PyO3's `FromPyObject` Trait
 
 First, it's important to understand [PyO3's `FromPyObject` trait](https://pyo3.rs/v0.27.2/conversions/traits#extract-and-the-frompyobject-trait).

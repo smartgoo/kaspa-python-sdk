@@ -22,7 +22,7 @@ impl PyAddress {
 
     #[pyo3(name = "to_string")]
     pub fn address_to_string(&self) -> String {
-        self.0.clone().into()
+        self.0.address_to_string()
     }
 
     #[getter]

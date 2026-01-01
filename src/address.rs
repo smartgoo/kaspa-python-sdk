@@ -45,13 +45,15 @@ impl PyAddress {
         Ok(())
     }
 
-    // NOTE: Cannot expose since encode_payload is private
+    // TODO Cannot expose since encode_payload is private
+    // Requires reimplementation
     // #[pyo3(name = "payload")]
     // pub fn payload_to_string(&self) -> String {
     //     self.0.encode_payload()
     // }
 
-    // NOTE: Cannot expose since encode_payload is private
+    // TODO Cannot expose since encode_payload is private
+    // Requires reimplementation
     // #[pyo3(name = "short")]
     // pub fn short(&self, n: usize) -> String {
     //     let payload = self.encode_payload();

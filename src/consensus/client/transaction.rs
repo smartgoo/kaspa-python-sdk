@@ -178,7 +178,7 @@ impl PyTransaction {
     #[pyo3(name = "subnetwork_id")]
     pub fn set_subnetwork_id_from_value(&mut self, v: &str) -> PyResult<()> {
         let subnetwork_id = Vec::from_hex(v)
-            .unwrap_or_else(|err| panic!("subnetwork_id decode error {}", err))
+            .map_err(|err| PyException::new_err(err.to_string()))?
             .as_slice()
             .try_into()
             .map_err(|err| {

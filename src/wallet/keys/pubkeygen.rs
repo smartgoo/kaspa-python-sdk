@@ -33,7 +33,7 @@ impl PyPublicKeyGenerator {
     #[pyo3(name = "from_master_xprv")]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
     fn from_master_xprv(
-        xprv: String,
+        xprv: &str,
         is_multisig: bool,
         account_index: u64,
         cosigner_index: Option<u32>,

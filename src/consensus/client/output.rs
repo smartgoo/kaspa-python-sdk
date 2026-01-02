@@ -23,7 +23,7 @@ impl PyTransactionOutput {
 
     #[setter]
     #[pyo3(name = "value")]
-    pub fn set_value(&self, v: u64) {
+    pub fn set_value(&mut self, v: u64) {
         self.0.inner().value = v;
     }
 
@@ -35,7 +35,7 @@ impl PyTransactionOutput {
 
     #[setter]
     #[pyo3(name = "script_public_key")]
-    pub fn set_script_public_key(&self, v: PyScriptPublicKey) {
+    pub fn set_script_public_key(&mut self, v: PyScriptPublicKey) {
         self.0.inner().script_public_key = v.clone().into();
     }
 }

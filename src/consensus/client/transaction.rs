@@ -208,7 +208,7 @@ impl PyTransaction {
 
     #[setter]
     #[pyo3(name = "mass")]
-    pub fn set_mass(&self, v: u64) {
+    pub fn set_mass(&mut self, v: u64) {
         self.0.inner().mass = v;
     }
 }

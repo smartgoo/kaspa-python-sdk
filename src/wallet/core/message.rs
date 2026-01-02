@@ -8,7 +8,7 @@ use zeroize::Zeroize;
 #[pyo3(name = "sign_message")]
 #[pyo3(signature = (message, private_key, no_aux_rand=false))]
 pub fn py_sign_message(
-    message: String,
+    message: &str,
     private_key: &PyPrivateKey,
     no_aux_rand: bool,
 ) -> PyResult<String> {

@@ -1,3 +1,6 @@
+## [Unreleased]
+TODO
+
 ## [1.0.1.post2] - 2025-11-13
 ### Added
 - Support for Python 3.14

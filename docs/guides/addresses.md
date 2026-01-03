@@ -77,11 +77,11 @@ else:
 
 Kaspa supports several address versions:
 
-| Version | Description | Use Case |
-|---------|-------------|----------|
-| PubKey | Schnorr signature | Default, recommended |
-| PubKeyECDSA | ECDSA signature | Compatibility with other tools |
-| ScriptHash | Pay-to-Script-Hash | Multi-sig, custom scripts |
+| Version | Description |
+|---------|-------------|
+| PubKey | Schnorr signature |
+| PubKeyECDSA | ECDSA signature |
+| ScriptHash | Pay-to-Script-Hash |
 
 ```python
 from kaspa import Address
@@ -172,13 +172,6 @@ multisig_address = create_multisig_address(
 
 print(f"Multisig address: {multisig_address.to_string()}")
 ```
-
-## Best Practices
-
-1. **Always validate** addresses before sending funds
-2. **Verify the network prefix** matches your intended network
-3. **Use Schnorr addresses** (PubKey) for new applications
-4. **Store addresses** as strings for serialization
 
 ## See Also
 

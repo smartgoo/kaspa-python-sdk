@@ -1,6 +1,11 @@
 # Quickstart
 
-This guide walks you through the essential features of the Kaspa Python SDK.
+A handful of brief examples showing core features of the Kaspa Python SDK.
+
+!!! danger "Handle Private Keys Securely"
+    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted here for brevity.
+
+    Never store your private keys in plain text directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
 ## Creating a Wallet
 
@@ -24,14 +29,13 @@ xprv = XPrv(seed)
 key_gen = PrivateKeyGenerator(xprv, False, 0)
 ```
 
-!!! warning "Secure Your Seed Phrase"
-    Never share your seed phrase. Store it securely offline. Anyone with access to this phrase has full control over your funds.
-
 ## Generating Addresses
 
 With the key generator, you can derive addresses:
 
 ```python
+# ... continuation of example above
+
 # Get the first receive address
 private_key = key_gen.receive_key(0)
 address = private_key.to_address(NetworkType.Mainnet)
@@ -64,6 +68,8 @@ if Mnemonic.validate(phrase):
     # Derive your first address
     address = key_gen.receive_key(0).to_address(NetworkType.Mainnet)
     print(f"Restored address: {address.to_string()}")
+
+    # Derive additional addresses as needed...
 else:
     print("Invalid seed phrase!")
 ```
@@ -75,7 +81,7 @@ import asyncio
 from kaspa import RpcClient, Resolver, NetworkId
 
 async def main():
-    # Create a resolver to find available nodes
+    # Create a resolver to use available PNN nodes
     resolver = Resolver()
     
     # Create RPC client

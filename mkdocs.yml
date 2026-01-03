@@ -22,14 +22,14 @@ theme:
     - toc.follow
   palette:
     - scheme: default
-      primary: teal
-      accent: cyan
+      primary: indigo
+      accent: blue
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: teal
-      accent: cyan
+      primary: indigo
+      accent: blue
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -43,9 +43,6 @@ plugins:
       handlers:
         python:
           options:
-            # find_stubs_package: false
-            # force_inspection: true
-            # allow_inspection: true
             show_source: false
             show_root_heading: true
             show_root_full_path: false
@@ -105,6 +102,5 @@ nav:
       - Transactions: api/transactions.md
       - RPC: api/rpc.md
       - Utilities: api/utilities.md
-  - Reference:
-      - Changelog: reference/changelog.md
+  - Changelog: CHANGELOG.md
 

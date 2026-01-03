@@ -2,13 +2,13 @@ use kaspa_rpc_core::message::*;
 use paste::paste;
 use serde::{Deserialize, Serialize};
 
-/// Macro to define Python request wrapper types.
-///
-/// For each name (e.g., `GetBlockCount`), generates:
-/// ```ignore
-/// #[derive(Deserialize, Serialize)]
-/// pub struct PyGetBlockCountRequest(pub GetBlockCountRequest);
-/// ```
+// Macro to define Python request wrapper types.
+//
+// For each name (e.g., `GetBlockCount`), generates:
+// ```ignore
+// #[derive(Deserialize, Serialize)]
+// pub struct PyGetBlockCountRequest(pub GetBlockCountRequest);
+// ```
 macro_rules! define_py_request_types {
     ([$($name:ident),* $(,)?]) => {
         paste! {

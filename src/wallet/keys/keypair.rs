@@ -4,9 +4,15 @@ use kaspa_addresses::{Address, Version};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_keys::{privatekey::PrivateKey, publickey::PublicKey};
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::str::FromStr;
 use zeroize::Zeroize;
 
+/// A cryptographic keypair containing private and public keys.
+///
+/// Provides convenient access to all key forms needed for signing
+/// and address generation.
+#[gen_stub_pyclass]
 #[pyclass(name = "Keypair")]
 pub struct PyKeypair {
     secret_key: secp256k1::SecretKey,
@@ -14,8 +20,21 @@ pub struct PyKeypair {
     xonly_public_key: secp256k1::XOnlyPublicKey,
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyKeypair {
+    /// Create a keypair from hex string representations.
+    ///
+    /// Args:
+    ///     secret_key: The secret key as hex.
+    ///     public_key: The public key as hex.
+    ///     xonly_public_key: The x-only public key as hex.
+    ///
+    /// Returns:
+    ///     Keypair: A new Keypair instance.
+    ///
+    /// Raises:
+    ///     Exception: If any key format is invalid.
     #[new]
     pub fn new(secret_key: &str, public_key: &str, xonly_public_key: &str) -> PyResult<Self> {
         let secret_key = secp256k1::SecretKey::from_str(secret_key)
@@ -32,24 +51,43 @@ impl PyKeypair {
         })
     }
 
+    /// The x-only public key as hex.
+    ///
+    /// Returns:
+    ///     str: The x-only public key.
     #[getter]
     #[pyo3(name = "xonly_public_key")]
     pub fn get_xonly_public_key(&self) -> String {
         self.xonly_public_key.to_string()
     }
 
+    /// The full public key as hex.
+    ///
+    /// Returns:
+    ///     str: The public key.
     #[getter]
     #[pyo3(name = "public_key")]
     pub fn get_public_key(&self) -> String {
         PublicKey::from(&self.public_key).to_string()
     }
 
+    /// The private key as hex.
+    ///
+    /// Returns:
+    ///     str: The private key.
     #[getter]
     #[pyo3(name = "private_key")]
     pub fn get_private_key(&self) -> String {
         PrivateKey::from(&self.secret_key).to_hex()
     }
 
+    /// Derive a Schnorr address from this keypair.
+    ///
+    /// Args:
+    ///     network: The network type for address encoding.
+    ///
+    /// Returns:
+    ///     Address: The derived Schnorr address.
     #[pyo3(name = "to_address")]
     pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.xonly_public_key.serialize();
@@ -57,6 +95,13 @@ impl PyKeypair {
         Ok(address.into())
     }
 
+    /// Derive an ECDSA address from this keypair.
+    ///
+    /// Args:
+    ///     network: The network type for address encoding.
+    ///
+    /// Returns:
+    ///     Address: The derived ECDSA address.
     #[pyo3(name = "to_address_ecdsa")]
     pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
         let payload = &self.public_key.serialize();
@@ -68,6 +113,10 @@ impl PyKeypair {
         Ok(address.into())
     }
 
+    /// Generate a random keypair.
+    ///
+    /// Returns:
+    ///     Keypair: A new random Keypair.
     #[staticmethod]
     #[pyo3(name = "random")]
     pub fn random() -> PyResult<PyKeypair> {
@@ -81,6 +130,16 @@ impl PyKeypair {
         })
     }
 
+    /// Create a keypair from a private key.
+    ///
+    /// Args:
+    ///     private_key: The private key to derive from.
+    ///
+    /// Returns:
+    ///     Keypair: A new Keypair with derived public keys.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[staticmethod]
     #[pyo3(name = "from_private_key")]
     pub fn from_private_key(private_key: &PyPrivateKey) -> PyResult<PyKeypair> {

@@ -4,9 +4,15 @@ use pyo3::{
     prelude::*,
     types::PyDict,
 };
+use pyo3_stub_gen::derive::gen_stub_pyclass;
 
 use crate::address::PyAddress;
 
+/// A payment destination with address and amount.
+///
+/// Represents a single output in a transaction, specifying where funds
+/// should be sent and how much. Used with Generator and create_transactions.
+#[gen_stub_pyclass]
 #[pyclass(name = "PaymentOutput")]
 #[derive(Clone)]
 pub struct PyPaymentOutput(PaymentOutput);

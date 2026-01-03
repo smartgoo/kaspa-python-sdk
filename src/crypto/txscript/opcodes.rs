@@ -1,7 +1,13 @@
 use kaspa_txscript::wasm::Opcodes;
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::{gen_stub_pyclass_enum, gen_stub_pymethods};
 
-crate::wrap_c_enum_for_py!(PyOpcodes, "Opcodes", Opcodes, {
+crate::wrap_c_enum_for_py!(
+    /// Ccript opcodes for transaction scripting.
+    ///
+    /// These opcodes are used in ScriptBuilder to construct locking and
+    /// unlocking scripts for Kaspa transactions.
+    PyOpcodes, "Opcodes", Opcodes, {
     OpFalse = 0x00,
     OpData1 = 0x01,
     OpData2 = 0x02,
@@ -260,6 +266,7 @@ crate::wrap_c_enum_for_py!(PyOpcodes, "Opcodes", Opcodes, {
     OpInvalidOpCode = 0xff,
 });
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyOpcodes {
     #[getter]

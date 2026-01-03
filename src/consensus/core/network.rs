@@ -1,9 +1,18 @@
 use kaspa_addresses::Prefix;
 use kaspa_consensus_core::network::{NetworkId, NetworkType};
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyclass_enum, gen_stub_pymethods};
 use std::str::FromStr;
 
-crate::wrap_unit_enum_for_py!(PyNetworkType, "NetworkType", NetworkType, {
+crate::wrap_unit_enum_for_py!(
+    /// Kaspa network type enumeration.
+    ///
+    /// Variants:
+    ///     Mainnet: The production Kaspa network.
+    ///     Testnet: The test network for development.
+    ///     Devnet: The development network.
+    ///     Simnet: The simulation network for testing.
+    PyNetworkType, "NetworkType", NetworkType, {
     Mainnet,
     Testnet,
     Devnet,
@@ -34,6 +43,7 @@ impl<'py> FromPyObject<'_, 'py> for PyNetworkType {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyNetworkType {
     pub fn default_rpc_port(&self) -> u16 {
@@ -55,12 +65,28 @@ impl From<&PyNetworkType> for NetworkType {
     }
 }
 
+/// Network identifier with optional suffix.
+///
+/// Represents a specific Kaspa network, optionally with a numeric suffix
+/// for testnets (e.g., "testnet-10", "testnet-11").
+#[gen_stub_pyclass]
 #[derive(Clone)]
 #[pyclass(name = "NetworkId", skip_from_py_object)]
 pub struct PyNetworkId(NetworkId);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyNetworkId {
+    /// Create a new NetworkId.
+    ///
+    /// Args:
+    ///     network_id: A network string ("mainnet", "testnet-10") or NetworkType.
+    ///
+    /// Returns:
+    ///     NetworkId: A new NetworkId instance.
+    ///
+    /// Raises:
+    ///     Exception: If the network_id format is invalid.
     #[new]
     pub fn new(network_id: Bound<PyAny>) -> PyResult<Self> {
         if let Ok(network_id) = network_id.extract::<String>() {
@@ -75,40 +101,76 @@ impl PyNetworkId {
         }
     }
 
+    /// Create a NetworkId with a specific suffix.
+    ///
+    /// Args:
+    ///     network_type: The base network type.
+    ///     suffix: The numeric suffix (e.g., 10 for testnet-10).
+    ///
+    /// Returns:
+    ///     NetworkId: A new NetworkId with the specified suffix.
     #[staticmethod]
     pub fn with_suffix(network_type: PyNetworkType, suffix: u32) -> Self {
         let inner = NetworkId::with_suffix(network_type.into(), suffix);
         Self(inner)
     }
 
+    /// The base network type (Mainnet, Testnet, Devnet, Simnet).
+    ///
+    /// Returns:
+    ///     NetworkType: The network type.
     #[getter]
     pub fn network_type(&self) -> PyNetworkType {
         self.0.network_type.into()
     }
 
+    /// Check if this is the mainnet.
+    ///
+    /// Returns:
+    ///     bool: True if this is mainnet, False otherwise.
     pub fn is_mainnet(&self) -> bool {
         self.0.is_mainnet()
     }
 
+    /// The optional numeric suffix (e.g., 10 for testnet-10).
+    ///
+    /// Returns:
+    ///     int | None: The suffix, or None if not set.
     #[getter]
     pub fn suffix(&self) -> Option<u32> {
         self.0.suffix()
     }
 
+    /// The default P2P port for this network.
+    ///
+    /// Returns:
+    ///     int: The default P2P port number.
     #[getter]
     pub fn default_p2p_port(&self) -> u16 {
         self.0.default_p2p_port()
     }
 
+    /// Get the prefixed string representation (e.g., "kaspa-mainnet").
+    ///
+    /// Returns:
+    ///     str: The prefixed network identifier.
     pub fn to_prefixed(&self) -> String {
         self.0.to_prefixed()
     }
 
+    /// Get the string representation (e.g., "mainnet", "testnet-10").
+    ///
+    /// Returns:
+    ///     str: The network identifier string.
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         self.0.to_string()
     }
 
+    /// Get the address prefix for this network.
+    ///
+    /// Returns:
+    ///     str: The prefix string ("kaspa", "kaspatest", "kaspadev", or "kaspasim").
     pub fn address_prefix(&self) -> String {
         Prefix::from(self.0.network_type).to_string()
     }

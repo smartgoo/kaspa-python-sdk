@@ -25,6 +25,7 @@ use pyo3::{
     prelude::*,
     types::{PyDict, PyModule, PyTuple},
 };
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::str::FromStr;
 use std::{
     sync::{
@@ -145,6 +146,12 @@ impl Inner {
     }
 }
 
+/// WebSocket RPC client for communicating with Kaspa nodes.
+///
+/// Provides methods for querying blockchain state, submitting transactions,
+/// and subscribing to real-time notifications. Supports both Borsh and JSON
+/// encodings.
+#[gen_stub_pyclass]
 #[pyclass(name = "RpcClient")]
 #[derive(Clone)]
 pub struct PyRpcClient(Arc<Inner>);
@@ -186,8 +193,22 @@ impl PyRpcClient {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyRpcClient {
+    /// Create a new RPC client.
+    ///
+    /// Args:
+    ///     resolver: Optional resolver for node discovery.
+    ///     url: Optional direct node URL.
+    ///     encoding: RPC encoding ("borsh" or "json", default: "borsh").
+    ///     network_id: Network identifier (default: "mainnet").
+    ///
+    /// Returns:
+    ///     RpcClient: A new RpcClient instance.
+    ///
+    /// Raises:
+    ///     Exception: If client creation fails.
     #[new]
     #[pyo3(signature = (resolver=None, url=None, encoding=None, network_id=None))]
     fn ctor(
@@ -212,16 +233,31 @@ impl PyRpcClient {
         )
     }
 
+    /// The current connection URL.
+    ///
+    /// Returns:
+    ///     str | None: The WebSocket URL, or None if not connected.
     #[getter]
     fn url(&self) -> Option<String> {
         self.0.client.url()
     }
 
+    /// The resolver used for node discovery.
+    ///
+    /// Returns:
+    ///     Resolver | None: The resolver, or None if not set.
     #[getter]
     fn resolver(&self) -> Option<PyResolver> {
         self.0.resolver.clone().map(PyResolver::new)
     }
 
+    /// Set a new resolver for node discovery.
+    ///
+    /// Args:
+    ///     resolver: The resolver to use.
+    ///
+    /// Raises:
+    ///     Exception: If setting the resolver fails.
     fn set_resolver(&self, resolver: PyResolver) -> PyResult<()> {
         self.0
             .client
@@ -230,6 +266,13 @@ impl PyRpcClient {
         Ok(())
     }
 
+    /// Set the network ID for the client.
+    ///
+    /// Args:
+    ///     network_id: The network identifier.
+    ///
+    /// Raises:
+    ///     Exception: If setting the network ID fails.
     fn set_network_id(&self, network_id: PyNetworkId) -> PyResult<()> {
         self.0
             .client
@@ -238,22 +281,45 @@ impl PyRpcClient {
         Ok(())
     }
 
+    /// Whether the client is currently connected.
+    ///
+    /// Returns:
+    ///     bool: True if connected to a node.
     #[getter]
     fn is_connected(&self) -> bool {
         self.0.client.is_connected()
     }
 
+    /// The RPC encoding format.
+    ///
+    /// Returns:
+    ///     str: The encoding ("borsh" or "json").
     #[getter]
     fn encoding(&self) -> String {
         self.0.client.encoding().to_string()
     }
 
+    /// The unique identifier of the connected node.
+    ///
+    /// Returns:
+    ///     str | None: The node ID, or None if not connected via resolver.
     #[getter]
     #[pyo3(name = "node_id")]
     fn resolver_node_id(&self) -> Option<String> {
         self.0.client.node_descriptor().map(|node| node.uid.clone())
     }
 
+    /// Connect to a Kaspa node (async).
+    ///
+    /// Args:
+    ///     block_async_connect: Block until connected (default: True).
+    ///     strategy: Connection strategy ("retry" or "fallback", default: "retry").
+    ///     url: Optional URL to connect to (overrides resolver).
+    ///     timeout_duration: Connection timeout in milliseconds.
+    ///     retry_interval: Retry interval in milliseconds.
+    ///
+    /// Raises:
+    ///     Exception: If connection fails.
     #[pyo3(signature = (block_async_connect=None, strategy=None, url=None, timeout_duration=None, retry_interval=None))]
     pub fn connect<'py>(
         &self,
@@ -295,6 +361,10 @@ impl PyRpcClient {
         })
     }
 
+    /// Disconnect from the node (async).
+    ///
+    /// Raises:
+    ///     Exception: If disconnection fails.
     fn disconnect<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let client = self.clone();
 
@@ -313,6 +383,10 @@ impl PyRpcClient {
         })
     }
 
+    /// Start the RPC client (async).
+    ///
+    /// Raises:
+    ///     Exception: If starting fails.
     fn start<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         self.start_notification_task(py)
             .map_err(|err| PyException::new_err(err.to_string()))?;
@@ -330,6 +404,16 @@ impl PyRpcClient {
     // fn stop() PY-TODO
     // fn trigger_abort() PY-TODO
 
+    /// Register a callback for RPC events.
+    ///
+    /// Args:
+    ///     event: Event type ("connect", "disconnect", "UtxosChanged", etc.).
+    ///     callback: Function to call when event occurs.
+    ///     *args: Additional arguments to pass to callback.
+    ///     **kwargs: Additional keyword arguments to pass to callback.
+    ///
+    /// Raises:
+    ///     Exception: If the event type is invalid.
     #[pyo3(signature = (event, callback, *args, **kwargs))]
     fn add_event_listener(
         &self,
@@ -365,6 +449,14 @@ impl PyRpcClient {
         Ok(())
     }
 
+    /// Remove an event listener.
+    ///
+    /// Args:
+    ///     event: Event type to remove listener from.
+    ///     callback: Specific callback to remove, or None to remove all.
+    ///
+    /// Raises:
+    ///     Exception: If the event type is invalid.
     #[pyo3(signature = (event, callback=None))]
     fn remove_event_listener(&self, event: String, callback: Option<Py<PyAny>>) -> PyResult<()> {
         let event = NotificationEvent::from_str(event.as_str())
@@ -409,6 +501,7 @@ impl PyRpcClient {
     // fn clear_event_listener PY-TODO
     // fn default_port PY-TODO
 
+    /// Remove all registered event listeners.
     fn remove_all_event_listeners(&self) -> PyResult<()> {
         *self.0.callbacks.lock().unwrap() = Default::default();
         Ok(())
@@ -567,8 +660,16 @@ impl PyRpcClient {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyRpcClient {
+    /// Subscribe to UTXO changes for specific addresses (async).
+    ///
+    /// Args:
+    ///     addresses: List of addresses to monitor.
+    ///
+    /// Raises:
+    ///     Exception: If not connected or subscription fails.
     fn subscribe_utxos_changed<'py>(
         &self,
         py: Python<'py>,
@@ -592,6 +693,13 @@ impl PyRpcClient {
         }
     }
 
+    /// Unsubscribe from UTXO changes for specific addresses (async).
+    ///
+    /// Args:
+    ///     addresses: List of addresses to stop monitoring.
+    ///
+    /// Raises:
+    ///     Exception: If not connected or unsubscription fails.
     fn unsubscribe_utxos_changed<'py>(
         &self,
         py: Python<'py>,
@@ -617,6 +725,13 @@ impl PyRpcClient {
         }
     }
 
+    /// Subscribe to virtual chain changes (async).
+    ///
+    /// Args:
+    ///     include_accepted_transaction_ids: Include transaction IDs in notifications.
+    ///
+    /// Raises:
+    ///     Exception: If not connected or subscription fails.
     fn subscribe_virtual_chain_changed<'py>(
         &self,
         py: Python<'py>,
@@ -641,6 +756,13 @@ impl PyRpcClient {
         }
     }
 
+    /// Unsubscribe from virtual chain changes (async).
+    ///
+    /// Args:
+    ///     include_accepted_transaction_ids: Must match the subscription parameter.
+    ///
+    /// Raises:
+    ///     Exception: If not connected or unsubscription fails.
     fn unsubscribe_virtual_chain_changed<'py>(
         &self,
         py: Python<'py>,
@@ -668,14 +790,15 @@ impl PyRpcClient {
     }
 }
 
-/// Macro to generate subscribe/unsubscribe method implementations for RPC notifications.
-///
-/// For each scope name (e.g., `BlockAdded`), this generates:
-/// - `subscribe_block_added` - Python-callable async method to start notifications
-/// - `unsubscribe_block_added` - Python-callable async method to stop notifications
+// Macro to generate subscribe/unsubscribe method implementations for RPC notifications.
+//
+// For each scope name (e.g., `BlockAdded`), this generates:
+// - `subscribe_block_added` - Python-callable async method to start notifications
+// - `unsubscribe_block_added` - Python-callable async method to stop notifications
 macro_rules! build_wrpc_python_subscriptions {
     ([$($scope:ident),* $(,)?]) => {
         paste! {
+            #[gen_stub_pymethods]
             #[pymethods]
             impl PyRpcClient {
                 $(
@@ -720,16 +843,17 @@ build_wrpc_python_subscriptions!([
     VirtualDaaScoreChanged,
 ]);
 
-/// Macro to generate RPC method implementations for RpcClient.
-///
-/// For each type name (e.g., `GetBlockCount`), this generates:
-/// - A Python-callable async method `get_block_count`
-/// - That accepts an optional `PyDict` as request parameters
-/// - Calls the corresponding `get_block_count_call` method on the RPC client
-/// - Returns the response as a Python object
+// Macro to generate RPC method implementations for RpcClient.
+//
+// For each type name (e.g., `GetBlockCount`), this generates:
+// - A Python-callable async method `get_block_count`
+// - That accepts an optional `PyDict` as request parameters
+// - Calls the corresponding `get_block_count_call` method on the RPC client
+// - Returns the response as a Python object
 macro_rules! build_wrpc_python_interface {
     ([$($name:ident),* $(,)?]) => {
         paste! {
+            #[gen_stub_pymethods]
             #[pymethods]
             impl PyRpcClient {
                 $(
@@ -782,13 +906,14 @@ build_wrpc_python_interface!([
     GetSystemInfo,
 ]);
 
-/// Macro to generate RPC method implementations that require request parameters.
-///
-/// Similar to `build_wrpc_python_interface!`, but the `request` parameter is required
-/// (not optional), for RPC calls that need specific arguments.
+// Macro to generate RPC method implementations that require request parameters.
+//
+// Similar to `build_wrpc_python_interface!`, but the `request` parameter is required
+// (not optional), for RPC calls that need specific arguments.
 macro_rules! build_wrpc_python_interface_with_args {
     ([$($name:ident),* $(,)?]) => {
         paste! {
+            #[gen_stub_pymethods]
             #[pymethods]
             impl PyRpcClient {
                 $(

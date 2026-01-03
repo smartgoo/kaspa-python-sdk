@@ -1,0 +1,110 @@
+site_name: Kaspa Python SDK
+site_description: Kaspa Python SDK
+site_url: https://smartgoo.github.io/kaspa-python-sdk/
+# repo_url: https://github.com/smartgoo/kaspa-python-sdk
+repo_name: kaspa-python-sdk
+# edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            # find_stubs_package: false
+            # force_inspection: true
+            # allow_inspection: true
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            docstring_style: google
+            docstring_section_style: spacy
+            merge_init_into_class: true
+            show_signature_annotations: true
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+  - tables
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/your-org/kaspa-python
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+  - Guides:
+      - Addresses: guides/addresses.md
+      - Mnemonics: guides/mnemonics.md
+      - Key Derivation: guides/key-derivation.md
+      - Transactions: guides/transactions.md
+      - Message Signing: guides/message-signing.md
+      - RPC Client: guides/rpc-client.md
+  - API Reference:
+      - Overview: api/index.md
+      - Address: api/address.md
+      - Keys: api/keys.md
+      - Transactions: api/transactions.md
+      - RPC: api/rpc.md
+      - Utilities: api/utilities.md
+  - Reference:
+      - Changelog: reference/changelog.md
+

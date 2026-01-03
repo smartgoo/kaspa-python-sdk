@@ -7,6 +7,9 @@ mod types;
 mod wallet;
 
 use pyo3::prelude::*;
+use pyo3_stub_gen::define_stub_info_gatherer;
+
+define_stub_info_gatherer!(stub_info);
 
 #[pymodule]
 fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -55,7 +58,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<consensus::core::network::PyNetworkId>()?;
     m.add_class::<consensus::core::network::PyNetworkType>()?;
     m.add_class::<consensus::core::script_public_key::PyScriptPublicKey>()?;
-    m.add_class::<consensus::core::tx::PyTransactionId>()?;
+    m.add_class::<consensus::core::tx::TransactionId>()?;
 
     m.add_class::<wallet::bip32::language::PyLanguage>()?;
     m.add_class::<wallet::bip32::phrase::PyMnemonic>()?;

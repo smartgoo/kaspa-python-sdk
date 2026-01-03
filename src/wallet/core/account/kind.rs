@@ -2,13 +2,30 @@ use std::str::FromStr;
 
 use kaspa_wallet_core::account::kind::AccountKind;
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
+/// The type of wallet account.
+///
+/// Represents different account derivation schemes used in HD wallets
+/// (e.g., "bip32", "legacy", "multisig").
+#[gen_stub_pyclass]
 #[pyclass(name = "AccountKind")]
 #[derive(Clone)]
 pub struct PyAccountKind(AccountKind);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyAccountKind {
+    /// Create a new AccountKind from a string.
+    ///
+    /// Args:
+    ///     kind: The account kind string (e.g., "bip32", "legacy", "multisig").
+    ///
+    /// Returns:
+    ///     AccountKind: A new AccountKind instance.
+    ///
+    /// Raises:
+    ///     Exception: If the kind string is invalid.
     #[new]
     pub fn ctor(kind: &str) -> PyResult<Self> {
         let inner =
@@ -16,10 +33,18 @@ impl PyAccountKind {
         Ok(Self(inner))
     }
 
+    /// Get the string representation.
+    ///
+    /// Returns:
+    ///     str: The account kind as a string.
     pub fn __str__(&self) -> String {
         self.py_to_string()
     }
 
+    /// Get the string representation.
+    ///
+    /// Returns:
+    ///     str: The account kind as a string.
     #[pyo3(name = "to_string")]
     pub fn py_to_string(&self) -> String {
         self.0.as_str().to_string()

@@ -1,7 +1,9 @@
 use kaspa_rpc_core::api::notifications::Notification;
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::gen_stub_pyclass;
 use serde_pyobject::to_pyobject;
 
+#[gen_stub_pyclass]
 #[pyclass(name = "Notification")]
 pub struct PyNotification(pub Notification);
 

@@ -1,8 +1,15 @@
 use crate::consensus::core::network::PyNetworkId;
 use kaspa_wrpc_client::{Resolver, WrpcEncoding};
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::{str::FromStr, sync::Arc};
 
+/// A resolver for discovering Kaspa RPC node endpoints.
+///
+/// Resolvers help clients find available nodes on a network by querying
+/// a list of known resolver URLs. Useful for automatic node discovery
+/// and load balancing.
+#[gen_stub_pyclass]
 #[pyclass(name = "Resolver")]
 #[derive(Debug, Clone)]
 pub struct PyResolver(Resolver);
@@ -17,8 +24,17 @@ impl PyResolver {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyResolver {
+    /// Create a new resolver.
+    ///
+    /// Args:
+    ///     urls: Optional list of resolver URLs. Uses defaults if not provided.
+    ///     tls: Use TLS connections (default: False).
+    ///
+    /// Returns:
+    ///     Resolver: A new Resolver instance.
     #[new]
     #[pyo3(signature = (urls=None, tls=None))]
     pub fn ctor(urls: Option<Vec<String>>, tls: Option<bool>) -> PyResult<Self> {
@@ -34,8 +50,13 @@ impl PyResolver {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyResolver {
+    /// Get the list of resolver URLs.
+    ///
+    /// Returns:
+    ///     list[str]: The resolver URL list.
     fn urls(&self) -> Vec<String> {
         self.0
             .urls()
@@ -45,6 +66,17 @@ impl PyResolver {
             .collect::<Vec<_>>()
     }
 
+    /// Get a node descriptor from the resolver (async).
+    ///
+    /// Args:
+    ///     encoding: RPC encoding ("borsh" or "json").
+    ///     network_id: The network to find a node for.
+    ///
+    /// Returns:
+    ///     dict: Node descriptor with connection details.
+    ///
+    /// Raises:
+    ///     Exception: If no node is available or resolution fails.
     fn get_node<'py>(
         &self,
         py: Python<'py>,
@@ -64,6 +96,17 @@ impl PyResolver {
         })
     }
 
+    /// Get a node URL from the resolver (async).
+    ///
+    /// Args:
+    ///     encoding: RPC encoding ("borsh" or "json").
+    ///     network_id: The network to find a node for.
+    ///
+    /// Returns:
+    ///     str: The node WebSocket URL.
+    ///
+    /// Raises:
+    ///     Exception: If no node is available or resolution fails.
     fn get_url<'py>(
         &self,
         py: Python<'py>,

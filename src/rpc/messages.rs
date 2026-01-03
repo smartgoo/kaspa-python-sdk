@@ -12,10 +12,10 @@ use pyo3::{
 };
 use serde_pyobject::from_pyobject;
 
-/// Macro to implement `TryFrom<Bound<'_, PyDict>>` for multiple request wrapper types.
-///
-/// For each name (e.g., `GetBlockCount`), generates an impl for `PyGetBlockCountRequest`
-/// that deserializes from a Python dict using serde_pyobject.
+// Macro to implement `TryFrom<Bound<'_, PyDict>>` for multiple request wrapper types.
+//
+// For each name (e.g., `GetBlockCount`), generates an impl for `PyGetBlockCountRequest`
+// that deserializes from a Python dict using serde_pyobject.
 macro_rules! impl_try_from_pydict {
     ([$($name:ident),* $(,)?]) => {
         paste! {

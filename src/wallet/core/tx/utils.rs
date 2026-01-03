@@ -8,8 +8,24 @@ use super::generator::{
 use kaspa_consensus_client::*;
 use kaspa_consensus_core::subnets::SUBNETWORK_ID_NATIVE;
 use kaspa_wallet_core::result::Result;
+use pyo3_stub_gen::derive::gen_stub_pyfunction;
 // use pyo3::{exceptions::PyException, prelude::*};
 
+/// Create a single transaction from UTXOs.
+///
+/// Args:
+///     utxo_entry_source: List of UTXO entries to spend.
+///     outputs: List of payment outputs.
+///     priority_fee: Priority fee in sompi.
+///     payload: Optional transaction payload data.
+///     sig_op_count: Signature operations per input (default: 1).
+///
+/// Returns:
+///     Transaction: The created transaction (unsigned).
+///
+/// Raises:
+///     Exception: If transaction creation fails or fee exceeds input amount.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "create_transaction")]
 #[pyo3(signature = (utxo_entry_source, outputs, priority_fee, payload=None, sig_op_count=None))]
@@ -72,6 +88,28 @@ pub fn py_create_transaction(
     Ok(transaction.into())
 }
 
+/// Create one or more transactions with automatic UTXO selection and change handling.
+///
+/// Handles large transfers that may require multiple transactions due to mass limits.
+///
+/// Args:
+///     network_id: The network to build transactions for.
+///     entries: List of UTXO entries to spend from.
+///     change_address: Address to send change to.
+///     outputs: Optional list of payment outputs.
+///     payload: Optional transaction payload data.
+///     fee_rate: Optional fee rate multiplier.
+///     priority_fee: Additional fee in sompi.
+///     priority_entries: UTXOs to use first.
+///     sig_op_count: Signature operations per input (default: 1).
+///     minimum_signatures: For multisig fee estimation.
+///
+/// Returns:
+///     dict: Dictionary with "transactions" (list) and "summary" keys.
+///
+/// Raises:
+///     Exception: If transaction creation fails.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "create_transactions")]
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
@@ -113,6 +151,26 @@ pub fn py_create_transactions<'a>(
     Ok(dict)
 }
 
+/// Estimate transaction fees and count without creating transactions.
+///
+/// Args:
+///     network_id: The network to estimate for.
+///     entries: List of UTXO entries to spend from.
+///     change_address: Address to send change to.
+///     outputs: Optional list of payment outputs.
+///     payload: Optional transaction payload data.
+///     fee_rate: Optional fee rate multiplier.
+///     priority_fee: Additional fee in sompi.
+///     priority_entries: UTXOs to use first.
+///     sig_op_count: Signature operations per input (default: 1).
+///     minimum_signatures: For multisig fee estimation.
+///
+/// Returns:
+///     GeneratorSummary: Summary with fee, transaction count, and other details.
+///
+/// Raises:
+///     Exception: If estimation fails.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "estimate_transactions")]
 #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]

@@ -2,7 +2,8 @@ use crate::address::PyAddress;
 use crate::consensus::client::input::PyTransactionInput;
 use crate::consensus::client::output::PyTransactionOutput;
 use crate::consensus::core::network::PyNetworkType;
-use crate::{consensus::core::tx::PyTransactionId, types::PyBinary};
+use crate::crypto::hashes::PyHash;
+use crate::types::PyBinary;
 use kaspa_consensus_client::{Transaction, TransactionInput, TransactionOutput};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_consensus_core::subnets;
@@ -11,8 +12,14 @@ use kaspa_consensus_core::tx as cctx;
 use kaspa_txscript::extract_script_pub_key_address;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::*;
 use workflow_core::hex::{FromHex, ToHex};
 
+/// A Kaspa transaction.
+///
+/// Represents a complete transaction with inputs, outputs, and metadata.
+/// Transactions are the fundamental unit of value transfer on the Kaspa network.
+#[gen_stub_pyclass]
 #[pyclass(name = "Transaction")]
 #[derive(Clone)]
 pub struct PyTransaction(Transaction);
@@ -23,26 +30,56 @@ impl PyTransaction {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyTransaction {
+    /// Check if this is a coinbase transaction.
+    ///
+    /// Returns:
+    ///     bool: True if this is a coinbase (mining reward) transaction.
     #[pyo3(name = "is_coinbase")]
     pub fn is_coinbase(&self) -> bool {
         self.0.inner().subnetwork_id == subnets::SUBNETWORK_ID_COINBASE
     }
 
+    /// Finalize the transaction and compute its ID.
+    ///
+    /// Returns:
+    ///     Hash: The computed transaction ID.
     #[pyo3(name = "finalize")]
-    pub fn finalize(&self) -> PyResult<PyTransactionId> {
+    pub fn finalize(&self) -> PyResult<PyHash> {
         let tx: cctx::Transaction = self.into();
         self.0.inner().id = tx.id();
         Ok(self.0.inner().id.into())
     }
 
+    /// The transaction ID (hash).
+    ///
+    /// Returns:
+    ///     str: The transaction ID as a hex string.
     #[getter]
     #[pyo3(name = "id")]
     pub fn id_string(&self) -> String {
         self.0.inner().id.to_string()
     }
 
+    /// Create a new transaction.
+    ///
+    /// Args:
+    ///     version: Transaction version number.
+    ///     inputs: List of transaction inputs.
+    ///     outputs: List of transaction outputs.
+    ///     lock_time: Lock time (block DAA score or timestamp).
+    ///     subnetwork_id: Subnetwork identifier (hex string or bytes).
+    ///     gas: Gas limit for smart contract execution.
+    ///     payload: Optional transaction payload data.
+    ///     mass: Transaction mass (for fee calculation).
+    ///
+    /// Returns:
+    ///     Transaction: A new Transaction instance.
+    ///
+    /// Raises:
+    ///     Exception: If the subnetwork_id is invalid or transaction creation fails.
     #[new]
     pub fn constructor(
         version: u16,
@@ -75,6 +112,10 @@ impl PyTransaction {
         Ok(Self(inner))
     }
 
+    /// The list of transaction inputs.
+    ///
+    /// Returns:
+    ///     list[TransactionInput]: List of inputs spending previous outputs.
     #[getter]
     #[pyo3(name = "inputs")]
     pub fn get_inputs_as_list(&self) -> PyResult<Vec<PyTransactionInput>> {
@@ -88,12 +129,23 @@ impl PyTransaction {
             .collect())
     }
 
+    /// Set the transaction inputs.
+    ///
+    /// Args:
+    ///     value: List of TransactionInput objects.
     #[setter]
     #[pyo3(name = "inputs")]
-    pub fn set_inputs_from_list(&mut self, v: Vec<PyTransactionInput>) {
-        self.0.inner().inputs = v.into_iter().map(TransactionInput::from).collect();
+    pub fn set_inputs_from_list(&mut self, value: Vec<PyTransactionInput>) {
+        self.0.inner().inputs = value.into_iter().map(TransactionInput::from).collect();
     }
 
+    /// Extract unique addresses from transaction inputs.
+    ///
+    /// Args:
+    ///     network_type: The network type to use for address encoding.
+    ///
+    /// Returns:
+    ///     list[Address]: List of unique addresses referenced by inputs.
     #[pyo3(name = "addresses")]
     pub fn addresses(&self, network_type: PyNetworkType) -> PyResult<Vec<PyAddress>> {
         let network_type: NetworkType = network_type.into();
@@ -113,6 +165,10 @@ impl PyTransaction {
         Ok(list.into_iter().map(PyAddress::from).collect())
     }
 
+    /// The list of transaction outputs.
+    ///
+    /// Returns:
+    ///     list[TransactionOutput]: List of outputs defining value destinations.
     #[getter]
     #[pyo3(name = "outputs")]
     pub fn get_outputs_as_list(&self) -> PyResult<Vec<PyTransactionOutput>> {
@@ -126,58 +182,98 @@ impl PyTransaction {
             .collect())
     }
 
+    /// Set the transaction outputs.
+    ///
+    /// Args:
+    ///     value: List of TransactionOutput objects.
     #[setter]
     #[pyo3(name = "outputs")]
-    pub fn set_outputs_from_list(&mut self, v: Vec<PyTransactionOutput>) {
-        self.0.inner().outputs = v.into_iter().map(TransactionOutput::from).collect();
+    pub fn set_outputs_from_list(&mut self, value: Vec<PyTransactionOutput>) {
+        self.0.inner().outputs = value.into_iter().map(TransactionOutput::from).collect();
     }
 
+    /// The transaction version number.
+    ///
+    /// Returns:
+    ///     int: The version number.
     #[getter]
     #[pyo3(name = "version")]
     pub fn get_version(&self) -> u16 {
         self.0.inner().version
     }
 
+    /// Set the transaction version number.
+    ///
+    /// Args:
+    ///     value: The version number.
     #[setter]
     #[pyo3(name = "version")]
-    pub fn set_version(&mut self, v: u16) {
-        self.0.inner().version = v;
+    pub fn set_version(&mut self, value: u16) {
+        self.0.inner().version = value;
     }
 
+    /// The transaction lock time.
+    /// Represents a DAA score or Unix timestamp before which the transaction cannot be included.
+    ///
+    /// Returns:
+    ///     int: The lock time value.
     #[getter]
     #[pyo3(name = "lock_time")]
     pub fn get_lock_time(&self) -> u64 {
         self.0.inner().lock_time
     }
 
+    /// Set the transaction lock time.
+    ///
+    /// Args:
+    ///     value: The lock time (DAA score or Unix timestamp).
     #[setter]
     #[pyo3(name = "lock_time")]
-    pub fn set_lock_time(&mut self, v: u64) {
-        self.0.inner().lock_time = v;
+    pub fn set_lock_time(&mut self, value: u64) {
+        self.0.inner().lock_time = value;
     }
 
+    /// The gas limit for smart contract execution.
+    ///
+    /// Returns:
+    ///     int: The gas limit.
     #[getter]
     #[pyo3(name = "gas")]
     pub fn get_gas(&self) -> u64 {
         self.0.inner().gas
     }
 
+    /// Set the gas limit for smart contract execution.
+    ///
+    /// Args:
+    ///     value: The gas limit.
     #[setter]
     #[pyo3(name = "gas")]
-    pub fn set_gas(&mut self, v: u64) {
-        self.0.inner().gas = v;
+    pub fn set_gas(&mut self, value: u64) {
+        self.0.inner().gas = value;
     }
 
+    /// The subnetwork identifier.
+    ///
+    /// Returns:
+    ///     str: The subnetwork ID as a hex string.
     #[getter]
     #[pyo3(name = "subnetwork_id")]
     pub fn get_subnetwork_id_as_hex(&self) -> String {
         self.0.inner().subnetwork_id.to_string()
     }
 
+    /// Set the subnetwork identifier.
+    ///
+    /// Args:
+    ///     value: The subnetwork ID as a hex string.
+    ///
+    /// Raises:
+    ///     Exception: If the hex string is invalid or has incorrect length.
     #[setter]
     #[pyo3(name = "subnetwork_id")]
-    pub fn set_subnetwork_id_from_value(&mut self, v: &str) -> PyResult<()> {
-        let subnetwork_id = Vec::from_hex(v)
+    pub fn set_subnetwork_id_from_value(&mut self, value: &str) -> PyResult<()> {
+        let subnetwork_id = Vec::from_hex(value)
             .map_err(|err| PyException::new_err(err.to_string()))?
             .as_slice()
             .try_into()
@@ -188,28 +284,44 @@ impl PyTransaction {
         Ok(())
     }
 
+    /// The transaction payload data.
+    ///
+    /// Returns:
+    ///     str: The payload as a hex string.
     #[getter]
     #[pyo3(name = "payload")]
     pub fn get_payload_as_hex_string(&self) -> String {
         self.0.inner().payload.to_hex()
     }
 
+    /// Set the transaction payload data.
+    ///
+    /// Args:
+    ///     value: The payload as bytes or hex string.
     #[setter]
     #[pyo3(name = "payload")]
-    pub fn set_payload_from_value(&mut self, v: PyBinary) {
-        self.0.inner().payload = v.into();
+    pub fn set_payload_from_value(&mut self, value: PyBinary) {
+        self.0.inner().payload = value.into();
     }
 
+    /// The transaction mass used for fee calculation.
+    ///
+    /// Returns:
+    ///     int: The transaction mass.
     #[getter]
     #[pyo3(name = "mass")]
     pub fn get_mass(&self) -> u64 {
         self.0.inner().mass
     }
 
+    /// Set the transaction mass.
+    ///
+    /// Args:
+    ///     value: The transaction mass value.
     #[setter]
     #[pyo3(name = "mass")]
-    pub fn set_mass(&mut self, v: u64) {
-        self.0.inner().mass = v;
+    pub fn set_mass(&mut self, value: u64) {
+        self.0.inner().mass = value;
     }
 }
 

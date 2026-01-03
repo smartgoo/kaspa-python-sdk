@@ -11,12 +11,11 @@ use kaspa_wallet_core::tx::{
     Fees, PaymentDestination, PaymentOutput, PaymentOutputs, generator as native,
 };
 use kaspa_wallet_core::utxo::UtxoContext;
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use workflow_core::prelude::Abortable;
-// use pyo3::{
-//     exceptions::PyException,
-//     types::{PyDict, PyList},
-// };
 
+#[gen_stub_pyclass]
+#[pyclass]
 pub struct PyUtxoEntries {
     pub entries: Vec<UtxoEntryReference>,
 }
@@ -48,6 +47,8 @@ impl<'py> FromPyObject<'_, 'py> for PyUtxoEntries {
     }
 }
 
+#[gen_stub_pyclass]
+#[pyclass]
 pub struct PyOutputs {
     pub outputs: Vec<PaymentOutput>,
 }
@@ -81,11 +82,36 @@ impl<'py> FromPyObject<'_, 'py> for PyOutputs {
     }
 }
 
+/// Transaction generator for building and signing transactions.
+///
+/// Handles UTXO selection, fee calculation, change outputs, and transaction
+/// splitting for large transfers.
+#[gen_stub_pyclass]
 #[pyclass(name = "Generator")]
 pub struct PyGenerator(Arc<native::Generator>);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyGenerator {
+    /// Create a new transaction generator.
+    ///
+    /// Args:
+    ///     network_id: The network to build transactions for.
+    ///     entries: List of UTXO entries to spend from.
+    ///     change_address: Address to send change to.
+    ///     outputs: Optional list of payment outputs.
+    ///     payload: Optional transaction payload (OP_RETURN data).
+    ///     fee_rate: Optional fee rate multiplier.
+    ///     priority_fee: Additional fee in sompi.
+    ///     priority_entries: UTXOs to use first.
+    ///     sig_op_count: Signature operations per input (default: 1).
+    ///     minimum_signatures: For multisig fee estimation.
+    ///
+    /// Returns:
+    ///     Generator: A new Generator instance.
+    ///
+    /// Raises:
+    ///     Exception: If generator creation fails.
     #[new]
     #[pyo3(signature = (network_id, entries, change_address, outputs=None, payload=None, fee_rate=None, priority_fee=None, priority_entries=None, sig_op_count=None, minimum_signatures=None))]
     pub fn ctor(
@@ -152,6 +178,13 @@ impl PyGenerator {
         Ok(Self(Arc::new(generator)))
     }
 
+    /// Estimate the transaction without generating.
+    ///
+    /// Returns:
+    ///     GeneratorSummary: A summary with fee, transaction count, and other details.
+    ///
+    /// Raises:
+    ///     Exception: If estimation fails.
     pub fn estimate(&self) -> PyResult<PyGeneratorSummary> {
         self.0
             .iter()
@@ -160,6 +193,10 @@ impl PyGenerator {
         Ok(self.0.summary().into())
     }
 
+    /// Get the summary after generation.
+    ///
+    /// Returns:
+    ///     GeneratorSummary: The generation summary with fees and transaction details.
     pub fn summary(&self) -> PyGeneratorSummary {
         self.0.summary().into()
     }
@@ -176,12 +213,21 @@ impl PyGenerator {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyGenerator {
+    /// Return self as an iterator.
     fn __iter__(slf: PyRefMut<Self>) -> PyResult<Py<Self>> {
         Ok(slf.into())
     }
 
+    /// Get the next pending transaction, or None if complete.
+    ///
+    /// Returns:
+    ///     PendingTransaction | None: The next transaction to sign and submit.
+    ///
+    /// Raises:
+    ///     Exception: If transaction generation fails.
     fn __next__(slf: PyRefMut<Self>) -> PyResult<Option<PendingTransaction>> {
         match slf.0.iter().next() {
             Some(result) => match result {

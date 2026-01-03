@@ -11,59 +11,102 @@ use kaspa_consensus_client::Transaction;
 use kaspa_consensus_core::hashing::wasm::SighashType;
 use kaspa_wallet_core::tx::generator as native;
 use pyo3::types::PyList;
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use workflow_core::hex::ToHex;
 use zeroize::Zeroize;
 
+/// A transaction ready for signing and submission.
+///
+/// Created by iterating over a Generator. Contains the transaction
+/// along with metadata about fees, amounts, and UTXOs being spent.
+#[gen_stub_pyclass]
 #[pyclass]
 pub struct PendingTransaction(native::PendingTransaction);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PendingTransaction {
+    /// The transaction ID (hash).
+    ///
+    /// Returns:
+    ///     str: The transaction ID as a hex string.
     #[getter]
     fn id(&self) -> String {
         self.0.id().to_string()
     }
 
+    /// The total payment amount in sompi (excluding change and fees).
+    ///
+    /// Returns:
+    ///     int | None: The payment amount, or None for sweep transactions.
     #[getter]
     #[pyo3(name = "payment_amount")]
     fn payment_value(&self) -> Option<u64> {
         self.0.payment_value()
     }
 
+    /// The change amount returned to the sender in sompi.
+    ///
+    /// Returns:
+    ///     int: The change amount.
     #[getter]
     #[pyo3(name = "change_amount")]
     fn change_value(&self) -> u64 {
         self.0.change_value()
     }
 
+    /// The transaction fee in sompi.
+    ///
+    /// Returns:
+    ///     int: The fee amount.
     #[getter]
     #[pyo3(name = "fee_amount")]
     fn fees(&self) -> u64 {
         self.0.fees()
     }
 
+    /// The transaction mass (used for fee calculation).
+    ///
+    /// Returns:
+    ///     int: The transaction mass.
     #[getter]
     fn mass(&self) -> u64 {
         self.0.mass()
     }
 
+    /// The minimum number of signatures required.
+    ///
+    /// Returns:
+    ///     int: The minimum signature count.
     #[getter]
     fn minimum_signatures(&self) -> u16 {
         self.0.minimum_signatures()
     }
 
+    /// The total value of all inputs in sompi.
+    ///
+    /// Returns:
+    ///     int: The aggregate input amount.
     #[getter]
     #[pyo3(name = "aggregate_input_amount")]
     fn aggregate_input_value(&self) -> u64 {
         self.0.aggregate_input_value()
     }
 
+    /// The total value of all outputs in sompi.
+    ///
+    /// Returns:
+    ///     int: The aggregate output amount.
     #[getter]
     #[pyo3(name = "aggregate_output_amount")]
     fn aggregate_output_value(&self) -> u64 {
         self.0.aggregate_output_value()
     }
 
+    /// The transaction type: "batch" for intermediate or "final" for last.
+    ///
+    /// Returns:
+    ///     str: The transaction type.
     #[getter]
     #[pyo3(name = "transaction_type")]
     fn kind(&self) -> String {
@@ -74,6 +117,10 @@ impl PendingTransaction {
         }
     }
 
+    /// Get the unique addresses referenced by this transaction's inputs.
+    ///
+    /// Returns:
+    ///     list[Address]: List of addresses.
     fn addresses(&self) -> Vec<PyAddress> {
         self.0
             .addresses()
@@ -83,6 +130,10 @@ impl PendingTransaction {
             .collect()
     }
 
+    /// Get the UTXO entries being spent by this transaction.
+    ///
+    /// Returns:
+    ///     list[UtxoEntryReference]: List of UTXO entries.
     fn get_utxo_entries(&self) -> Vec<PyUtxoEntryReference> {
         self.0
             .utxo_entries()
@@ -91,6 +142,18 @@ impl PendingTransaction {
             .collect()
     }
 
+    /// Create a signature for a specific input.
+    ///
+    /// Args:
+    ///     input_index: The index of the input to sign.
+    ///     private_key: The private key for signing.
+    ///     sighash_type: The signature hash type (default: All).
+    ///
+    /// Returns:
+    ///     str: The signature as a hex string.
+    ///
+    /// Raises:
+    ///     Exception: If signing fails.
     #[pyo3(signature = (input_index, private_key, sighash_type=None))]
     fn create_input_signature(
         &self,
@@ -110,6 +173,14 @@ impl PendingTransaction {
         Ok(signature.to_hex())
     }
 
+    /// Fill an input's signature script with a pre-computed signature.
+    ///
+    /// Args:
+    ///     input_index: The index of the input to fill.
+    ///     signature_script: The signature script bytes.
+    ///
+    /// Raises:
+    ///     Exception: If filling fails.
     fn fill_input(&self, input_index: u8, signature_script: PyBinary) -> PyResult<()> {
         self.0
             .fill_input(input_index.into(), signature_script.into())
@@ -118,6 +189,15 @@ impl PendingTransaction {
         Ok(())
     }
 
+    /// Sign a specific input with a private key.
+    ///
+    /// Args:
+    ///     input_index: The index of the input to sign.
+    ///     private_key: The private key for signing.
+    ///     sighash_type: The signature hash type (default: All).
+    ///
+    /// Raises:
+    ///     Exception: If signing fails.
     #[pyo3(signature = (input_index, private_key, sighash_type=None))]
     fn sign_input(
         &self,
@@ -136,6 +216,14 @@ impl PendingTransaction {
         Ok(())
     }
 
+    /// Sign all inputs with the provided private keys.
+    ///
+    /// Args:
+    ///     private_keys: List of PrivateKey objects for signing.
+    ///     check_fully_signed: Verify all inputs are signed (default: None).
+    ///
+    /// Raises:
+    ///     Exception: If signing fails or transaction is not fully signed.
     #[pyo3(signature = (private_keys, check_fully_signed=None))]
     fn sign<'py>(
         &self,
@@ -154,6 +242,16 @@ impl PendingTransaction {
         Ok(())
     }
 
+    /// Submit the signed transaction to the network.
+    ///
+    /// Args:
+    ///     rpc_client: The RPC client for submission.
+    ///
+    /// Returns:
+    ///     str: The transaction ID on success (async).
+    ///
+    /// Raises:
+    ///     Exception: If submission fails.
     fn submit<'py>(
         &self,
         py: Python<'py>,
@@ -171,6 +269,10 @@ impl PendingTransaction {
         })
     }
 
+    /// The underlying transaction object.
+    ///
+    /// Returns:
+    ///     Transaction: The transaction for manual inspection or modification.
     #[getter]
     fn transaction(&self) -> PyResult<PyTransaction> {
         Ok(Transaction::from_cctx_transaction(&self.0.transaction(), self.0.utxo_entries()).into())

@@ -5,18 +5,36 @@ use kaspa_wallet_keys::publickey::PublicKey;
 use kaspa_wallet_keys::result::Result;
 use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, xprv::XPrv, xpub::XPub};
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 use crate::consensus::core::network::PyNetworkType;
 use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
 
+/// Generator for deriving public keys and addresses from an extended public key.
+///
+/// Useful for creating watch-only wallets that can generate addresses
+/// without access to private keys.
+#[gen_stub_pyclass]
 #[pyclass(name = "PublicKeyGenerator")]
 #[derive(Clone)]
 pub struct PyPublicKeyGenerator {
     hd_wallet: WalletDerivationManager,
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyPublicKeyGenerator {
+    /// Create a generator from an extended public key string.
+    ///
+    /// Args:
+    ///     kpub: The extended public key (xpub/kpub format).
+    ///     cosigner_index: Optional cosigner index for multisig.
+    ///
+    /// Returns:
+    ///     PublicKeyGenerator: A new generator instance.
+    ///
+    /// Raises:
+    ///     Exception: If parsing fails.
     #[staticmethod]
     #[pyo3(name = "from_xpub")]
     #[pyo3(signature = (kpub, cosigner_index=None))]
@@ -29,6 +47,21 @@ impl PyPublicKeyGenerator {
         Ok(Self { hd_wallet })
     }
 
+    /// Create a generator from a master extended private key.
+    ///
+    /// Derives the account-level public key and creates a generator.
+    ///
+    /// Args:
+    ///     xprv: The master extended private key.
+    ///     is_multisig: Whether this is for a multisig wallet.
+    ///     account_index: The account index to derive.
+    ///     cosigner_index: Optional cosigner index for multisig.
+    ///
+    /// Returns:
+    ///     PublicKeyGenerator: A new generator instance.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[staticmethod]
     #[pyo3(name = "from_master_xprv")]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
@@ -53,6 +86,17 @@ impl PyPublicKeyGenerator {
         Ok(Self { hd_wallet })
     }
 
+    /// Derive a range of receive (external) public keys.
+    ///
+    /// Args:
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[PublicKey]: The derived public keys.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_pubkeys")]
     fn receive_pubkeys(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
         if start > end {
@@ -69,6 +113,16 @@ impl PyPublicKeyGenerator {
             .collect())
     }
 
+    /// Derive a receive (external) public key at the given index.
+    ///
+    /// Args:
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     PublicKey: The derived public key.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_pubkey")]
     pub fn receive_pubkey(&self, index: u32) -> PyResult<PyPublicKey> {
         let inner = self
@@ -81,6 +135,17 @@ impl PyPublicKeyGenerator {
         Ok(PyPublicKey(inner))
     }
 
+    /// Derive a range of receive public keys as hex strings.
+    ///
+    /// Args:
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[str]: The derived public keys as hex.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_pubkeys_as_strings")]
     fn receive_pubkeys_as_strings(&self, mut start: u32, mut end: u32) -> PyResult<Vec<String>> {
         if start > end {
@@ -97,6 +162,16 @@ impl PyPublicKeyGenerator {
             .collect())
     }
 
+    /// Derive a receive public key as hex string.
+    ///
+    /// Args:
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     str: The public key as hex.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_pubkey_as_string")]
     pub fn receive_pubkey_as_string(&self, index: u32) -> PyResult<String> {
         Ok(self
@@ -107,6 +182,18 @@ impl PyPublicKeyGenerator {
             .to_string())
     }
 
+    /// Derive a range of receive addresses.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[Address]: The derived addresses.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_addresses")]
     fn receive_addresses(
         &self,
@@ -132,6 +219,17 @@ impl PyPublicKeyGenerator {
         Ok(addresses)
     }
 
+    /// Derive a receive address at the given index.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     Address: The derived address.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_address")]
     fn receive_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
@@ -146,6 +244,18 @@ impl PyPublicKeyGenerator {
         Ok(PyAddress(inner))
     }
 
+    /// Derive a range of receive addresses as strings.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[str]: The derived addresses as strings.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_addresses_as_strings")]
     fn receive_addresses_as_strings(
         &self,
@@ -173,6 +283,17 @@ impl PyPublicKeyGenerator {
             .collect())
     }
 
+    /// Derive a receive address as string.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     str: The derived address string.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "receive_address_as_string")]
     fn receive_address_as_string(
         &self,
@@ -190,6 +311,17 @@ impl PyPublicKeyGenerator {
         .to_string())
     }
 
+    /// Derive a range of change (internal) public keys.
+    ///
+    /// Args:
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[PublicKey]: The derived public keys.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_pubkeys")]
     pub fn change_pubkeys(&self, mut start: u32, mut end: u32) -> PyResult<Vec<PyPublicKey>> {
         if start > end {
@@ -208,6 +340,16 @@ impl PyPublicKeyGenerator {
         Ok(pubkeys)
     }
 
+    /// Derive a change (internal) public key at the given index.
+    ///
+    /// Args:
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     PublicKey: The derived public key.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_pubkey")]
     pub fn change_pubkey(&self, index: u32) -> PyResult<PyPublicKey> {
         let inner: PublicKey = self
@@ -220,6 +362,17 @@ impl PyPublicKeyGenerator {
         Ok(PyPublicKey(inner))
     }
 
+    /// Derive a range of change public keys as hex strings.
+    ///
+    /// Args:
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[str]: The derived public keys as hex.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_pubkeys_as_strings")]
     pub fn change_pubkeys_as_strings(&self, mut start: u32, mut end: u32) -> PyResult<Vec<String>> {
         if start > end {
@@ -236,6 +389,16 @@ impl PyPublicKeyGenerator {
             .collect())
     }
 
+    /// Derive a change public key as hex string.
+    ///
+    /// Args:
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     str: The public key as hex.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_pubkey_as_string")]
     pub fn change_pubkey_as_string(&self, index: u32) -> PyResult<String> {
         Ok(self
@@ -246,6 +409,18 @@ impl PyPublicKeyGenerator {
             .to_string())
     }
 
+    /// Derive a range of change addresses.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[Address]: The derived addresses.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_addresses")]
     pub fn change_addresses(
         &self,
@@ -271,6 +446,17 @@ impl PyPublicKeyGenerator {
         Ok(addresses)
     }
 
+    /// Derive a change address at the given index.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     Address: The derived address.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_address")]
     pub fn change_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
@@ -285,6 +471,18 @@ impl PyPublicKeyGenerator {
         Ok(PyAddress(inner))
     }
 
+    /// Derive a range of change addresses as strings.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     start: Start index (inclusive).
+    ///     end: End index (exclusive).
+    ///
+    /// Returns:
+    ///     list[str]: The derived addresses as strings.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_addresses_as_strings")]
     pub fn change_addresses_as_strings(
         &self,
@@ -312,6 +510,17 @@ impl PyPublicKeyGenerator {
             .collect())
     }
 
+    /// Derive a change address as string.
+    ///
+    /// Args:
+    ///     network_type: The network type for address encoding.
+    ///     index: The address index.
+    ///
+    /// Returns:
+    ///     str: The derived address string.
+    ///
+    /// Raises:
+    ///     Exception: If derivation fails.
     #[pyo3(name = "change_address_as_string")]
     pub fn change_address_as_string(
         &self,
@@ -329,6 +538,10 @@ impl PyPublicKeyGenerator {
         .to_string())
     }
 
+    /// Get the string representation of this generator.
+    ///
+    /// Returns:
+    ///     str: The generator info string.
     #[pyo3(name = "to_string")]
     pub fn to_string(&self) -> PyResult<String> {
         Ok(self.hd_wallet.to_string(None).to_string())

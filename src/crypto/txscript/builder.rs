@@ -4,9 +4,16 @@ use crate::{
 };
 use kaspa_txscript::{script_builder as native, standard};
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::sync::{Arc, Mutex, MutexGuard};
 use workflow_core::hex::ToHex;
 
+/// Builder for constructing transaction scripts.
+///
+/// Provides a fluent interface for building custom scripts with opcodes and data.
+/// Used for creating complex spending conditions like multi-signature or time-locked
+/// transactions.
+#[gen_stub_pyclass]
 #[pyclass(name = "ScriptBuilder")]
 #[derive(Clone)]
 pub struct PyScriptBuilder(Arc<Mutex<native::ScriptBuilder>>);
@@ -24,13 +31,25 @@ impl Default for PyScriptBuilder {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyScriptBuilder {
+    /// Create a new empty script builder.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: A new empty ScriptBuilder instance.
     #[new]
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Create a script builder from an existing script.
+    ///
+    /// Args:
+    ///     script: Existing script bytes as hex, bytes, or list.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: A new ScriptBuilder initialized with the script.
     #[staticmethod]
     pub fn from_script(script: PyBinary) -> PyResult<Self> {
         let builder = PyScriptBuilder::default();
@@ -40,6 +59,16 @@ impl PyScriptBuilder {
         Ok(builder)
     }
 
+    /// Add a single opcode to the script.
+    ///
+    /// Args:
+    ///     op: An Opcodes enum value or integer.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If the opcode is invalid.
     pub fn add_op(&self, op: &Bound<PyAny>) -> PyResult<Self> {
         let op = extract_ops(op)?;
         let mut inner = self.inner();
@@ -50,6 +79,16 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Add multiple opcodes to the script.
+    ///
+    /// Args:
+    ///     opcodes: List of Opcodes enum values or integers.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If any opcode is invalid.
     pub fn add_ops(&self, opcodes: &Bound<PyAny>) -> PyResult<Self> {
         let ops = extract_ops(opcodes)?;
         self.inner()
@@ -59,6 +98,16 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Add data to the script with appropriate push opcodes.
+    ///
+    /// Args:
+    ///     data: Data bytes as hex, bytes, or list.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If the data cannot be added.
     pub fn add_data(&self, data: PyBinary) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
@@ -68,6 +117,16 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Add an integer value to the script.
+    ///
+    /// Args:
+    ///     value: The integer to add.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If the value cannot be added.
     pub fn add_i64(&self, value: i64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
@@ -77,6 +136,16 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Add a lock time value for CLTV (CheckLockTimeVerify).
+    ///
+    /// Args:
+    ///     lock_time: DAA score or timestamp for time lock.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If the lock time cannot be added.
     pub fn add_lock_time(&self, lock_time: u64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
@@ -86,6 +155,16 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Add a sequence value for CSV (CheckSequenceVerify).
+    ///
+    /// Args:
+    ///     sequence: Relative time lock value.
+    ///
+    /// Returns:
+    ///     ScriptBuilder: Self for method chaining.
+    ///
+    /// Raises:
+    ///     Exception: If the sequence cannot be added.
     pub fn add_sequence(&self, sequence: u64) -> PyResult<Self> {
         let mut inner = self.inner();
         inner
@@ -95,6 +174,13 @@ impl PyScriptBuilder {
         Ok(self.clone())
     }
 
+    /// Calculate the canonical size for data in a script.
+    ///
+    /// Args:
+    ///     data: Data bytes.
+    ///
+    /// Returns:
+    ///     int: The size in bytes including push opcodes.
     #[staticmethod]
     pub fn canonical_data_size(data: PyBinary) -> PyResult<u32> {
         let size = native::ScriptBuilder::canonical_data_size(data.as_ref()) as u32;
@@ -102,6 +188,10 @@ impl PyScriptBuilder {
         Ok(size)
     }
 
+    /// Get the script as a hex string.
+    ///
+    /// Returns:
+    ///     str: The script bytes as a hex string.
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let inner = self.inner();
@@ -114,12 +204,20 @@ impl PyScriptBuilder {
             .collect()
     }
 
+    /// Drain and return the script, clearing the builder.
+    ///
+    /// Returns:
+    ///     str: The script as a string.
     pub fn drain(&self) -> String {
         let mut inner = self.inner();
 
         String::from_utf8(inner.drain()).unwrap()
     }
 
+    /// Create a P2SH (pay-to-script-hash) locking script.
+    ///
+    /// Returns:
+    ///     ScriptPublicKey: The locking script for a P2SH address.
     #[pyo3(name = "create_pay_to_script_hash_script")]
     pub fn pay_to_script_hash_script(&self) -> PyScriptPublicKey {
         let inner = self.inner();
@@ -128,6 +226,16 @@ impl PyScriptBuilder {
         standard::pay_to_script_hash_script(script).into()
     }
 
+    /// Encode a P2SH signature script for spending.
+    ///
+    /// Args:
+    ///     signature: The signature bytes.
+    ///
+    /// Returns:
+    ///     str: The encoded signature script as hex.
+    ///
+    /// Raises:
+    ///     Exception: If encoding fails.
     #[pyo3(name = "encode_pay_to_script_hash_signature_script")]
     pub fn pay_to_script_hash_signature_script(&self, signature: PyBinary) -> PyResult<String> {
         let inner = self.inner();

@@ -1,3 +1,3 @@
 use crate::crypto::hashes::PyHash;
 
-pub type PyTransactionId = PyHash;
+pub type TransactionId = PyHash;

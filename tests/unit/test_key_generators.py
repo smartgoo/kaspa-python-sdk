@@ -253,8 +253,8 @@ class TestPublicKeyGeneratorToString:
 class TestPrivateKeyGeneratorCreation:
     """Tests for PrivateKeyGenerator construction."""
 
-    def test_create_private_key_generator(self, known_master_xprv_string):
-        """Test creating a PrivateKeyGenerator."""
+    def test_create_from_string(self, known_master_xprv_string):
+        """Test creating a PrivateKeyGenerator from an xprv string."""
         privkey_gen = PrivateKeyGenerator(
             xprv=known_master_xprv_string,
             is_multisig=False,
@@ -262,8 +262,17 @@ class TestPrivateKeyGeneratorCreation:
         )
         assert privkey_gen is not None
 
-    def test_create_private_key_generator_multisig(self, known_master_xprv_string):
-        """Test creating a PrivateKeyGenerator for multisig."""
+    def test_create_from_xprv_instance(self, known_xprv_from_mnemonic):
+        """Test creating a PrivateKeyGenerator from an XPrv instance."""
+        privkey_gen = PrivateKeyGenerator(
+            xprv=known_xprv_from_mnemonic,
+            is_multisig=False,
+            account_index=0
+        )
+        assert privkey_gen is not None
+
+    def test_create_from_string_multisig(self, known_master_xprv_string):
+        """Test creating a PrivateKeyGenerator for multisig from string."""
         privkey_gen = PrivateKeyGenerator(
             xprv=known_master_xprv_string,
             is_multisig=True,
@@ -271,6 +280,37 @@ class TestPrivateKeyGeneratorCreation:
             cosigner_index=0
         )
         assert privkey_gen is not None
+
+    def test_create_from_xprv_instance_multisig(self, known_xprv_from_mnemonic):
+        """Test creating a PrivateKeyGenerator for multisig from XPrv instance."""
+        privkey_gen = PrivateKeyGenerator(
+            xprv=known_xprv_from_mnemonic,
+            is_multisig=True,
+            account_index=0,
+            cosigner_index=0
+        )
+        assert privkey_gen is not None
+
+    def test_string_and_xprv_produce_same_keys(self, known_xprv_from_mnemonic):
+        """Test that creating from string vs XPrv produces the same keys."""
+        xprv_string = known_xprv_from_mnemonic.to_string()
+        
+        gen_from_string = PrivateKeyGenerator(
+            xprv=xprv_string,
+            is_multisig=False,
+            account_index=0
+        )
+        gen_from_xprv = PrivateKeyGenerator(
+            xprv=known_xprv_from_mnemonic,
+            is_multisig=False,
+            account_index=0
+        )
+        
+        # Both should produce identical keys
+        key_from_string = gen_from_string.receive_key(0)
+        key_from_xprv = gen_from_xprv.receive_key(0)
+        
+        assert key_from_string.to_string() == key_from_xprv.to_string()
 
 
 class TestPrivateKeyGeneratorKeys:

@@ -7,39 +7,70 @@ use pyo3::{
     prelude::*,
     types::PyDict,
 };
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::sync::Arc;
 
+/// An unspent transaction output (UTXO).
+///
+/// Represents a spendable output from a previous transaction.
+/// Contains information about the amount, locking script, and block position.
+#[gen_stub_pyclass]
 #[pyclass(name = "UtxoEntry")]
 #[derive(Clone)]
 pub struct PyUtxoEntry(UtxoEntry);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyUtxoEntry {
+    /// The address associated with this UTXO.
+    ///
+    /// Returns:
+    ///     Address | None: The address, or None if not available.
     #[getter]
     pub fn address(&self) -> Option<PyAddress> {
         self.0.address.clone().map(PyAddress::from)
     }
 
+    /// The outpoint identifying this UTXO.
+    ///
+    /// Returns:
+    ///     TransactionOutpoint: The transaction outpoint reference.
     #[getter]
     pub fn outpoint(&self) -> PyTransactionOutpoint {
         self.0.outpoint.clone().into()
     }
 
+    /// The amount in sompi (1 KAS = 100,000,000 sompi).
+    ///
+    /// Returns:
+    ///     int: The UTXO value in sompi.
     #[getter]
     pub fn amount(&self) -> u64 {
         self.0.amount
     }
 
+    /// The locking script for this UTXO.
+    ///
+    /// Returns:
+    ///     ScriptPublicKey: The script public key.
     #[getter]
     pub fn script_public_key(&self) -> PyScriptPublicKey {
         self.0.script_public_key.clone().into()
     }
 
+    /// The DAA score of the block containing this UTXO.
+    ///
+    /// Returns:
+    ///     int: The block DAA score.
     #[getter]
     pub fn block_daa_score(&self) -> u64 {
         self.0.block_daa_score
     }
 
+    /// Whether this UTXO is from a coinbase transaction.
+    ///
+    /// Returns:
+    ///     bool: True if this is a coinbase UTXO.
     #[getter]
     pub fn is_coinbase(&self) -> bool {
         self.0.is_coinbase
@@ -58,12 +89,21 @@ impl From<UtxoEntry> for PyUtxoEntry {
     }
 }
 
+/// A collection of UTXO entry references.
+///
+/// Provides methods for managing and querying multiple UTXOs.
+#[gen_stub_pyclass]
 #[pyclass(name = "UtxoEntries")]
 #[derive(Clone)]
 pub struct PyUtxoEntries(Arc<Vec<UtxoEntryReference>>);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyUtxoEntries {
+    /// The list of UTXO entry references.
+    ///
+    /// Returns:
+    ///     list[UtxoEntryReference]: List of UTXO references.
     #[getter]
     #[pyo3(name = "items")]
     pub fn get_items_as_list(&self) -> Vec<PyUtxoEntryReference> {
@@ -75,12 +115,17 @@ impl PyUtxoEntries {
             .collect()
     }
 
+    /// Set the list of UTXO entry references.
+    ///
+    /// Args:
+    ///     value: List of UtxoEntryReference objects.
     #[setter]
     #[pyo3(name = "items")]
-    pub fn set_items_from_list(&mut self, v: Vec<PyUtxoEntryReference>) {
-        self.0 = Arc::new(v.iter().map(UtxoEntryReference::from).collect());
+    pub fn set_items_from_list(&mut self, value: Vec<PyUtxoEntryReference>) {
+        self.0 = Arc::new(value.iter().map(UtxoEntryReference::from).collect());
     }
 
+    /// Sort the UTXO entries by amount in ascending order.
     #[pyo3(name = "sort")]
     pub fn sort(&mut self) {
         let mut items = (*self.0).clone();
@@ -88,48 +133,85 @@ impl PyUtxoEntries {
         self.0 = Arc::new(items);
     }
 
+    /// Calculate the total amount of all UTXOs.
+    ///
+    /// Returns:
+    ///     int: The sum of all UTXO values in sompi.
     #[pyo3(name = "amount")]
     pub fn amount(&self) -> u64 {
         self.0.iter().map(|e| e.amount()).sum()
     }
 }
 
+/// A reference to a UTXO entry.
+///
+/// Provides access to UTXO data for transaction building and signing.
+#[gen_stub_pyclass]
 #[pyclass(name = "UtxoEntryReference")]
 #[derive(Clone)]
 pub struct PyUtxoEntryReference(UtxoEntryReference);
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl PyUtxoEntryReference {
+    /// The underlying UTXO entry.
+    ///
+    /// Returns:
+    ///     UtxoEntry: The UTXO entry data.
     #[getter]
     pub fn entry(&self) -> PyUtxoEntry {
         self.0.as_ref().clone().into()
     }
 
+    /// The outpoint identifying this UTXO.
+    ///
+    /// Returns:
+    ///     TransactionOutpoint: The transaction outpoint reference.
     #[getter]
     pub fn outpoint(&self) -> PyTransactionOutpoint {
         self.0.utxo.outpoint.clone().into()
     }
 
+    /// The address associated with this UTXO.
+    ///
+    /// Returns:
+    ///     Address | None: The address, or None if not available.
     #[getter]
     pub fn address(&self) -> Option<PyAddress> {
         self.0.utxo.address.clone().map(PyAddress::from)
     }
 
+    /// The amount in sompi (1 KAS = 100,000,000 sompi).
+    ///
+    /// Returns:
+    ///     int: The UTXO value in sompi.
     #[getter]
     pub fn amount(&self) -> u64 {
         self.0.utxo.amount
     }
 
+    /// Whether this UTXO is from a coinbase transaction.
+    ///
+    /// Returns:
+    ///     bool: True if this is a coinbase UTXO.
     #[getter]
     pub fn is_coinbase(&self) -> bool {
         self.0.utxo.is_coinbase
     }
 
+    /// The DAA score of the block containing this UTXO.
+    ///
+    /// Returns:
+    ///     int: The block DAA score.
     #[getter]
     pub fn block_daa_score(&self) -> u64 {
         self.0.utxo.block_daa_score
     }
 
+    /// The locking script for this UTXO.
+    ///
+    /// Returns:
+    ///     ScriptPublicKey: The script public key.
     #[getter]
     pub fn script_public_key(&self) -> PyScriptPublicKey {
         self.0.utxo.script_public_key.clone().into()

@@ -1,8 +1,19 @@
 use kaspa_consensus_core::hashing::wasm::SighashType;
 use pyo3::{exceptions::PyException, prelude::*};
+use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 use std::str::FromStr;
 
-crate::wrap_unit_enum_for_py!(PySighashType, "SighashType", SighashType, {
+crate::wrap_unit_enum_for_py!(
+    /// Kaspa signature hash types for transaction signing.
+    ///
+    /// Variants:
+    ///     All: Sign all inputs and outputs.
+    ///     None: Sign all inputs, no outputs.
+    ///     Single: Sign all inputs and corresponding output.
+    ///     AllAnyOneCanPay: Sign single input and all outputs.
+    ///     NoneAnyOneCanPay: Sign single input, no outputs.
+    ///     SingleAnyOneCanPay: Sign single input and corresponding output.
+    PySighashType, "SighashType", SighashType, {
     All,
     None,
     Single,

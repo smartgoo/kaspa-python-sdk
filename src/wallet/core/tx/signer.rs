@@ -12,9 +12,23 @@ use kaspa_consensus_core::{
 use kaspa_hashes::Hash;
 use kaspa_wallet_core::result::Result;
 use pyo3::{exceptions::PyException, prelude::*, types::PyList};
+use pyo3_stub_gen::derive::gen_stub_pyfunction;
 use workflow_core::hex::ToHex;
 use zeroize::Zeroize;
 
+/// Sign a transaction with one or more private keys.
+///
+/// Args:
+///     tx: The transaction to sign.
+///     signer: List of PrivateKey objects for signing.
+///     verify_sig: Whether to verify signatures after signing.
+///
+/// Returns:
+///     Transaction: The signed transaction.
+///
+/// Raises:
+///     Exception: If signing or verification fails.
+#[gen_stub_pyfunction]
 #[pyfunction(name = "sign_transaction")]
 pub fn py_sign_transaction<'py>(
     tx: PyTransaction,
@@ -34,6 +48,20 @@ pub fn py_sign_transaction<'py>(
     Ok(tx.clone().into())
 }
 
+/// Create a signature for a specific transaction input.
+///
+/// Args:
+///     tx: The transaction containing the input to sign.
+///     input_index: The index of the input to sign.
+///     private_key: The private key for signing.
+///     sighash_type: The signature hash type (default: All).
+///
+/// Returns:
+///     str: The signature as a hex string.
+///
+/// Raises:
+///     Exception: If signing fails.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "create_input_signature")]
 #[pyo3(signature = (tx, input_index, private_key, sighash_type=None))]
@@ -63,6 +91,18 @@ pub fn py_create_input_signature(
     Ok(signature.to_hex())
 }
 
+/// Sign a script hash with a private key.
+///
+/// Args:
+///     script_hash: The script hash to sign as a hex string.
+///     privkey: The private key for signing.
+///
+/// Returns:
+///     str: The signature as a hex string.
+///
+/// Raises:
+///     Exception: If signing fails.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "sign_script_hash")]
 pub fn py_sign_script_hash(script_hash: String, privkey: &PyPrivateKey) -> PyResult<String> {
@@ -88,9 +128,9 @@ fn sign_transaction<'a>(
     Ok(tx)
 }
 
-/// Sign a transaction using schnorr, returns a new transaction with the signatures added.
-/// The resulting transaction may be partially signed if the supplied keys are not sufficient
-/// to sign all of its inputs.
+// Sign a transaction using schnorr, returns a new transaction with the signatures added.
+// The resulting transaction may be partially signed if the supplied keys are not sufficient
+// to sign all of its inputs.
 fn sign<'a>(tx: &'a Transaction, privkeys: &[[u8; 32]]) -> Result<&'a Transaction> {
     Ok(sign_with_multiple_v3(tx, privkeys)?.unwrap())
 }

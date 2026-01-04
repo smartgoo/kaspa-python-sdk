@@ -54,6 +54,7 @@ plugins:
             merge_init_into_class: true
             show_signature_annotations: true
             separate_signature: true
+            show_if_no_docstring: true
 
 markdown_extensions:
   - admonition

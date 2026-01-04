@@ -378,7 +378,7 @@ formatted = sompi_to_kaspa_string_with_suffix(150000000, "mainnet")
 
 ## See Also
 
-- [API Reference: Transactions](../api/transactions.md)
+- [API Reference](../api.md)
 - [RPC Client Guide](rpc-client.md)
 - [Key Derivation Guide](key-derivation.md)
 

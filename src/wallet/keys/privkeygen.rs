@@ -1,7 +1,5 @@
 use kaspa_bip32::{ChildNumber, ExtendedPrivateKey};
-use kaspa_wallet_keys::{
-    derivation::gen1::WalletDerivationManager, prelude::PrivateKey,
-};
+use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, prelude::PrivateKey};
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use secp256k1::SecretKey;

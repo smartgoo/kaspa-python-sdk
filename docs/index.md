@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
 ## API Reference
 
-For complete API documentation, see the [API Reference](api/index.md).
+For complete API documentation, see the [API Reference](api.md).
 
 ## License
 

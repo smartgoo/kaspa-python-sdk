@@ -442,7 +442,7 @@ async def safe_rpc_call():
 
 ## See Also
 
-- [API Reference: RPC](../api/rpc.md)
+- [API Reference](../api.md)
 - [Transactions Guide](transactions.md)
 - [Quickstart Guide](../getting-started/quickstart.md)
 

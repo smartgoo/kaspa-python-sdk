@@ -229,7 +229,7 @@ except Exception as e:
 
 ## See Also
 
-- [API Reference: Keys](../api/keys.md)
+- [API Reference: Keys](../api.md)
 - [Key Derivation Guide](key-derivation.md)
 - [Addresses Guide](addresses.md)
 

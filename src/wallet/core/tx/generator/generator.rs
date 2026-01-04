@@ -295,7 +295,7 @@ impl GeneratorSettings {
             None => Fees::None,
         };
 
-        // PY-TODO support GeneratorSource::UtxoContext when available
+        // TODO support GeneratorSource::UtxoContext when available
         let generator_source = GeneratorSource::UtxoEntries(entries);
 
         let sig_op_count = sig_op_count.unwrap_or(1);

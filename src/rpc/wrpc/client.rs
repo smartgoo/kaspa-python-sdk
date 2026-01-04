@@ -404,8 +404,8 @@ impl PyRpcClient {
         })
     }
 
-    // fn stop() PY-TODO
-    // fn trigger_abort() PY-TODO
+    // fn stop() TODO
+    // fn trigger_abort() TODO
 
     /// Register a callback for RPC events.
     ///
@@ -501,8 +501,8 @@ impl PyRpcClient {
         Ok(())
     }
 
-    // fn clear_event_listener PY-TODO
-    // fn default_port PY-TODO
+    // fn clear_event_listener TODO
+    // fn default_port TODO
 
     /// Remove all registered event listeners.
     fn remove_all_event_listeners(&self) -> PyResult<()> {
@@ -520,7 +520,7 @@ impl PyRpcClient {
 }
 
 impl PyRpcClient {
-    // fn new_with_rpc_client() PY-TODO
+    // fn new_with_rpc_client() TODO
 
     pub fn listener_id(&self) -> Option<ListenerId> {
         *self.0.listener_id.lock().unwrap()

@@ -24,9 +24,9 @@ impl FromStr for PyAddressVersion {
             "pubkey" => PyAddressVersion::PubKey,
             "pubkeyecdsa" => PyAddressVersion::PubKeyECDSA,
             "scripthash" => PyAddressVersion::ScriptHash,
-            _ => Err(
-                PyException::new_err("Unsupported string value for `AddressVersion`")
-            )?
+            _ => Err(PyException::new_err(
+                "Unsupported string value for `AddressVersion`",
+            ))?,
         };
 
         Ok(v)
@@ -42,11 +42,12 @@ impl<'py> FromPyObject<'_, 'py> for PyAddressVersion {
         } else if let Ok(t) = obj.cast::<PyAddressVersion>() {
             Ok(t.borrow().clone())
         } else {
-            Err(PyException::new_err("Expected type `str` or `AddressVersion`"))
+            Err(PyException::new_err(
+                "Expected type `str` or `AddressVersion`",
+            ))
         }
     }
 }
-
 
 /// A Kaspa blockchain address.
 ///

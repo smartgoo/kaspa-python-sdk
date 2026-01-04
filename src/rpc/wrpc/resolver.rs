@@ -1,8 +1,8 @@
 use crate::{consensus::core::network::PyNetworkId, rpc::encoding::PyEncoding};
-use kaspa_wrpc_client::{Resolver, WrpcEncoding};
+use kaspa_wrpc_client::Resolver;
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 
 /// A resolver for discovering Kaspa RPC node endpoints.
 ///

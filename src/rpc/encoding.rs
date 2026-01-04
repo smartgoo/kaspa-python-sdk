@@ -5,7 +5,7 @@ use workflow_rpc::encoding::Encoding;
 
 crate::wrap_unit_enum_for_py!(
     /// wRPC protocol encoding
-    /// 
+    ///
     /// Variants:
     ///     Borsh
     ///     JSON
@@ -41,4 +41,3 @@ impl<'py> FromPyObject<'_, 'py> for PyEncoding {
         }
     }
 }
-

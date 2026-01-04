@@ -18,7 +18,7 @@ use kaspa_rpc_core::api::rpc::RpcApi;
 use kaspa_rpc_core::model::*;
 use kaspa_rpc_core::notify::connection::ChannelConnection;
 use kaspa_wrpc_client::{
-    KaspaRpcClient, WrpcEncoding, client::ConnectOptions, error::Error, prelude::*, result::Result,
+    KaspaRpcClient, client::ConnectOptions, error::Error, prelude::*, result::Result,
 };
 use paste::paste;
 use pyo3::{
@@ -176,8 +176,14 @@ impl PyRpcClient {
             .transpose()?;
 
         let client = Arc::new(
-            KaspaRpcClient::new(encoding.into(), url.as_deref(), resolver.clone(), network_id, None)
-                .map_err(|err| PyException::new_err(err.to_string()))?,
+            KaspaRpcClient::new(
+                encoding.into(),
+                url.as_deref(),
+                resolver.clone(),
+                network_id,
+                None,
+            )
+            .map_err(|err| PyException::new_err(err.to_string()))?,
         );
 
         let rpc_client = PyRpcClient(Arc::new(Inner {
@@ -226,7 +232,7 @@ impl PyRpcClient {
         Self::new(
             resolver.map(|r| r.inner()),
             url,
-            Some(encoding.unwrap_or(PyEncoding::Borsh).into()),
+            Some(encoding.unwrap_or(PyEncoding::Borsh)),
             Some(network_id.into()),
         )
     }

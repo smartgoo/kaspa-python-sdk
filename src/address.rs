@@ -1,6 +1,52 @@
-use kaspa_addresses::{Address, AddressError, Prefix};
+use std::str::FromStr;
+
+use kaspa_addresses::{Address, AddressError, Prefix, Version};
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::*;
+
+crate::wrap_unit_enum_for_py!(
+    /// Kaspa Address version (`PubKey`, `PubKey ECDSA`, `ScriptHash`)
+    /// PubKey addresses always have the version byte set to 0
+    /// PubKey ECDSA addresses always have the version byte set to 1
+    /// ScriptHash addresses always have the version byte set to 8
+    PyAddressVersion, "AddressVersion", Version, {
+        PubKey,
+        PubKeyECDSA,
+        ScriptHash
+    }
+);
+
+impl FromStr for PyAddressVersion {
+    type Err = PyErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let v = match s.to_lowercase().as_str() {
+            "pubkey" => PyAddressVersion::PubKey,
+            "pubkeyecdsa" => PyAddressVersion::PubKeyECDSA,
+            "scripthash" => PyAddressVersion::ScriptHash,
+            _ => Err(
+                PyException::new_err("Unsupported string value for `AddressVersion`")
+            )?
+        };
+
+        Ok(v)
+    }
+}
+
+impl<'py> FromPyObject<'_, 'py> for PyAddressVersion {
+    type Error = PyErr;
+
+    fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
+        if let Ok(s) = obj.extract::<String>() {
+            PyAddressVersion::from_str(&s).map_err(|err| PyException::new_err(err.to_string()))
+        } else if let Ok(t) = obj.cast::<PyAddressVersion>() {
+            Ok(t.borrow().clone())
+        } else {
+            Err(PyException::new_err("Expected type `str` or `AddressVersion`"))
+        }
+    }
+}
+
 
 /// A Kaspa blockchain address.
 ///

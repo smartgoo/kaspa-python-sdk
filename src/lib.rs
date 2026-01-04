@@ -16,6 +16,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3_log::init();
 
     m.add_class::<address::PyAddress>()?;
+    m.add_class::<address::PyAddressVersion>()?;
 
     m.add_class::<consensus::client::transaction::PyTransaction>()?;
     m.add_class::<consensus::client::input::PyTransactionInput>()?;

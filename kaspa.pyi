@@ -2591,6 +2591,18 @@ class XPub:
         """
 
 @typing.final
+class AddressVersion(enum.Enum):
+    r"""
+    Kaspa Address version (`PubKey`, `PubKey ECDSA`, `ScriptHash`)
+    PubKey addresses always have the version byte set to 0
+    PubKey ECDSA addresses always have the version byte set to 1
+    ScriptHash addresses always have the version byte set to 8
+    """
+    PubKey = ...
+    PubKeyECDSA = ...
+    ScriptHash = ...
+
+@typing.final
 class Encoding(enum.Enum):
     r"""
     wRPC protocol encoding

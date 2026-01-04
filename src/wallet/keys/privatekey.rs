@@ -35,7 +35,7 @@ impl PyPrivateKey {
     /// Create a private key from a hex string.
     ///
     /// Args:
-    ///     secret_key: A 64-character hex string representing the secret key.
+    ///     key: A 64-character hex string representing the secret key.
     ///
     /// Returns:
     ///     PrivateKey: A new PrivateKey instance.

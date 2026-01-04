@@ -78,15 +78,15 @@ impl PyAddress {
     /// Set the network prefix of the address.
     ///
     /// Args:
-    ///     prefix: The network prefix string (e.g., `kaspa`, `kaspatest`, `kaspadev`).
+    ///     value: The network prefix string (e.g., `kaspa`, `kaspatest`, `kaspadev`).
     ///
     /// Raises:
     ///     Exception: If the prefix string is invalid.
     #[setter]
     #[pyo3(name = "prefix")]
-    pub fn set_prefix_from_str(&mut self, prefix: &str) -> PyResult<()> {
+    pub fn set_prefix_from_str(&mut self, value: &str) -> PyResult<()> {
         self.0.prefix =
-            Prefix::try_from(prefix).map_err(|err| PyException::new_err(err.to_string()))?;
+            Prefix::try_from(value).map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(())
     }
 

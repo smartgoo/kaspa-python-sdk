@@ -73,7 +73,7 @@ class Address:
         Set the network prefix of the address.
         
         Args:
-            prefix: The network prefix string (e.g., `kaspa`, `kaspatest`, `kaspadev`).
+            value: The network prefix string (e.g., `kaspa`, `kaspatest`, `kaspadev`).
         
         Raises:
             Exception: If the prefix string is invalid.
@@ -784,7 +784,7 @@ class PrivateKey:
         Create a private key from a hex string.
         
         Args:
-            secret_key: A 64-character hex string representing the secret key.
+            key: A 64-character hex string representing the secret key.
         
         Returns:
             PrivateKey: A new PrivateKey instance.

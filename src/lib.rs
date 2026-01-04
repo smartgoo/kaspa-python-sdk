@@ -131,6 +131,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
 
+    m.add_class::<rpc::encoding::PyEncoding>()?;
     m.add_class::<rpc::wrpc::resolver::PyResolver>()?;
     m.add_class::<rpc::wrpc::client::PyRpcClient>()?;
 

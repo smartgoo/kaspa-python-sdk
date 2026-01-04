@@ -1,5 +1,6 @@
 use crate::address::PyAddress;
 use crate::consensus::core::network::PyNetworkId;
+use crate::rpc::encoding::PyEncoding;
 use crate::rpc::model::*;
 use crate::rpc::notification::PyNotification;
 use crate::rpc::wrpc::resolver::PyResolver;
@@ -160,14 +161,14 @@ impl PyRpcClient {
     pub fn new(
         resolver: Option<Resolver>,
         url: Option<String>,
-        encoding: Option<WrpcEncoding>,
+        encoding: Option<PyEncoding>,
         network_id: Option<NetworkId>,
     ) -> PyResult<Self> {
-        let encoding = encoding.unwrap_or(Encoding::Borsh);
+        let encoding = encoding.unwrap_or(PyEncoding::Borsh);
         let url = url
             .map(|url| {
                 if let Some(network_id) = network_id {
-                    Self::parse_url(&url, encoding, network_id)
+                    Self::parse_url(&url, encoding.clone().into(), network_id)
                 } else {
                     Ok(url.to_string())
                 }
@@ -175,7 +176,7 @@ impl PyRpcClient {
             .transpose()?;
 
         let client = Arc::new(
-            KaspaRpcClient::new(encoding, url.as_deref(), resolver.clone(), network_id, None)
+            KaspaRpcClient::new(encoding.into(), url.as_deref(), resolver.clone(), network_id, None)
                 .map_err(|err| PyException::new_err(err.to_string()))?,
         );
 
@@ -201,7 +202,7 @@ impl PyRpcClient {
     /// Args:
     ///     resolver: Optional resolver for node discovery.
     ///     url: Optional direct node URL.
-    ///     encoding: RPC encoding ("borsh" or "json", default: "borsh").
+    ///     encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant (default: "borsh").
     ///     network_id: Network identifier (default: "mainnet").
     ///
     /// Returns:
@@ -214,12 +215,9 @@ impl PyRpcClient {
     fn ctor(
         resolver: Option<PyResolver>,
         url: Option<String>,
-        encoding: Option<String>,
+        encoding: Option<PyEncoding>,
         network_id: Option<PyNetworkId>,
     ) -> PyResult<PyRpcClient> {
-        let encoding = WrpcEncoding::from_str(&encoding.unwrap_or("borsh".to_string()))
-            .map_err(|err| PyException::new_err(format!("{}", err)))?;
-
         let network_id = match network_id {
             Some(id) => id,
             None => PyNetworkId::from_str("mainnet")?,
@@ -228,7 +226,7 @@ impl PyRpcClient {
         Self::new(
             resolver.map(|r| r.inner()),
             url,
-            Some(encoding),
+            Some(encoding.unwrap_or(PyEncoding::Borsh).into()),
             Some(network_id.into()),
         )
     }

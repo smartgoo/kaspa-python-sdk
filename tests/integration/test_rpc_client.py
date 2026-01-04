@@ -11,6 +11,7 @@ from kaspa import (
     RpcClient,
     Resolver,
     Address,
+    Encoding,
 )
 
 
@@ -35,18 +36,33 @@ class TestResolver:
         assert urls is not None
         assert isinstance(urls, list)
 
-    async def test_resolver_get_url(self):
-        """Test getting a node URL from resolver."""
+    async def test_resolver_get_url_with_string_encoding(self):
+        """Test getting a node URL from resolver with string encoding."""
         resolver = Resolver()
         url = await resolver.get_url("borsh", "testnet-10")
         assert url is not None
         assert isinstance(url, str)
         assert url.startswith("wss://") or url.startswith("ws://")
 
-    async def test_resolver_get_node(self):
-        """Test getting node info from resolver."""
+    async def test_resolver_get_url_with_enum_encoding(self):
+        """Test getting a node URL from resolver with Encoding enum."""
+        resolver = Resolver()
+        url = await resolver.get_url(Encoding.Borsh, "testnet-10")
+        assert url is not None
+        assert isinstance(url, str)
+        assert url.startswith("wss://") or url.startswith("ws://")
+
+    async def test_resolver_get_node_with_string_encoding(self):
+        """Test getting node info from resolver with string encoding."""
         resolver = Resolver()
         node = await resolver.get_node("borsh", "testnet-10")
+        assert node is not None
+        assert isinstance(node, dict)
+
+    async def test_resolver_get_node_with_enum_encoding(self):
+        """Test getting node info from resolver with Encoding enum."""
+        resolver = Resolver()
+        node = await resolver.get_node(Encoding.Borsh, "testnet-10")
         assert node is not None
         assert isinstance(node, dict)
 
@@ -57,6 +73,26 @@ class TestRpcClientConnection:
     async def test_create_rpc_client_with_resolver(self):
         """Test creating an RPC client with a resolver."""
         client = RpcClient(resolver=Resolver(), network_id="testnet-10")
+        assert client is not None
+
+    async def test_create_rpc_client_with_string_encoding(self):
+        """Test creating an RPC client with string encoding."""
+        client = RpcClient(resolver=Resolver(), network_id="testnet-10", encoding="borsh")
+        assert client is not None
+
+    async def test_create_rpc_client_with_enum_encoding(self):
+        """Test creating an RPC client with Encoding enum."""
+        client = RpcClient(resolver=Resolver(), network_id="testnet-10", encoding=Encoding.Borsh)
+        assert client is not None
+
+    async def test_create_rpc_client_with_json_string_encoding(self):
+        """Test creating an RPC client with 'json' string encoding."""
+        client = RpcClient(resolver=Resolver(), network_id="testnet-10", encoding="json")
+        assert client is not None
+
+    async def test_create_rpc_client_with_json_enum_encoding(self):
+        """Test creating an RPC client with Encoding.SerdeJson enum."""
+        client = RpcClient(resolver=Resolver(), network_id="testnet-10", encoding=Encoding.SerdeJson)
         assert client is not None
 
     async def test_rpc_client_connect_disconnect(self):

@@ -1,4 +1,4 @@
-use crate::consensus::core::network::PyNetworkId;
+use crate::{consensus::core::network::PyNetworkId, rpc::encoding::PyEncoding};
 use kaspa_wrpc_client::{Resolver, WrpcEncoding};
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -69,7 +69,7 @@ impl PyResolver {
     /// Get a node descriptor from the resolver (async).
     ///
     /// Args:
-    ///     encoding: RPC encoding ("borsh" or "json").
+    ///     encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant.
     ///     network_id: The network to find a node for.
     ///
     /// Returns:
@@ -80,16 +80,13 @@ impl PyResolver {
     fn get_node<'py>(
         &self,
         py: Python<'py>,
-        encoding: &str,
+        encoding: PyEncoding,
         network_id: PyNetworkId,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let encoding = WrpcEncoding::from_str(encoding)
-            .map_err(|err| PyException::new_err(format!("{}", err)))?;
-
         let resolver = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let node = resolver
-                .get_node(encoding, network_id.into())
+                .get_node(encoding.into(), network_id.into())
                 .await
                 .map_err(|err| PyException::new_err(err.to_string()))?;
             Python::attach(|py| Ok(serde_pyobject::to_pyobject(py, &node)?.unbind()))
@@ -99,7 +96,7 @@ impl PyResolver {
     /// Get a node URL from the resolver (async).
     ///
     /// Args:
-    ///     encoding: RPC encoding ("borsh" or "json").
+    ///     encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant.
     ///     network_id: The network to find a node for.
     ///
     /// Returns:
@@ -110,16 +107,13 @@ impl PyResolver {
     fn get_url<'py>(
         &self,
         py: Python<'py>,
-        encoding: &str,
+        encoding: PyEncoding,
         network_id: PyNetworkId,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let encoding = WrpcEncoding::from_str(encoding)
-            .map_err(|err| PyException::new_err(format!("{}", err)))?;
-
         let resolver = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let url = resolver
-                .get_url(encoding, network_id.into())
+                .get_url(encoding.into(), network_id.into())
                 .await
                 .map_err(|err| PyException::new_err(err.to_string()))?;
             Ok(url)

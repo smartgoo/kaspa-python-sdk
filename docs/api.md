@@ -1,6 +1,6 @@
 # API Reference
 
-Complete alphabetical reference for all Kaspa Python SDK classes and functions.
+Complete reference for all Kaspa Python SDK classes and functions. Sorted alphabetically.
 
 ::: kaspa
     options:

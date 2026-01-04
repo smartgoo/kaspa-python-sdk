@@ -4,10 +4,18 @@ use kaspa_wallet_core::account::kind::AccountKind;
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-/// The type of wallet account.
+/// Account kind is a string signature that represents an account type.
+/// Account kind is used to identify the account type during
+/// serialization, deserialization and various API calls.
 ///
-/// Represents different account derivation schemes used in HD wallets
-/// (e.g., "bip32", "legacy", "multisig").
+/// Note:
+///     Supported values:
+///
+///     - `legacy`: Legacy account type
+///     - `bip32`: BIP-32 HD wallet account
+///     - `multisig`: Multi-signature account
+///     - `keypair`: Simple keypair account
+///     - `bip32watch`: Watch-only BIP-32 account
 #[gen_stub_pyclass]
 #[pyclass(name = "AccountKind")]
 #[derive(Clone)]
@@ -19,7 +27,7 @@ impl PyAccountKind {
     /// Create a new AccountKind from a string.
     ///
     /// Args:
-    ///     kind: The account kind string (e.g., "bip32", "legacy", "multisig").
+    ///     kind: The account kind string.
     ///
     /// Returns:
     ///     AccountKind: A new AccountKind instance.

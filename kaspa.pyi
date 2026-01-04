@@ -8,17 +8,25 @@ import typing
 @typing.final
 class AccountKind:
     r"""
-    The type of wallet account.
+    Account kind is a string signature that represents an account type.
+    Account kind is used to identify the account type during
+    serialization, deserialization and various API calls.
     
-    Represents different account derivation schemes used in HD wallets
-    (e.g., "bip32", "legacy", "multisig").
+    Note:
+        Supported values:
+    
+        - `legacy`: Legacy account type
+        - `bip32`: BIP-32 HD wallet account
+        - `multisig`: Multi-signature account
+        - `keypair`: Simple keypair account
+        - `bip32watch`: Watch-only BIP-32 account
     """
     def __new__(cls, kind: builtins.str) -> AccountKind:
         r"""
         Create a new AccountKind from a string.
         
         Args:
-            kind: The account kind string (e.g., "bip32", "legacy", "multisig").
+            kind: The account kind string.
         
         Returns:
             AccountKind: A new AccountKind instance.
@@ -44,10 +52,11 @@ class AccountKind:
 @typing.final
 class Address:
     r"""
-    Represents a Kaspa blockchain address.
+    A Kaspa blockchain address.
     
-    An Address consists of a network prefix and an encoded payload derived from
-    a public key or script hash. Kaspa uses Bech32 encoding for addresses.
+    In it's string form, the Kaspa [`Address`] is represented by a `bech32`-encoded
+    address string combined with a network type.  The `bech32` string encoding is
+    comprised of a public key, the public key version and the resulting checksum.
     """
     @property
     def version_to_string(self) -> builtins.str:
@@ -1277,12 +1286,12 @@ class Resolver:
         Returns:
             list[str]: The resolver URL list.
         """
-    def get_node(self, encoding: builtins.str, network_id: NetworkId) -> typing.Any:
+    def get_node(self, encoding: Encoding, network_id: NetworkId) -> typing.Any:
         r"""
         Get a node descriptor from the resolver (async).
         
         Args:
-            encoding: RPC encoding ("borsh" or "json").
+            encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant.
             network_id: The network to find a node for.
         
         Returns:
@@ -1291,12 +1300,12 @@ class Resolver:
         Raises:
             Exception: If no node is available or resolution fails.
         """
-    def get_url(self, encoding: builtins.str, network_id: NetworkId) -> typing.Any:
+    def get_url(self, encoding: Encoding, network_id: NetworkId) -> typing.Any:
         r"""
         Get a node URL from the resolver (async).
         
         Args:
-            encoding: RPC encoding ("borsh" or "json").
+            encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant.
             network_id: The network to find a node for.
         
         Returns:
@@ -1355,14 +1364,14 @@ class RpcClient:
         Returns:
             str | None: The node ID, or None if not connected via resolver.
         """
-    def __new__(cls, resolver: typing.Optional[Resolver] = None, url: typing.Optional[builtins.str] = None, encoding: typing.Optional[builtins.str] = None, network_id: typing.Optional[NetworkId] = None) -> RpcClient:
+    def __new__(cls, resolver: typing.Optional[Resolver] = None, url: typing.Optional[builtins.str] = None, encoding: typing.Optional[Encoding] = None, network_id: typing.Optional[NetworkId] = None) -> RpcClient:
         r"""
         Create a new RPC client.
         
         Args:
             resolver: Optional resolver for node discovery.
             url: Optional direct node URL.
-            encoding: RPC encoding ("borsh" or "json", default: "borsh").
+            encoding: RPC encoding - either a string ("borsh" or "json") or an Encoding enum variant (default: "borsh").
             network_id: Network identifier (default: "mainnet").
         
         Returns:
@@ -2580,6 +2589,18 @@ class XPub:
         Returns:
             PublicKey: The public key.
         """
+
+@typing.final
+class Encoding(enum.Enum):
+    r"""
+    wRPC protocol encoding
+    
+    Variants:
+        Borsh
+        JSON
+    """
+    Borsh = ...
+    SerdeJson = ...
 
 @typing.final
 class Language(enum.Enum):

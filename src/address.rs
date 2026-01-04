@@ -2,10 +2,11 @@ use kaspa_addresses::{Address, AddressError, Prefix};
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::*;
 
-/// Represents a Kaspa blockchain address.
+/// A Kaspa blockchain address.
 ///
-/// An Address consists of a network prefix and an encoded payload derived from
-/// a public key or script hash. Kaspa uses Bech32 encoding for addresses.
+/// In it's string form, the Kaspa [`Address`] is represented by a `bech32`-encoded
+/// address string combined with a network type.  The `bech32` string encoding is
+/// comprised of a public key, the public key version and the resulting checksum.
 #[gen_stub_pyclass]
 #[pyclass(name = "Address")]
 #[derive(Clone)]

@@ -140,21 +140,25 @@ impl PyAddress {
         Ok(())
     }
 
-    // TODO Cannot expose since encode_payload is private
-    // Requires reimplementation
-    // #[pyo3(name = "payload")]
-    // pub fn payload_to_string(&self) -> String {
-    //     self.0.encode_payload()
-    // }
+    /// The bech32 encoded payload of the address (public key or script hash).
+    ///
+    /// Returns:
+    ///     str: The payload portion of the address.
+    #[getter]
+    pub fn get_payload(&self) -> String {
+        self.0.payload_to_string()
+    }
 
-    // TODO Cannot expose since encode_payload is private
-    // Requires reimplementation
-    // #[pyo3(name = "short")]
-    // pub fn short(&self, n: usize) -> String {
-    //     let payload = self.encode_payload();
-    //     let n = std::cmp::min(n, payload.len() / 4);
-    //     format!("{}:{}....{}", self.prefix, &payload[0..n], &payload[payload.len() - n..])
-    // }
+    /// Get a shortened representation of the address.
+    ///
+    /// Args:
+    ///     n: The number of characters to show at the start and end of the payload.
+    ///
+    /// Returns:
+    ///     str: A shortened address string in the format `prefix:start....end`.
+    pub fn short(&self, n: usize) -> String {
+        self.0.short(n)
+    }
 }
 
 impl From<Address> for PyAddress {

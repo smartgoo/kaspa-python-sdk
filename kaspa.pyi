@@ -92,6 +92,14 @@ class Address:
         Raises:
             Exception: If the prefix string is invalid.
         """
+    @property
+    def payload(self) -> builtins.str:
+        r"""
+        The bech32 encoded payload of the address (public key or script hash).
+        
+        Returns:
+            str: The payload portion of the address.
+        """
     def __new__(cls, address: builtins.str) -> Address:
         r"""
         Create a new Address from a string.
@@ -122,6 +130,16 @@ class Address:
         
         Returns:
             str: A bech32 encoded Kaspa address string.
+        """
+    def short(self, n: builtins.int) -> builtins.str:
+        r"""
+        Get a shortened representation of the address.
+        
+        Args:
+            n: The number of characters to show at the start and end of the payload.
+        
+        Returns:
+            str: A shortened address string in the format `prefix:start....end`.
         """
 
 @typing.final

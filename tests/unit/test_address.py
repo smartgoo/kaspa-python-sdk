@@ -59,6 +59,27 @@ class TestAddressProperties:
         """Test to_string() returns the original address string."""
         assert known_mainnet_address.to_string() == known_mainnet_address_string
 
+    def test_address_payload(self, known_mainnet_address):
+        """Test that payload property returns the bech32 encoded payload."""
+        payload = known_mainnet_address.payload
+        assert payload is not None
+        assert isinstance(payload, str)
+        assert len(payload) > 0
+        # Payload should be the address without the prefix and colon
+        full_address = known_mainnet_address.to_string()
+        expected_payload = full_address.split(":")[1]
+        assert payload == expected_payload
+
+    def test_address_short(self, known_mainnet_address):
+        """Test that short() returns a shortened address representation."""
+        n = 4
+        short_addr = known_mainnet_address.short(n)
+        assert short_addr is not None
+        assert isinstance(short_addr, str)
+        # Should contain the prefix
+        assert short_addr.startswith(known_mainnet_address.prefix + ":")
+        # Should contain the ellipsis pattern
+        assert "...." in short_addr
 
 class TestAddressFromKey:
     """Tests for creating addresses from keys."""

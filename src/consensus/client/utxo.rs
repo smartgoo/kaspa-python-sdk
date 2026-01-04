@@ -27,7 +27,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     Address | None: The address, or None if not available.
     #[getter]
-    pub fn address(&self) -> Option<PyAddress> {
+    pub fn get_address(&self) -> Option<PyAddress> {
         self.0.address.clone().map(PyAddress::from)
     }
 
@@ -36,7 +36,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     TransactionOutpoint: The transaction outpoint reference.
     #[getter]
-    pub fn outpoint(&self) -> PyTransactionOutpoint {
+    pub fn get_outpoint(&self) -> PyTransactionOutpoint {
         self.0.outpoint.clone().into()
     }
 
@@ -45,7 +45,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     int: The UTXO value in sompi.
     #[getter]
-    pub fn amount(&self) -> u64 {
+    pub fn get_amount(&self) -> u64 {
         self.0.amount
     }
 
@@ -54,7 +54,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     ScriptPublicKey: The script public key.
     #[getter]
-    pub fn script_public_key(&self) -> PyScriptPublicKey {
+    pub fn get_script_public_key(&self) -> PyScriptPublicKey {
         self.0.script_public_key.clone().into()
     }
 
@@ -63,7 +63,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     int: The block DAA score.
     #[getter]
-    pub fn block_daa_score(&self) -> u64 {
+    pub fn get_block_daa_score(&self) -> u64 {
         self.0.block_daa_score
     }
 
@@ -72,7 +72,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     bool: True if this is a coinbase UTXO.
     #[getter]
-    pub fn is_coinbase(&self) -> bool {
+    pub fn get_is_coinbase(&self) -> bool {
         self.0.is_coinbase
     }
 }
@@ -105,8 +105,7 @@ impl PyUtxoEntries {
     /// Returns:
     ///     list[UtxoEntryReference]: List of UTXO references.
     #[getter]
-    #[pyo3(name = "items")]
-    pub fn get_items_as_list(&self) -> Vec<PyUtxoEntryReference> {
+    pub fn get_items(&self) -> Vec<PyUtxoEntryReference> {
         self.0
             .as_ref()
             .clone()
@@ -120,13 +119,11 @@ impl PyUtxoEntries {
     /// Args:
     ///     value: List of UtxoEntryReference objects.
     #[setter]
-    #[pyo3(name = "items")]
-    pub fn set_items_from_list(&mut self, value: Vec<PyUtxoEntryReference>) {
+    pub fn set_items(&mut self, value: Vec<PyUtxoEntryReference>) {
         self.0 = Arc::new(value.iter().map(UtxoEntryReference::from).collect());
     }
 
     /// Sort the UTXO entries by amount in ascending order.
-    #[pyo3(name = "sort")]
     pub fn sort(&mut self) {
         let mut items = (*self.0).clone();
         items.sort_by_key(|e| e.amount());
@@ -159,7 +156,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     UtxoEntry: The UTXO entry data.
     #[getter]
-    pub fn entry(&self) -> PyUtxoEntry {
+    pub fn get_entry(&self) -> PyUtxoEntry {
         self.0.as_ref().clone().into()
     }
 
@@ -168,7 +165,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     TransactionOutpoint: The transaction outpoint reference.
     #[getter]
-    pub fn outpoint(&self) -> PyTransactionOutpoint {
+    pub fn get_outpoint(&self) -> PyTransactionOutpoint {
         self.0.utxo.outpoint.clone().into()
     }
 
@@ -177,7 +174,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     Address | None: The address, or None if not available.
     #[getter]
-    pub fn address(&self) -> Option<PyAddress> {
+    pub fn get_address(&self) -> Option<PyAddress> {
         self.0.utxo.address.clone().map(PyAddress::from)
     }
 
@@ -186,7 +183,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     int: The UTXO value in sompi.
     #[getter]
-    pub fn amount(&self) -> u64 {
+    pub fn get_amount(&self) -> u64 {
         self.0.utxo.amount
     }
 
@@ -195,7 +192,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     bool: True if this is a coinbase UTXO.
     #[getter]
-    pub fn is_coinbase(&self) -> bool {
+    pub fn get_is_coinbase(&self) -> bool {
         self.0.utxo.is_coinbase
     }
 
@@ -204,7 +201,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     int: The block DAA score.
     #[getter]
-    pub fn block_daa_score(&self) -> u64 {
+    pub fn get_block_daa_score(&self) -> u64 {
         self.0.utxo.block_daa_score
     }
 
@@ -213,7 +210,7 @@ impl PyUtxoEntryReference {
     /// Returns:
     ///     ScriptPublicKey: The script public key.
     #[getter]
-    pub fn script_public_key(&self) -> PyScriptPublicKey {
+    pub fn get_script_public_key(&self) -> PyScriptPublicKey {
         self.0.utxo.script_public_key.clone().into()
     }
 }

@@ -58,8 +58,7 @@ impl PyTransaction {
     /// Returns:
     ///     str: The transaction ID as a hex string.
     #[getter]
-    #[pyo3(name = "id")]
-    pub fn id_string(&self) -> String {
+    pub fn get_id(&self) -> String {
         self.0.inner().id.to_string()
     }
 
@@ -117,8 +116,7 @@ impl PyTransaction {
     /// Returns:
     ///     list[TransactionInput]: List of inputs spending previous outputs.
     #[getter]
-    #[pyo3(name = "inputs")]
-    pub fn get_inputs_as_list(&self) -> PyResult<Vec<PyTransactionInput>> {
+    pub fn get_inputs(&self) -> PyResult<Vec<PyTransactionInput>> {
         Ok(self
             .0
             .inner()
@@ -134,8 +132,7 @@ impl PyTransaction {
     /// Args:
     ///     value: List of TransactionInput objects.
     #[setter]
-    #[pyo3(name = "inputs")]
-    pub fn set_inputs_from_list(&mut self, value: Vec<PyTransactionInput>) {
+    pub fn set_inputs(&mut self, value: Vec<PyTransactionInput>) {
         self.0.inner().inputs = value.into_iter().map(TransactionInput::from).collect();
     }
 
@@ -170,8 +167,7 @@ impl PyTransaction {
     /// Returns:
     ///     list[TransactionOutput]: List of outputs defining value destinations.
     #[getter]
-    #[pyo3(name = "outputs")]
-    pub fn get_outputs_as_list(&self) -> PyResult<Vec<PyTransactionOutput>> {
+    pub fn get_outputs(&self) -> PyResult<Vec<PyTransactionOutput>> {
         Ok(self
             .0
             .inner()
@@ -187,8 +183,7 @@ impl PyTransaction {
     /// Args:
     ///     value: List of TransactionOutput objects.
     #[setter]
-    #[pyo3(name = "outputs")]
-    pub fn set_outputs_from_list(&mut self, value: Vec<PyTransactionOutput>) {
+    pub fn set_outputs(&mut self, value: Vec<PyTransactionOutput>) {
         self.0.inner().outputs = value.into_iter().map(TransactionOutput::from).collect();
     }
 
@@ -197,7 +192,6 @@ impl PyTransaction {
     /// Returns:
     ///     int: The version number.
     #[getter]
-    #[pyo3(name = "version")]
     pub fn get_version(&self) -> u16 {
         self.0.inner().version
     }
@@ -207,7 +201,6 @@ impl PyTransaction {
     /// Args:
     ///     value: The version number.
     #[setter]
-    #[pyo3(name = "version")]
     pub fn set_version(&mut self, value: u16) {
         self.0.inner().version = value;
     }
@@ -218,7 +211,6 @@ impl PyTransaction {
     /// Returns:
     ///     int: The lock time value.
     #[getter]
-    #[pyo3(name = "lock_time")]
     pub fn get_lock_time(&self) -> u64 {
         self.0.inner().lock_time
     }
@@ -228,7 +220,6 @@ impl PyTransaction {
     /// Args:
     ///     value: The lock time (DAA score or Unix timestamp).
     #[setter]
-    #[pyo3(name = "lock_time")]
     pub fn set_lock_time(&mut self, value: u64) {
         self.0.inner().lock_time = value;
     }
@@ -238,7 +229,6 @@ impl PyTransaction {
     /// Returns:
     ///     int: The gas limit.
     #[getter]
-    #[pyo3(name = "gas")]
     pub fn get_gas(&self) -> u64 {
         self.0.inner().gas
     }
@@ -248,7 +238,6 @@ impl PyTransaction {
     /// Args:
     ///     value: The gas limit.
     #[setter]
-    #[pyo3(name = "gas")]
     pub fn set_gas(&mut self, value: u64) {
         self.0.inner().gas = value;
     }
@@ -258,8 +247,7 @@ impl PyTransaction {
     /// Returns:
     ///     str: The subnetwork ID as a hex string.
     #[getter]
-    #[pyo3(name = "subnetwork_id")]
-    pub fn get_subnetwork_id_as_hex(&self) -> String {
+    pub fn get_subnetwork(&self) -> String {
         self.0.inner().subnetwork_id.to_string()
     }
 
@@ -271,8 +259,7 @@ impl PyTransaction {
     /// Raises:
     ///     Exception: If the hex string is invalid or has incorrect length.
     #[setter]
-    #[pyo3(name = "subnetwork_id")]
-    pub fn set_subnetwork_id_from_value(&mut self, value: &str) -> PyResult<()> {
+    pub fn set_subnetwork_id(&mut self, value: &str) -> PyResult<()> {
         let subnetwork_id = Vec::from_hex(value)
             .map_err(|err| PyException::new_err(err.to_string()))?
             .as_slice()
@@ -289,8 +276,7 @@ impl PyTransaction {
     /// Returns:
     ///     str: The payload as a hex string.
     #[getter]
-    #[pyo3(name = "payload")]
-    pub fn get_payload_as_hex_string(&self) -> String {
+    pub fn get_payload(&self) -> String {
         self.0.inner().payload.to_hex()
     }
 
@@ -299,8 +285,7 @@ impl PyTransaction {
     /// Args:
     ///     value: The payload as bytes or hex string.
     #[setter]
-    #[pyo3(name = "payload")]
-    pub fn set_payload_from_value(&mut self, value: PyBinary) {
+    pub fn set_payload(&mut self, value: PyBinary) {
         self.0.inner().payload = value.into();
     }
 
@@ -309,7 +294,6 @@ impl PyTransaction {
     /// Returns:
     ///     int: The transaction mass.
     #[getter]
-    #[pyo3(name = "mass")]
     pub fn get_mass(&self) -> u64 {
         self.0.inner().mass
     }
@@ -319,7 +303,6 @@ impl PyTransaction {
     /// Args:
     ///     value: The transaction mass value.
     #[setter]
-    #[pyo3(name = "mass")]
     pub fn set_mass(&mut self, value: u64) {
         self.0.inner().mass = value;
     }

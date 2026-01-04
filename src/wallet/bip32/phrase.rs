@@ -63,7 +63,6 @@ impl PyMnemonic {
     /// Returns:
     ///     str: The raw entropy in hexadecimal.
     #[getter]
-    #[pyo3(name = "entropy")]
     pub fn get_entropy(&self) -> String {
         self.0.get_entropy()
     }
@@ -71,17 +70,16 @@ impl PyMnemonic {
     /// Set the entropy directly.
     ///
     /// Args:
-    ///     entropy: The entropy as a hex string (16 or 32 bytes).
+    ///     value: The entropy as a hex string (16 or 32 bytes).
     #[setter]
-    #[pyo3(name = "entropy")]
-    pub fn set_entropy(&mut self, entropy: &str) {
+    pub fn set_entropy(&mut self, value: &str) {
         // let vec = Vec::<u8>::from_hex(entropy)
         //     .unwrap_or_else(|err| panic!("invalid entropy `{entropy}`: {err}"));
         // let len = vec.len();
         // if len != 16 && len != 32 {
         //     panic!("Invalid entropy: `{entropy}`")
         // }
-        self.0.set_entropy(entropy.to_string());
+        self.0.set_entropy(value.to_string());
         // self.entropy = vec;
     }
 
@@ -115,8 +113,7 @@ impl PyMnemonic {
     /// Returns:
     ///     str: The space-separated word phrase.
     #[getter]
-    #[pyo3(name = "phrase")]
-    pub fn phrase_string(&self) -> String {
+    pub fn get_phrase(&self) -> String {
         self.0.phrase().to_string()
         // self.phrase.clone()
     }
@@ -126,7 +123,6 @@ impl PyMnemonic {
     /// Args:
     ///     value: The mnemonic phrase string.
     #[setter]
-    #[pyo3(name = "phrase")]
     pub fn set_phrase(&mut self, value: String) {
         self.0.set_phrase(&value);
     }

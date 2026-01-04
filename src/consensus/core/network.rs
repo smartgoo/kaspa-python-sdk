@@ -120,7 +120,7 @@ impl PyNetworkId {
     /// Returns:
     ///     NetworkType: The network type.
     #[getter]
-    pub fn network_type(&self) -> PyNetworkType {
+    pub fn get_network_type(&self) -> PyNetworkType {
         self.0.network_type.into()
     }
 
@@ -137,7 +137,7 @@ impl PyNetworkId {
     /// Returns:
     ///     int | None: The suffix, or None if not set.
     #[getter]
-    pub fn suffix(&self) -> Option<u32> {
+    pub fn get_suffix(&self) -> Option<u32> {
         self.0.suffix()
     }
 
@@ -146,7 +146,7 @@ impl PyNetworkId {
     /// Returns:
     ///     int: The default P2P port number.
     #[getter]
-    pub fn default_p2p_port(&self) -> u16 {
+    pub fn get_default_p2p_port(&self) -> u16 {
         self.0.default_p2p_port()
     }
 

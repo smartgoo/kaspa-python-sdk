@@ -51,8 +51,8 @@ impl<'py> FromPyObject<'_, 'py> for PyAddressVersion {
 
 /// A Kaspa blockchain address.
 ///
-/// In it's string form, the Kaspa [`Address`] is represented by a `bech32`-encoded
-/// address string combined with a network type.  The `bech32` string encoding is
+/// In string form, the Kaspa addresses are represented by a `bech32`-encoded
+/// address string combined with a network type prefix. The `bech32` string encoding is
 /// comprised of a public key, the public key version and the resulting checksum.
 #[gen_stub_pyclass]
 #[pyclass(name = "Address")]
@@ -107,19 +107,22 @@ impl PyAddress {
     /// Returns:
     ///     str: The address version.
     #[getter]
-    #[pyo3(name = "version")]
-    pub fn version_to_string(&self) -> String {
+    pub fn get_version(&self) -> String {
         self.0.version.to_string()
     }
 
-    /// The network prefix of the address.
-    /// Common prefixes are `kaspa` (mainnet), `kaspatest` (testnet), and `kaspadev` (devnet).
+    /// The network prefix of the address. Prefix is based on the network type (mainnet, testnet, etc..)
     ///
     /// Returns:
     ///     str: The network prefix string.
+    ///
+    /// Note:
+    ///     - Mainnet prefix is `kaspa`
+    ///     - Testnet prefix is `kaspatest`
+    ///     - Simnet prefix is `kaspasim`
+    ///     - Devnet prefix is `kaspadev`
     #[getter]
-    #[pyo3(name = "prefix")]
-    pub fn prefix_to_string(&self) -> String {
+    pub fn get_prefix(&self) -> String {
         self.0.prefix.to_string()
     }
 
@@ -131,8 +134,7 @@ impl PyAddress {
     /// Raises:
     ///     Exception: If the prefix string is invalid.
     #[setter]
-    #[pyo3(name = "prefix")]
-    pub fn set_prefix_from_str(&mut self, value: &str) -> PyResult<()> {
+    pub fn set_prefix(&mut self, value: &str) -> PyResult<()> {
         self.0.prefix =
             Prefix::try_from(value).map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(())

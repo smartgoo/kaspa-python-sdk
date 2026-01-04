@@ -35,7 +35,6 @@ impl PyTransactionOutput {
     /// Returns:
     ///     int: The amount in sompi.
     #[getter]
-    #[pyo3(name = "value")]
     pub fn get_value(&self) -> u64 {
         self.0.inner().value
     }
@@ -45,7 +44,6 @@ impl PyTransactionOutput {
     /// Args:
     ///     value: The amount in sompi.
     #[setter]
-    #[pyo3(name = "value")]
     pub fn set_value(&mut self, value: u64) {
         self.0.inner().value = value;
     }
@@ -55,7 +53,6 @@ impl PyTransactionOutput {
     /// Returns:
     ///     ScriptPublicKey: The script public key.
     #[getter]
-    #[pyo3(name = "script_public_key")]
     pub fn get_script_public_key(&self) -> PyScriptPublicKey {
         self.0.inner().script_public_key.clone().into()
     }
@@ -65,7 +62,6 @@ impl PyTransactionOutput {
     /// Args:
     ///     value: The script public key.
     #[setter]
-    #[pyo3(name = "script_public_key")]
     pub fn set_script_public_key(&mut self, value: PyScriptPublicKey) {
         self.0.inner().script_public_key = value.clone().into();
     }

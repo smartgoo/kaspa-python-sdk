@@ -47,8 +47,7 @@ impl PyTransactionOutpoint {
     /// Returns:
     ///     str: The transaction ID as a hex string.
     #[getter]
-    #[pyo3(name = "transaction_id")]
-    pub fn get_transaction_id_as_string(&self) -> String {
+    pub fn get_transaction_id(&self) -> String {
         self.0.inner().transaction_id.to_string()
     }
 
@@ -57,7 +56,6 @@ impl PyTransactionOutpoint {
     /// Returns:
     ///     int: The output index.
     #[getter]
-    #[pyo3(name = "index")]
     pub fn get_index(&self) -> TransactionIndexType {
         self.0.inner().index
     }

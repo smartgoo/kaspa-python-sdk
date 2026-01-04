@@ -242,7 +242,7 @@ impl PyRpcClient {
     /// Returns:
     ///     str | None: The WebSocket URL, or None if not connected.
     #[getter]
-    fn url(&self) -> Option<String> {
+    fn get_url(&self) -> Option<String> {
         self.0.client.url()
     }
 
@@ -251,7 +251,7 @@ impl PyRpcClient {
     /// Returns:
     ///     Resolver | None: The resolver, or None if not set.
     #[getter]
-    fn resolver(&self) -> Option<PyResolver> {
+    fn get_resolver(&self) -> Option<PyResolver> {
         self.0.resolver.clone().map(PyResolver::new)
     }
 
@@ -290,7 +290,7 @@ impl PyRpcClient {
     /// Returns:
     ///     bool: True if connected to a node.
     #[getter]
-    fn is_connected(&self) -> bool {
+    fn get_is_connected(&self) -> bool {
         self.0.client.is_connected()
     }
 
@@ -299,7 +299,7 @@ impl PyRpcClient {
     /// Returns:
     ///     str: The encoding ("borsh" or "json").
     #[getter]
-    fn encoding(&self) -> String {
+    fn get_encoding(&self) -> String {
         self.0.client.encoding().to_string()
     }
 
@@ -308,8 +308,7 @@ impl PyRpcClient {
     /// Returns:
     ///     str | None: The node ID, or None if not connected via resolver.
     #[getter]
-    #[pyo3(name = "node_id")]
-    fn resolver_node_id(&self) -> Option<String> {
+    fn get_node_id(&self) -> Option<String> {
         self.0.client.node_descriptor().map(|node| node.uid.clone())
     }
 
@@ -591,7 +590,7 @@ impl PyRpcClient {
                                     Python::attach(|py| {
                                         let event = PyDict::new(py);
                                         event.set_item("type", ctl.to_string()).unwrap();
-                                        event.set_item("rpc", this.url()).unwrap();
+                                        event.set_item("rpc", this.get_url()).unwrap();
 
                                         handler.execute(py, event).unwrap_or_else(|err| panic!("{}", err));
                                     });

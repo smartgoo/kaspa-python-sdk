@@ -269,7 +269,7 @@ fn extract_op(item: &Bound<PyAny>) -> PyResult<u8> {
     if let Ok(op) = item.extract::<u8>() {
         Ok(op)
     } else if let Ok(op) = item.extract::<PyOpcodes>() {
-        Ok(op.value())
+        Ok(op.get_value())
     } else {
         Err(PyException::new_err("Expected Opcodes enum variant or u8"))
     }

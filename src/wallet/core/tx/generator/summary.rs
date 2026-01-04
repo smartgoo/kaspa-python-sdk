@@ -23,7 +23,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     str: The network type string.
     #[getter]
-    pub fn network_type(&self) -> String {
+    pub fn get_network_type(&self) -> String {
         self.0.network_type().to_string()
     }
 
@@ -32,8 +32,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     int: The UTXO count.
     #[getter]
-    #[pyo3(name = "utxos")]
-    pub fn aggregated_utxos(&self) -> usize {
+    pub fn get_utxos(&self) -> usize {
         self.0.aggregated_utxos()
     }
 
@@ -42,8 +41,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     int: The aggregate fee amount.
     #[getter]
-    #[pyo3(name = "fees")]
-    pub fn aggregate_fees(&self) -> u64 {
+    pub fn get_fees(&self) -> u64 {
         self.0.aggregate_fees()
     }
 
@@ -52,8 +50,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     int: The transaction count.
     #[getter]
-    #[pyo3(name = "transactions")]
-    pub fn number_of_generated_transactions(&self) -> usize {
+    pub fn get_transactions(&self) -> usize {
         self.0.number_of_generated_transactions()
     }
 
@@ -62,8 +59,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     int | None: The final amount, or None if not applicable.
     #[getter]
-    #[pyo3(name = "final_amount")]
-    pub fn final_transaction_amount(&self) -> Option<u64> {
+    pub fn get_final_amount(&self) -> Option<u64> {
         self.0.final_transaction_amount()
     }
 
@@ -72,8 +68,7 @@ impl PyGeneratorSummary {
     /// Returns:
     ///     str | None: The transaction ID, or None if not yet generated.
     #[getter]
-    #[pyo3(name = "final_transaction_id")]
-    pub fn final_transaction_id(&self) -> Option<String> {
+    pub fn get_final_transaction_id(&self) -> Option<String> {
         self.0.final_transaction_id().map(|id| id.to_string())
     }
 }

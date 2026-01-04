@@ -36,8 +36,7 @@ impl PyScriptPublicKey {
     /// Returns:
     ///     str: The script data encoded as hexadecimal.
     #[getter]
-    #[pyo3(name = "script")]
-    pub fn script_as_hex(&self) -> String {
+    pub fn get_script(&self) -> String {
         // self.0.script.to_hex()
         self.0.script_as_hex()
     }

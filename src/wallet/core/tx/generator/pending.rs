@@ -31,7 +31,7 @@ impl PendingTransaction {
     /// Returns:
     ///     str: The transaction ID as a hex string.
     #[getter]
-    fn id(&self) -> String {
+    fn get_id(&self) -> String {
         self.0.id().to_string()
     }
 
@@ -40,8 +40,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int | None: The payment amount, or None for sweep transactions.
     #[getter]
-    #[pyo3(name = "payment_amount")]
-    fn payment_value(&self) -> Option<u64> {
+    fn get_payment_amount(&self) -> Option<u64> {
         self.0.payment_value()
     }
 
@@ -50,8 +49,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The change amount.
     #[getter]
-    #[pyo3(name = "change_amount")]
-    fn change_value(&self) -> u64 {
+    fn get_change_amount(&self) -> u64 {
         self.0.change_value()
     }
 
@@ -60,8 +58,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The fee amount.
     #[getter]
-    #[pyo3(name = "fee_amount")]
-    fn fees(&self) -> u64 {
+    fn get_fee_amount(&self) -> u64 {
         self.0.fees()
     }
 
@@ -70,7 +67,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The transaction mass.
     #[getter]
-    fn mass(&self) -> u64 {
+    fn get_mass(&self) -> u64 {
         self.0.mass()
     }
 
@@ -79,7 +76,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The minimum signature count.
     #[getter]
-    fn minimum_signatures(&self) -> u16 {
+    fn get_minimum_signatures(&self) -> u16 {
         self.0.minimum_signatures()
     }
 
@@ -88,8 +85,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The aggregate input amount.
     #[getter]
-    #[pyo3(name = "aggregate_input_amount")]
-    fn aggregate_input_value(&self) -> u64 {
+    fn get_aggregate_input_amount(&self) -> u64 {
         self.0.aggregate_input_value()
     }
 
@@ -98,8 +94,7 @@ impl PendingTransaction {
     /// Returns:
     ///     int: The aggregate output amount.
     #[getter]
-    #[pyo3(name = "aggregate_output_amount")]
-    fn aggregate_output_value(&self) -> u64 {
+    fn get_aggregate_output_amount(&self) -> u64 {
         self.0.aggregate_output_value()
     }
 
@@ -108,8 +103,7 @@ impl PendingTransaction {
     /// Returns:
     ///     str: The transaction type.
     #[getter]
-    #[pyo3(name = "transaction_type")]
-    fn kind(&self) -> String {
+    fn get_transaction_type(&self) -> String {
         if self.0.is_batch() {
             "batch".to_string()
         } else {
@@ -274,7 +268,7 @@ impl PendingTransaction {
     /// Returns:
     ///     Transaction: The transaction for manual inspection or modification.
     #[getter]
-    fn transaction(&self) -> PyResult<PyTransaction> {
+    fn get_transaction(&self) -> PyResult<PyTransaction> {
         Ok(Transaction::from_cctx_transaction(&self.0.transaction(), self.0.utxo_entries()).into())
     }
 }

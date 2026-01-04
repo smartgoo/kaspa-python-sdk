@@ -270,7 +270,7 @@ crate::wrap_c_enum_for_py!(
 #[pymethods]
 impl PyOpcodes {
     #[getter]
-    pub fn value(&self) -> u8 {
+    pub fn get_value(&self) -> u8 {
         self.clone() as u8
     }
 }

@@ -130,7 +130,7 @@ impl PyXPub {
     /// Returns:
     ///     str: The xpub string.
     #[getter]
-    pub fn xpub(&self) -> PyResult<String> {
+    pub fn get_xpub(&self) -> PyResult<String> {
         let str = self
             .0
             .inner()
@@ -144,7 +144,7 @@ impl PyXPub {
     /// Returns:
     ///     int: The depth.
     #[getter]
-    pub fn depth(&self) -> u8 {
+    pub fn get_depth(&self) -> u8 {
         self.0.inner().attrs().depth
     }
 
@@ -153,8 +153,7 @@ impl PyXPub {
     /// Returns:
     ///     str: The parent fingerprint.
     #[getter]
-    #[pyo3(name = "parent_fingerprint")]
-    pub fn parent_fingerprint_as_hex_string(&self) -> String {
+    pub fn get_parent_fingerprint(&self) -> String {
         self.0.inner().attrs().parent_fingerprint.to_vec().to_hex()
     }
 
@@ -163,7 +162,7 @@ impl PyXPub {
     /// Returns:
     ///     int: The child number.
     #[getter]
-    pub fn child_number(&self) -> u32 {
+    pub fn get_child_number(&self) -> u32 {
         self.0.inner().attrs().child_number.into()
     }
 
@@ -172,8 +171,7 @@ impl PyXPub {
     /// Returns:
     ///     str: The chain code.
     #[getter]
-    #[pyo3(name = "chain_code")]
-    pub fn chain_code_as_hex_string(&self) -> String {
+    pub fn get_chain_code(&self) -> String {
         self.0.inner().attrs().chain_code.to_vec().to_hex()
     }
 }

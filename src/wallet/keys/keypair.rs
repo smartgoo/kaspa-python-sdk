@@ -56,7 +56,6 @@ impl PyKeypair {
     /// Returns:
     ///     str: The x-only public key.
     #[getter]
-    #[pyo3(name = "xonly_public_key")]
     pub fn get_xonly_public_key(&self) -> String {
         self.xonly_public_key.to_string()
     }
@@ -66,7 +65,6 @@ impl PyKeypair {
     /// Returns:
     ///     str: The public key.
     #[getter]
-    #[pyo3(name = "public_key")]
     pub fn get_public_key(&self) -> String {
         PublicKey::from(&self.public_key).to_string()
     }
@@ -76,7 +74,6 @@ impl PyKeypair {
     /// Returns:
     ///     str: The private key.
     #[getter]
-    #[pyo3(name = "private_key")]
     pub fn get_private_key(&self) -> String {
         PrivateKey::from(&self.secret_key).to_hex()
     }

@@ -186,7 +186,7 @@ impl PyXPrv {
     /// Returns:
     ///     str: The xprv string.
     #[getter]
-    pub fn xprv(&self) -> PyResult<String> {
+    pub fn get_xprv(&self) -> PyResult<String> {
         let str = self
             .0
             .to_extended_key(
@@ -203,8 +203,7 @@ impl PyXPrv {
     /// Returns:
     ///     str: The private key hex.
     #[getter]
-    #[pyo3(name = "private_key")]
-    pub fn private_key_as_hex_string(&self) -> String {
+    pub fn get_private_key(&self) -> String {
         use kaspa_bip32::PrivateKey;
         self.0.private_key().to_bytes().to_vec().to_hex()
     }
@@ -214,7 +213,7 @@ impl PyXPrv {
     /// Returns:
     ///     int: The depth.
     #[getter]
-    pub fn depth(&self) -> u8 {
+    pub fn get_depth(&self) -> u8 {
         self.0.attrs().depth
     }
 
@@ -223,8 +222,7 @@ impl PyXPrv {
     /// Returns:
     ///     str: The parent fingerprint.
     #[getter]
-    #[pyo3(name = "parent_fingerprint")]
-    pub fn parent_fingerprint_as_hex_string(&self) -> String {
+    pub fn get_parent_fingerprint(&self) -> String {
         self.0.attrs().parent_fingerprint.to_vec().to_hex()
     }
 
@@ -233,7 +231,7 @@ impl PyXPrv {
     /// Returns:
     ///     int: The child number.
     #[getter]
-    pub fn child_number(&self) -> u32 {
+    pub fn get_child_number(&self) -> u32 {
         self.0.attrs().child_number.into()
     }
 
@@ -243,7 +241,7 @@ impl PyXPrv {
     ///     str: The chain code.
     #[getter]
     #[pyo3(name = "chain_code")]
-    pub fn chain_code_as_hex_string(&self) -> String {
+    pub fn get_chain_code(&self) -> String {
         self.0.attrs().chain_code.to_vec().to_hex()
     }
 }

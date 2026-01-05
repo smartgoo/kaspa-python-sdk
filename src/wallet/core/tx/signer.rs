@@ -28,7 +28,7 @@ use zeroize::Zeroize;
 ///
 /// Raises:
 ///     Exception: If signing or verification fails.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction(name = "sign_transaction")]
@@ -63,7 +63,7 @@ pub fn py_sign_transaction<'py>(
 ///
 /// Raises:
 ///     Exception: If signing fails.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction]
@@ -106,7 +106,7 @@ pub fn py_create_input_signature(
 ///
 /// Raises:
 ///     Exception: If signing fails.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction]

@@ -25,7 +25,7 @@ use pyo3_stub_gen::derive::gen_stub_pyfunction;
 ///
 /// Raises:
 ///     Exception: If transaction creation fails or fee exceeds input amount.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction]
@@ -111,7 +111,7 @@ pub fn py_create_transaction(
 ///
 /// Raises:
 ///     Exception: If transaction creation fails.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction]
@@ -174,7 +174,7 @@ pub fn py_create_transactions<'a>(
 ///
 /// Raises:
 ///     Exception: If estimation fails.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyfunction]
 #[pyfunction]

@@ -152,7 +152,7 @@ impl Inner {
 /// Provides methods for querying blockchain state, submitting transactions,
 /// and subscribing to real-time notifications. Supports both Borsh and JSON
 /// encodings.
-/// 
+///
 /// Category: RPC/Core
 #[gen_stub_pyclass]
 #[pyclass(name = "RpcClient")]

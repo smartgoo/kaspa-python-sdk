@@ -972,7 +972,7 @@ class PrivateKeyGenerator:
         Create a new private key generator.
         
         Args:
-            xprv: The master extended private key string.
+            xprv: The master extended private key, as a string or XPrv instance.
             is_multisig: Whether this is for a multisig wallet.
             account_index: The account index to use.
             cosigner_index: Optional cosigner index for multisig.
@@ -1106,14 +1106,14 @@ class PublicKeyGenerator:
             Exception: If parsing fails.
         """
     @staticmethod
-    def from_master_xprv(xprv: builtins.str, is_multisig: builtins.bool, account_index: builtins.int, cosigner_index: typing.Optional[builtins.int] = None) -> PublicKeyGenerator:
+    def from_master_xprv(xprv: str | XPrv, is_multisig: builtins.bool, account_index: builtins.int, cosigner_index: typing.Optional[builtins.int] = None) -> PublicKeyGenerator:
         r"""
         Create a generator from a master extended private key.
         
         Derives the account-level public key and creates a generator.
         
         Args:
-            xprv: The master extended private key.
+            xprv: The master extended private key, as a string or XPrv instance.
             is_multisig: Whether this is for a multisig wallet.
             account_index: The account index to derive.
             cosigner_index: Optional cosigner index for multisig.

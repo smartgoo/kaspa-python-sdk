@@ -15,7 +15,7 @@ use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
 ///
 /// Useful for creating watch-only wallets that can generate addresses
 /// without access to private keys.
-/// 
+///
 /// Category: Wallet/Keys
 #[gen_stub_pyclass]
 #[pyclass(name = "PublicKeyGenerator")]
@@ -68,8 +68,7 @@ impl PyPublicKeyGenerator {
     #[staticmethod]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
     fn from_master_xprv(
-        #[gen_stub(override_type(type_repr="str | XPrv"))]
-        xprv: Bound<'_, PyAny>,
+        #[gen_stub(override_type(type_repr = "str | XPrv"))] xprv: Bound<'_, PyAny>,
         is_multisig: bool,
         account_index: u64,
         cosigner_index: Option<u32>,

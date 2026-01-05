@@ -24,7 +24,7 @@ use crate::{
 ///
 /// Raises:
 ///     Exception: If address creation fails.
-/// 
+///
 /// Category: Wallet/Core
 #[gen_stub_pyfunction]
 #[pyfunction]

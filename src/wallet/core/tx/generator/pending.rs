@@ -19,7 +19,7 @@ use zeroize::Zeroize;
 ///
 /// Created by iterating over a Generator. Contains the transaction
 /// along with metadata about fees, amounts, and UTXOs being spent.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyclass]
 #[pyclass]

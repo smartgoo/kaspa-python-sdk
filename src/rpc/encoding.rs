@@ -9,7 +9,7 @@ crate::wrap_unit_enum_for_py!(
     /// Variants:
     ///     Borsh
     ///     JSON
-    /// 
+    ///
     /// Category: RPC/Core
     PyEncoding, "Encoding", Encoding, {
         Borsh,

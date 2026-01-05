@@ -8,7 +8,7 @@ use crate::consensus::core::script_public_key::PyScriptPublicKey;
 ///
 /// Outputs specify an amount and a locking script (script_public_key)
 /// that defines the conditions for spending.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyclass]
 #[pyclass(name = "TransactionOutput")]

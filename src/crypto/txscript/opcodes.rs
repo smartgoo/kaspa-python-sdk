@@ -7,7 +7,7 @@ crate::wrap_c_enum_for_py!(
     ///
     /// These opcodes are used in ScriptBuilder to construct locking and
     /// unlocking scripts for Kaspa transactions.
-    /// 
+    ///
     /// Category: Wallet/Transactions
     PyOpcodes, "Opcodes", Opcodes, {
     OpFalse = 0x00,

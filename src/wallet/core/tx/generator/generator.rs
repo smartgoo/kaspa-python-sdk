@@ -108,7 +108,7 @@ impl<'py> FromPyObject<'_, 'py> for PyOutputs {
 ///
 /// Handles UTXO selection, fee calculation, change outputs, and transaction
 /// splitting for large transfers.
-/// 
+///
 /// Category: Wallet/Transactions
 #[gen_stub_pyclass]
 #[pyclass(name = "Generator")]

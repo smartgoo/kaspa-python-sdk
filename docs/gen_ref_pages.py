@@ -32,7 +32,7 @@ def parse_stub_file(content: str) -> dict:
     Parse the .pyi stub file and extract objects with their categories.
     
     Returns dict mapping object names to their info:
-        {name: {"type": "class"|"function"|"enum", "category": str}}
+        {name: {"type": "class"|"function"|"enum"|"typeddict", "category": str}}
     """
     objects = {}
     
@@ -53,6 +53,8 @@ def parse_stub_file(content: str) -> dict:
         # Determine type
         if 'enum.Enum' in bases:
             obj_type = "enum"
+        elif 'TypedDict' in bases:
+            obj_type = "typeddict"
         else:
             obj_type = "class"
         
@@ -139,20 +141,20 @@ if stub_file.exists():
     
     nav[("index",)] = "index.md"
     
-    def get_symbol_class(name: str) -> str:
-        """Get the CSS symbol class for a name."""
+    def get_type_label(name: str) -> str:
+        """Get the display label for an object's type."""
         obj_type = objects[name]["type"]
         if obj_type == "enum":
-            return "enum"
+            return "Enum"
+        elif obj_type == "typeddict":
+            return "TypedDict"
         elif obj_type == "class":
-            return "class"
+            return "Class"
         else:
-            return "function"
+            return "Func"
     
     def nav_label(name: str) -> str:
-        """Generate navigation label with symbol styling."""
-        symbol_class = get_symbol_class(name)
-        # return f'<code class="doc-symbol doc-symbol-toc doc-symbol-{symbol_class}"></code> `{name}`'
+        """Generate navigation label."""
         return f'{name}'
     
     def category_to_nav_path(category: str) -> tuple:
@@ -165,10 +167,10 @@ if stub_file.exists():
         
         for name in by_category[category]:
             doc_path = Path("reference", f"{name}.md")
-            symbol_class = get_symbol_class(name)
+            type_label = get_type_label(name)
             
             with mkdocs_gen_files.open(doc_path, "w") as f:
-                f.write(f'# <code class="doc-symbol doc-symbol-toc doc-symbol-{symbol_class}"></code> `{name}`\n\n')
+                f.write(f'# `{name}` ({type_label})\n\n')
                 f.write(f"::: kaspa.{name}\n")
                 f.write("    options:\n")
                 f.write("      show_root_heading: false\n")

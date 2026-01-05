@@ -2,7 +2,7 @@
 
 Welcome to the Kaspa Python SDK documentation. This library provides a Python SDK for interacting with the Kaspa blockchain, built from Rust source code, leveraging native [rusty-kaspa](https://github.com/kaspanet/rusty-kaspa) under the hood as much as possible.
 
-This project very closely mirrors [Kaspa's WASM SDK](https://kaspa.aspectron.org/docs/), while trying to respect Python conventions. Feature partiy with WASM SDK is a work in progress, not all features are available yet in Python.
+This project very closely mirrors [Kaspa's WASM SDK](https://kaspa.aspectron.org/docs/), while trying to respect Python conventions. Feature parity with WASM SDK is a work in progress, not all features are available yet in Python.
 
 ## Features
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 1. [Installation](getting-started/installation.md) - Set up the SDK in your environment
 2. [Quickstart](getting-started/quickstart.md) - Build your first Kaspa application
 
-## Documentation
+## Guides
 
 <div class="grid cards" markdown>
 

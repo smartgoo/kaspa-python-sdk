@@ -63,7 +63,7 @@ if Mnemonic.validate(phrase):
     mnemonic = Mnemonic(phrase)
     seed = mnemonic.to_seed()
     xprv = XPrv(seed)
-    key_gen = PrivateKeyGenerator(xprv.to_string(), False, 0)
+    key_gen = PrivateKeyGenerator(xprv, False, 0)
     
     # Derive your first address
     address = key_gen.receive_key(0).to_address(NetworkType.Mainnet)

@@ -147,7 +147,7 @@ xprv = XPrv(seed)
 
 # Step 4: Create key generator
 key_gen = PrivateKeyGenerator(
-    xprv=xprv.to_string(),
+    xprv=xprv,
     is_multisig=False,
     account_index=0
 )

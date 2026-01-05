@@ -120,7 +120,7 @@ xprv = XPrv(seed)
 
 # Create generator for standard (non-multisig) wallet
 key_gen = PrivateKeyGenerator(
-    xprv=xprv.to_string(),
+    xprv=xprv,
     is_multisig=False,
     account_index=0
 )
@@ -254,7 +254,7 @@ xpub_export = account_xpub.to_str("kpub")
 print(f"Watch-only XPub: {xpub_export}")
 
 # Full wallet with private keys
-priv_gen = PrivateKeyGenerator(master_xprv.to_string(), False, 0)
+priv_gen = PrivateKeyGenerator(master_xprv, False, 0)
 
 # Watch-only wallet
 pub_gen = PublicKeyGenerator.from_xpub(xpub_export)

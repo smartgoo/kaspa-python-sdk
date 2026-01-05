@@ -69,7 +69,7 @@ from kaspa import (
 # Create a wallet
 mnemonic = Mnemonic.random()
 xprv = XPrv(mnemonic.to_seed())
-key_gen = PrivateKeyGenerator(xprv.to_string(), False, 0)
+key_gen = PrivateKeyGenerator(xprv, False, 0)
 
 # Get a keypair
 private_key = key_gen.receive_key(0)

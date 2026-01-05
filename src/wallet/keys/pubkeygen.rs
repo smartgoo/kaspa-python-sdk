@@ -3,11 +3,12 @@ use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_core::derivation::WalletDerivationManagerTrait;
 use kaspa_wallet_keys::publickey::PublicKey;
 use kaspa_wallet_keys::result::Result;
-use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, xprv::XPrv, xpub::XPub};
+use kaspa_wallet_keys::{derivation::gen1::WalletDerivationManager, xpub::XPub};
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 use crate::consensus::core::network::PyNetworkType;
+use crate::wallet::keys::xprv::PyXPrv;
 use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
 
 /// Generator for deriving public keys and addresses from an extended public key.
@@ -54,7 +55,7 @@ impl PyPublicKeyGenerator {
     /// Derives the account-level public key and creates a generator.
     ///
     /// Args:
-    ///     xprv: The master extended private key.
+    ///     xprv: The master extended private key, as a string or XPrv instance.
     ///     is_multisig: Whether this is for a multisig wallet.
     ///     account_index: The account index to derive.
     ///     cosigner_index: Optional cosigner index for multisig.
@@ -65,19 +66,26 @@ impl PyPublicKeyGenerator {
     /// Raises:
     ///     Exception: If derivation fails.
     #[staticmethod]
-    #[pyo3(name = "from_master_xprv")]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
     fn from_master_xprv(
-        xprv: String,
+        #[gen_stub(override_type(type_repr="str | XPrv"))]
+        xprv: Bound<'_, PyAny>,
         is_multisig: bool,
         account_index: u64,
         cosigner_index: Option<u32>,
     ) -> PyResult<PyPublicKeyGenerator> {
+        let xprv = if let Ok(s) = xprv.extract::<String>() {
+            PyXPrv::from_xprv_str(&s)?
+        } else if let Ok(py_xprv) = xprv.extract::<PyXPrv>() {
+            py_xprv
+        } else {
+            Err(PyException::new_err("`xprv` must be type str or XPrv"))?
+        };
+
         let path =
             WalletDerivationManager::build_derivate_path(is_multisig, account_index, None, None)
                 .map_err(|err| PyException::new_err(err.to_string()))?;
-        let xprv = XPrv::from_xprv_str(xprv)
-            .map_err(|err| PyException::new_err(err.to_string()))?
+        let xprv = xprv
             .inner()
             .clone()
             .derive_path(&path)

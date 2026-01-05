@@ -967,7 +967,7 @@ class PrivateKeyGenerator:
     
     Category: Wallet/Keys
     """
-    def __new__(cls, xprv: typing.Any, is_multisig: builtins.bool, account_index: builtins.int, cosigner_index: typing.Optional[builtins.int] = None) -> PrivateKeyGenerator:
+    def __new__(cls, xprv: str | XPrv, is_multisig: builtins.bool, account_index: builtins.int, cosigner_index: typing.Optional[builtins.int] = None) -> PrivateKeyGenerator:
         r"""
         Create a new private key generator.
         

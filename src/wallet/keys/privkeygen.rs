@@ -24,7 +24,7 @@ impl PyPrivateKeyGenerator {
     /// Create a new private key generator.
     ///
     /// Args:
-    ///     xprv: The master extended private key string.
+    ///     xprv: The master extended private key, as a string or XPrv instance.
     ///     is_multisig: Whether this is for a multisig wallet.
     ///     account_index: The account index to use.
     ///     cosigner_index: Optional cosigner index for multisig.
@@ -37,6 +37,7 @@ impl PyPrivateKeyGenerator {
     #[new]
     #[pyo3(signature = (xprv, is_multisig, account_index, cosigner_index=None))]
     pub fn new(
+        #[gen_stub(override_type(type_repr="str | XPrv"))]
         xprv: Bound<'_, PyAny>,
         is_multisig: bool,
         account_index: u64,

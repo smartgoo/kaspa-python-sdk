@@ -13,17 +13,17 @@ nav = mkdocs_gen_files.Nav()
 # Default category for objects without explicit Category in docstring
 DEFAULT_CATEGORY = "Other"
 
-# Category display order (categories not listed here appear at end, "Other" always last)
+# Category display order
 CATEGORY_ORDER = [
     "Core/Types",
     "Core/Utils",
     "RPC/Core",
-    "RPC/Messages",  # Auto-populated from *Request/*Response classes
+    "RPC/Messages",
     "RPC/Types",
     "Wallet/Core",
     "Wallet/Keys",
     "Wallet/Transactions",
-    "Other",  # Always last
+    "Other",
 ]
 
 

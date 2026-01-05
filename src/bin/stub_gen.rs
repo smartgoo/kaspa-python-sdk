@@ -16,8 +16,34 @@ fn post_process_stub_file(path: &str) {
 
     let content = strip_py_prefix_from_enums(content);
     let content = rename_none_enum_variant(content);
+    let content = append_rpc_types(content);
 
     fs::write(path, content).unwrap();
+}
+
+/// Appends the contents of kaspa_rpc.pyi to the stub file.
+/// This includes manually typed RPC request/response TypedDicts.
+fn append_rpc_types(content: String) -> String {
+    let rpc_types_path = "kaspa_rpc.pyi";
+
+    match fs::read_to_string(rpc_types_path) {
+        Ok(rpc_content) => {
+            format!(
+                "{}\n\n\
+                # =============================================================================\n\
+                # RPC Types (from {})\n\
+                # =============================================================================\n\n\
+                {}",
+                content.trim_end(),
+                rpc_types_path,
+                rpc_content.trim()
+            )
+        }
+        Err(e) => {
+            eprintln!("Warning: Could not read {}: {}", rpc_types_path, e);
+            content
+        }
+    }
 }
 
 /// Removes the "Py" prefix from enum class names and all their references.

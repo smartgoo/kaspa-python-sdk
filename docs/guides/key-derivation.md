@@ -282,7 +282,7 @@ for i in range(3):
 
 ## See Also
 
-- [API Reference](../api.md)
+- [API Reference](../reference/index.md)
 - [Mnemonics Guide](mnemonics.md)
 - [Transactions Guide](transactions.md)
 

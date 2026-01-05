@@ -175,7 +175,7 @@ print(f"Multisig address: {multisig_address.to_string()}")
 
 ## See Also
 
-- [API Reference](../api.md)
+- [API Reference](../reference/index.md)
 - [Key Derivation Guide](key-derivation.md)
 - [Transactions Guide](transactions.md)
 

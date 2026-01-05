@@ -169,7 +169,7 @@ for i in range(3):
 
 ## See Also
 
-- [API Reference](../api.md)
+- [API Reference](../reference/index.md)
 - [Key Derivation Guide](key-derivation.md)
 - [Quickstart Guide](../getting-started/quickstart.md)
 

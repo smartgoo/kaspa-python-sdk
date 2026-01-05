@@ -17,6 +17,8 @@ use zeroize::Zeroize;
 ///
 /// Raises:
 ///     Exception: If signing fails.
+/// 
+/// Category: Wallet/Core
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "sign_message")]
@@ -48,6 +50,8 @@ pub fn py_sign_message(
 ///
 /// Raises:
 ///     Exception: If the signature format is invalid.
+/// 
+/// Category: Wallet/Core
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "verify_message")]

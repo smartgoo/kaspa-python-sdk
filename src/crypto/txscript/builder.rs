@@ -13,6 +13,8 @@ use workflow_core::hex::ToHex;
 /// Provides a fluent interface for building custom scripts with opcodes and data.
 /// Used for creating complex spending conditions like multi-signature or time-locked
 /// transactions.
+/// 
+/// Category: Wallet/Transactions
 #[gen_stub_pyclass]
 #[pyclass(name = "ScriptBuilder")]
 #[derive(Clone)]

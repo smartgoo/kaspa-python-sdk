@@ -11,7 +11,6 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - navigation.indexes
     - search.suggest
@@ -38,6 +37,12 @@ theme:
 
 plugins:
   - search
+  - autorefs
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -53,6 +58,7 @@ plugins:
             docstring_section_style: spacy
             merge_init_into_class: true
             show_signature_annotations: true
+            signature_crossrefs: true
             separate_signature: true
             show_if_no_docstring: true
 
@@ -76,6 +82,9 @@ markdown_extensions:
   - md_in_html
   - tables
 
+extra_css:
+  - stylesheets/extra.css
+
 extra:
   version:
     provider: mike
@@ -96,6 +105,6 @@ nav:
       - Transactions: guides/transactions.md
       - Message Signing: guides/message-signing.md
       - RPC Client: guides/rpc-client.md
-  - API Reference: api.md
+  - API Reference: reference/
   - Changelog: CHANGELOG.md
 

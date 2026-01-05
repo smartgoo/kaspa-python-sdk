@@ -14,8 +14,19 @@ use kaspa_wallet_core::utxo::UtxoContext;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use workflow_core::prelude::Abortable;
 
+/// UTXO entries collection for flexible input handling.
+///
+/// This type is not intended to be instantiated directly from Python.
+/// It serves as a helper type that allows Rust functions to accept a list
+/// of UTXO entries in multiple convenient forms.
+///
+/// Accepts:
+///     list[UtxoEntryReference]: A list of UtxoEntryReference objects.
+///     list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
+///
+/// Category: Wallet/Transactions
 #[gen_stub_pyclass]
-#[pyclass]
+#[pyclass(name = "UtxoEntries")]
 pub struct PyUtxoEntries {
     pub entries: Vec<UtxoEntryReference>,
 }
@@ -47,8 +58,19 @@ impl<'py> FromPyObject<'_, 'py> for PyUtxoEntries {
     }
 }
 
+/// Payment outputs collection for flexible input handling.
+///
+/// This type is not intended to be instantiated directly from Python.
+/// It serves as a helper type that allows Rust functions to accept a list
+/// of payment outputs in multiple convenient forms.
+///
+/// Accepts:
+///     list[PaymentOutput]: A list of PaymentOutput objects.
+///     list[dict]: A list of dicts with `address` and `amount` keys.
+///
+/// Category: Wallet/Transactions
 #[gen_stub_pyclass]
-#[pyclass]
+#[pyclass(name = "Outputs")]
 pub struct PyOutputs {
     pub outputs: Vec<PaymentOutput>,
 }
@@ -86,6 +108,8 @@ impl<'py> FromPyObject<'_, 'py> for PyOutputs {
 ///
 /// Handles UTXO selection, fee calculation, change outputs, and transaction
 /// splitting for large transfers.
+/// 
+/// Category: Wallet/Transactions
 #[gen_stub_pyclass]
 #[pyclass(name = "Generator")]
 pub struct PyGenerator(Arc<native::Generator>);

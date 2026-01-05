@@ -10,6 +10,8 @@ use crate::consensus::core::network::PyNetworkType;
 ///
 /// Returns:
 ///     int: The amount in sompi.
+/// 
+/// Category: Core/Utils
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "kaspa_to_sompi")]
@@ -24,6 +26,8 @@ pub fn py_kaspa_to_sompi(kaspa: f64) -> u64 {
 ///
 /// Returns:
 ///     float: The amount in KAS.
+/// 
+/// Category: Core/Utils
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "sompi_to_kaspa")]
@@ -39,6 +43,8 @@ pub fn py_sompi_to_kaspa(sompi: u64) -> f64 {
 ///
 /// Returns:
 ///     str: Formatted string like "1.5 KAS" or "1.5 TKAS".
+/// 
+/// Category: Core/Utils
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "sompi_to_kaspa_string_with_suffix")]

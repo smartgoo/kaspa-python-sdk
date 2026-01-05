@@ -3,7 +3,20 @@ use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyList};
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
+/// Binary data type for flexible input handling.
+///
+/// This type is not intended to be instantiated directly from Python.
+/// It serves as a helper type that allows Rust functions to accept binary
+/// data in multiple convenient forms from Python.
+///
+/// Accepts:
+///     - str: A hexadecimal string (e.g., "deadbeef").
+///     - bytes: Python bytes object.
+///     - list[int]: A list of byte values (0-255).
+///
+/// Category: Core/Types
 #[gen_stub_pyclass]
+#[pyclass(name = "Binary")]
 pub struct PyBinary {
     pub data: Vec<u8>,
 }

@@ -14,6 +14,8 @@ use crate::{address::PyAddress, wallet::keys::publickey::PyPublicKey};
 ///
 /// Useful for creating watch-only wallets that can generate addresses
 /// without access to private keys.
+/// 
+/// Category: Wallet/Keys
 #[gen_stub_pyclass]
 #[pyclass(name = "PublicKeyGenerator")]
 #[derive(Clone)]

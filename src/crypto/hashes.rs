@@ -6,6 +6,8 @@ use std::str::FromStr;
 /// A 32-byte hash value.
 ///
 /// Used for transaction IDs, block hashes, and other cryptographic purposes.
+/// 
+/// Category: Core/Types
 #[gen_stub_pyclass]
 #[pyclass(name = "Hash")]
 #[derive(Clone)]

@@ -13,6 +13,8 @@ crate::wrap_unit_enum_for_py!(
     ///     AllAnyOneCanPay: Sign single input and all outputs.
     ///     NoneAnyOneCanPay: Sign single input, no outputs.
     ///     SingleAnyOneCanPay: Sign single input and corresponding output.
+    /// 
+    /// Category: Wallet/Core
     PySighashType, "SighashType", SighashType, {
     All,
     None,

@@ -8,6 +8,8 @@ crate::wrap_unit_enum_for_py!(
     ///
     /// Variants:
     ///     English: English word list (2048 words).
+    /// 
+    /// Category: Wallet/Keys
     PyLanguage, "Language", Language, { English }
 );
 

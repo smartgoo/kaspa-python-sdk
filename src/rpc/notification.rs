@@ -3,6 +3,25 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 use serde_pyobject::to_pyobject;
 
+/// RPC notification wrapper for event callbacks.
+///
+/// This type is not intended to be instantiated directly from Python.
+/// It wraps notifications received from the Kaspa node when subscribed
+/// to events via RpcClient. The notification data is automatically
+/// converted to a Python dict when passed to callback handlers.
+///
+/// Notification types:
+///     - BlockAdded: A new block was added to the DAG.
+///     - FinalityConflict: A finality conflict was detected.
+///     - FinalityConflictResolved: A finality conflict was resolved.
+///     - NewBlockTemplate: A new block template is available.
+///     - PruningPointUtxoSetOverride: The pruning point UTXO set changed.
+///     - UtxosChanged: UTXOs in the subscribed addresses changed.
+///     - VirtualDaaScoreChanged: The virtual DAA score changed.
+///     - SinkBlueScoreChanged: The sink blue score changed.
+///     - VirtualChainChanged: The virtual chain changed.
+///
+/// Category: RPC/Core
 #[gen_stub_pyclass]
 #[pyclass(name = "Notification")]
 pub struct PyNotification(pub Notification);

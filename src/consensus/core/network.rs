@@ -12,6 +12,8 @@ crate::wrap_unit_enum_for_py!(
     ///     Testnet: The test network for development.
     ///     Devnet: The development network.
     ///     Simnet: The simulation network for testing.
+    /// 
+    /// Category: Core/Types
     PyNetworkType, "NetworkType", NetworkType, {
     Mainnet,
     Testnet,
@@ -69,6 +71,8 @@ impl From<&PyNetworkType> for NetworkType {
 ///
 /// Represents a specific Kaspa network, optionally with a numeric suffix
 /// for testnets (e.g., "testnet-10", "testnet-11").
+/// 
+/// Category: Core/Types
 #[gen_stub_pyclass]
 #[derive(Clone)]
 #[pyclass(name = "NetworkId", skip_from_py_object)]

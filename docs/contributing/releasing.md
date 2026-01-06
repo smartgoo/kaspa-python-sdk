@@ -32,15 +32,21 @@ Three GitHub Actions workflows automate the project:
 
 ### `docs.yml` — Documentation Deployment
 
-**Triggers:** Push to `main`, version tags, manual dispatch
+**Triggers:** Push to `main` (or `poc` during development), version tags, manual dispatch
 
-Builds documentation with MkDocs and deploys to GitHub Pages using GitHub Actions deployment.
+Builds versioned documentation with MkDocs + mike and deploys to `gh-pages` branch.
 
-### `deploy.yml` — Release Builds
+| Trigger | Version | Alias |
+|---------|---------|-------|
+| Push to `main`/`poc` | `dev` | — |
+| Tag `v1.0.0` | `1.0.0` | `latest` |
+| Manual with input | (specified) | `latest` |
+
+### `release.yml` — Release Builds
 
 **Triggers:** GitHub Release published
 
-Builds wheels for all platforms (Linux, macOS, Windows) and Python versions (3.9–3.14), then attaches them to the GitHub Release.
+Builds wheels for all platforms (Linux, macOS, Windows) and Python versions (3.9–3.13), then attaches them to the GitHub Release.
 
 ## Version Numbers
 
@@ -100,7 +106,7 @@ git push origin main --tags
 
 This triggers:
 
-- `deploy.yml` → Builds and attaches wheels
+- `release.yml` → Builds and attaches wheels
 - `docs.yml` → Deploys documentation
 
 ### 5. Post-Release

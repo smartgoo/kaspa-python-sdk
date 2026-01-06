@@ -31,17 +31,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install maturin
-        run: pip install maturin
-
-      - name: Build and install kaspa package
-        run: maturin develop --release
+      - name: Build package
+        uses: PyO3/maturin-action@v1
+        with:
+          command: develop
+          args: --release
+          sccache: 'true'
 
       - name: Install documentation dependencies
         run: pip install .[docs]

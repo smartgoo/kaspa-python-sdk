@@ -2177,6 +2177,7 @@ dependencies = [
  "pyo3-log",
  "pyo3-stub-gen",
  "rand 0.8.5",
+ "regex",
  "secp256k1",
  "serde",
  "serde-pyobject",

@@ -150,11 +150,11 @@ impl PendingTransaction {
     ///
     /// Raises:
     ///     Exception: If signing fails.
-    #[pyo3(signature = (input_index, private_key, sighash_type=None))]
     fn create_input_signature(
         &self,
         input_index: u8,
         private_key: &PyPrivateKey,
+        #[gen_stub(override_type(type_repr = "str | SighashType | None = SighashType.All"))]
         sighash_type: Option<PySighashType>,
     ) -> PyResult<String> {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();
@@ -194,11 +194,11 @@ impl PendingTransaction {
     ///
     /// Raises:
     ///     Exception: If signing fails.
-    #[pyo3(signature = (input_index, private_key, sighash_type=None))]
     fn sign_input(
         &self,
         input_index: u8,
         private_key: &PyPrivateKey,
+        #[gen_stub(override_type(type_repr = "str | SighashType | None = SighashType.All"))]
         sighash_type: Option<PySighashType>,
     ) -> PyResult<()> {
         let sighash_type: SighashType = sighash_type.unwrap_or(PySighashType::All).into();

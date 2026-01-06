@@ -58,8 +58,10 @@ impl PyPublicKey {
     ///
     /// Raises:
     ///     Exception: If address derivation fails.
-    #[pyo3(name = "to_address")]
-    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address(NetworkType::from(network))
@@ -77,8 +79,10 @@ impl PyPublicKey {
     ///
     /// Raises:
     ///     Exception: If address derivation fails.
-    #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let address = self
             .0
             .to_address_ecdsa(NetworkType::from(network))
@@ -169,8 +173,10 @@ impl PyXOnlyPublicKey {
     ///
     /// Returns:
     ///     Address: The derived Schnorr address.
-    #[pyo3(name = "to_address")]
-    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let payload = &self.0.inner.serialize();
         let address = Address::new(NetworkType::from(network).into(), Version::PubKey, payload);
         Ok(PyAddress(address))
@@ -183,8 +189,10 @@ impl PyXOnlyPublicKey {
     ///
     /// Returns:
     ///     Address: The derived ECDSA address.
-    #[pyo3(name = "to_address_ecdsa")]
-    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let payload = &self.0.inner.serialize();
         let address = Address::new(
             NetworkType::from(network).into(),

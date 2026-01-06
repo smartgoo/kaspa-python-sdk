@@ -203,10 +203,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "receive_addresses")]
     fn receive_addresses(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<PyAddress>> {
@@ -239,8 +238,11 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "receive_address")]
-    fn receive_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
+    fn receive_address(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
+        index: u32,
+    ) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
             self.hd_wallet
                 .receive_pubkey_manager()
@@ -265,10 +267,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "receive_addresses_as_strings")]
     fn receive_addresses_as_strings(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<String>> {
@@ -303,10 +304,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "receive_address_as_string")]
     fn receive_address_as_string(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         index: u32,
     ) -> PyResult<String> {
         Ok(PublicKey::from(
@@ -430,10 +430,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "change_addresses")]
     pub fn change_addresses(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<PyAddress>> {
@@ -466,8 +465,11 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "change_address")]
-    pub fn change_address(&self, network_type: PyNetworkType, index: u32) -> PyResult<PyAddress> {
+    pub fn change_address(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
+        index: u32,
+    ) -> PyResult<PyAddress> {
         let inner = PublicKey::from(
             self.hd_wallet
                 .change_pubkey_manager()
@@ -492,10 +494,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "change_addresses_as_strings")]
     pub fn change_addresses_as_strings(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         mut start: u32,
         mut end: u32,
     ) -> PyResult<Vec<String>> {
@@ -530,10 +531,9 @@ impl PyPublicKeyGenerator {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    #[pyo3(name = "change_address_as_string")]
     pub fn change_address_as_string(
         &self,
-        network_type: PyNetworkType,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
         index: u32,
     ) -> PyResult<String> {
         Ok(PublicKey::from(

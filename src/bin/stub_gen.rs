@@ -17,6 +17,7 @@ fn post_process_stub_file(path: &str) {
     let content = strip_py_prefix_from_enums(content);
     let content = rename_none_enum_variant(content);
     let content = fix_rpc_method_signatures(content);
+    let content = remove_duplicate_default_none(content);
     let content = append_rpc_types(content);
 
     fs::write(path, content).unwrap();
@@ -80,6 +81,18 @@ fn strip_py_prefix_from_enums(content: String) -> String {
 /// This is necessary because `None` is a reserved keyword in Python.
 fn rename_none_enum_variant(content: String) -> String {
     content.replace("    None = ...", "    _None = ...")
+}
+
+/// Removes duplicate `= None` that incorrectly follows another default value.
+/// e.g., `language: str | Language = Language.English = None` becomes
+///       `language: str | Language = Language.English`
+fn remove_duplicate_default_none(content: String) -> String {
+    use regex::Regex;
+
+    // Match patterns like `= SomeValue = None` where SomeValue is an identifier
+    // (possibly with dots like `Language.English` or `Encoding.Borsh`)
+    let re = Regex::new(r"(= \w+(?:\.\w+)?) = None\b").unwrap();
+    re.replace_all(&content, "$1").to_string()
 }
 
 /// Converts a snake_case string to PascalCase.

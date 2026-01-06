@@ -145,8 +145,10 @@ impl PyTransaction {
     ///
     /// Returns:
     ///     list[Address]: List of unique addresses referenced by inputs.
-    #[pyo3(name = "addresses")]
-    pub fn addresses(&self, network_type: PyNetworkType) -> PyResult<Vec<PyAddress>> {
+    pub fn addresses(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
+    ) -> PyResult<Vec<PyAddress>> {
         let network_type: NetworkType = network_type.into();
         let mut list = std::collections::HashSet::new();
         for input in &self.0.inner().inputs {

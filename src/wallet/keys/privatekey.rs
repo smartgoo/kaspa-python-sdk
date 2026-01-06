@@ -86,7 +86,10 @@ impl PyPrivateKey {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    pub fn to_address(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let public_key = self
             .0
             .to_public_key()
@@ -107,7 +110,10 @@ impl PyPrivateKey {
     ///
     /// Raises:
     ///     Exception: If derivation fails.
-    pub fn to_address_ecdsa(&self, network: PyNetworkType) -> PyResult<PyAddress> {
+    pub fn to_address_ecdsa(
+        &self,
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
+    ) -> PyResult<PyAddress> {
         let public_key = self
             .0
             .to_public_key()

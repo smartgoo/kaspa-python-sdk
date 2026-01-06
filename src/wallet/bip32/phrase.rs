@@ -1,7 +1,7 @@
 use crate::wallet::bip32::language::PyLanguage;
 use kaspa_bip32::{Error, Language, Mnemonic};
 use pyo3::{exceptions::PyException, prelude::*};
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use pyo3_stub_gen::derive::*;
 use workflow_core::hex::ToHex;
 
 /// A BIP-39 mnemonic seed phrase.
@@ -31,7 +31,11 @@ impl PyMnemonic {
     ///     Exception: If the phrase is invalid.
     #[new]
     #[pyo3(signature = (phrase, language=None))]
-    pub fn constructor(phrase: &str, language: Option<PyLanguage>) -> PyResult<Self> {
+    pub fn constructor(
+        phrase: &str,
+        #[gen_stub(override_type(type_repr = "str | Language = Language.English"))]
+        language: Option<PyLanguage>,
+    ) -> PyResult<Self> {
         let inner = Mnemonic::new(
             phrase,
             language.map(Language::from).unwrap_or(Language::English),
@@ -50,9 +54,12 @@ impl PyMnemonic {
     /// Returns:
     ///     bool: True if the phrase is valid, False otherwise.
     #[staticmethod]
-    #[pyo3(name = "validate")]
     #[pyo3(signature = (phrase, language=None))]
-    pub fn validate(phrase: &str, language: Option<PyLanguage>) -> bool {
+    pub fn validate(
+        phrase: &str,
+        #[gen_stub(override_type(type_repr = "str | Language = Language.English"))]
+        language: Option<PyLanguage>,
+    ) -> bool {
         Mnemonic::new(
             phrase,
             language.map(Language::from).unwrap_or(Language::English),

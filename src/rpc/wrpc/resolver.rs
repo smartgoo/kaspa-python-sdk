@@ -82,7 +82,7 @@ impl PyResolver {
     fn get_node<'py>(
         &self,
         py: Python<'py>,
-        encoding: PyEncoding,
+        #[gen_stub(override_type(type_repr = "str | Encoding"))] encoding: PyEncoding,
         network_id: PyNetworkId,
     ) -> PyResult<Bound<'py, PyAny>> {
         let resolver = self.0.clone();
@@ -109,7 +109,7 @@ impl PyResolver {
     fn get_url<'py>(
         &self,
         py: Python<'py>,
-        encoding: PyEncoding,
+        #[gen_stub(override_type(type_repr = "str | Encoding"))] encoding: PyEncoding,
         network_id: PyNetworkId,
     ) -> PyResult<Bound<'py, PyAny>> {
         let resolver = self.0.clone();

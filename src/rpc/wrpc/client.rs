@@ -26,7 +26,7 @@ use pyo3::{
     prelude::*,
     types::{PyDict, PyModule, PyTuple},
 };
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use pyo3_stub_gen::derive::*;
 use std::str::FromStr;
 use std::{
     sync::{
@@ -223,6 +223,7 @@ impl PyRpcClient {
     fn ctor(
         resolver: Option<PyResolver>,
         url: Option<String>,
+        #[gen_stub(override_type(type_repr = "str | Encoding | None = Encoding.Borsh"))]
         encoding: Option<PyEncoding>,
         network_id: Option<PyNetworkId>,
     ) -> PyResult<PyRpcClient> {

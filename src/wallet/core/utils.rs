@@ -50,7 +50,7 @@ pub fn py_sompi_to_kaspa(sompi: u64) -> f64 {
 #[pyo3(name = "sompi_to_kaspa_string_with_suffix")]
 pub fn py_sompi_to_kaspa_string_with_suffix(
     sompi: u64,
-    network: PyNetworkType,
+    #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
 ) -> PyResult<String> {
     Ok(kaspa_wallet_core::utils::sompi_to_kaspa_string_with_suffix(
         sompi,

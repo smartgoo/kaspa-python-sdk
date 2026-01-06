@@ -68,11 +68,11 @@ pub fn py_sign_transaction<'py>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(name = "create_input_signature")]
-#[pyo3(signature = (tx, input_index, private_key, sighash_type=None))]
 pub fn py_create_input_signature(
     tx: &PyTransaction,
     input_index: u8,
     private_key: &PyPrivateKey,
+    #[gen_stub(override_type(type_repr = "str | SighashType | None = SighashType.All"))]
     sighash_type: Option<PySighashType>,
 ) -> PyResult<String> {
     let (cctx, utxos) = tx

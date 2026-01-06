@@ -114,7 +114,10 @@ impl PyNetworkId {
     /// Returns:
     ///     NetworkId: A new NetworkId with the specified suffix.
     #[staticmethod]
-    pub fn with_suffix(network_type: PyNetworkType, suffix: u32) -> Self {
+    pub fn with_suffix(
+        #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
+        suffix: u32,
+    ) -> Self {
         let inner = NetworkId::with_suffix(network_type.into(), suffix);
         Self(inner)
     }

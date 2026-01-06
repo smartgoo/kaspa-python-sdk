@@ -128,17 +128,12 @@ if stub_file.exists():
     # Generate index page
     index_path = Path("reference", "index.md")
     with mkdocs_gen_files.open(index_path, "w") as f:
-        f.write("# API Reference\n\n")
-        f.write("Complete reference for all Kaspa Python SDK classes and functions.\n\n")
-        
-        for category in sorted_categories:
-            # Use last part of category path for header
-            header = category.split("/")[-1] if "/" in category else category
-            f.write(f"## {header}\n\n")
-            for name in by_category[category]:
-                f.write(f"- [`{name}`]({name}.md)\n")
-            f.write("\n")
-    
+        f.write((
+            "# API Reference\n\n"
+            "Complete reference for the Kaspa Python SDK.\n\n"
+            "Reference documentation is divided into 3 primary groups: Core, RPC, and Wallet."
+        ))
+
     nav[("index",)] = "index.md"
     
     def get_type_label(name: str) -> str:

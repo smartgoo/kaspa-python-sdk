@@ -33,7 +33,7 @@ use crate::{
 pub fn py_create_multisig_address(
     minimum_signatures: usize,
     keys: Vec<PyPublicKey>,
-    network_type: PyNetworkType,
+    #[gen_stub(override_type(type_repr = "str | NetworkType"))] network_type: PyNetworkType,
     ecdsa: Option<bool>,
     account_kind: Option<PyAccountKind>,
 ) -> PyResult<PyAddress> {

@@ -84,7 +84,7 @@ pub fn py_pay_to_script_hash_signature_script(
 #[pyo3(name = "address_from_script_public_key")]
 pub fn py_address_from_script_public_key(
     script_public_key: PyScriptPublicKey,
-    network: PyNetworkType,
+    #[gen_stub(override_type(type_repr = "str | NetworkType"))] network: PyNetworkType,
 ) -> PyResult<PyAddress> {
     match standard::extract_script_pub_key_address(
         &script_public_key.into(),

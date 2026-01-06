@@ -7,8 +7,8 @@ crate::wrap_unit_enum_for_py!(
     /// wRPC protocol encoding
     ///
     /// Variants:
-    ///     Borsh
-    ///     JSON
+    ///     - Borsh
+    ///     - JSON
     ///
     /// Category: RPC/Core
     PyEncoding, "Encoding", Encoding, {

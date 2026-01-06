@@ -432,7 +432,7 @@ class Keypair:
         Raises:
             Exception: If any key format is invalid.
         """
-    def to_address(self, network: NetworkType) -> Address:
+    def to_address(self, network: str | NetworkType) -> Address:
         r"""
         Derive a Schnorr address from this keypair.
         
@@ -442,7 +442,7 @@ class Keypair:
         Returns:
             Address: The derived Schnorr address.
         """
-    def to_address_ecdsa(self, network: NetworkType) -> Address:
+    def to_address_ecdsa(self, network: str | NetworkType) -> Address:
         r"""
         Derive an ECDSA address from this keypair.
         
@@ -518,7 +518,7 @@ class Mnemonic:
         Args:
             value: The mnemonic phrase string.
         """
-    def __new__(cls, phrase: builtins.str, language: typing.Optional[Language] = None) -> Mnemonic:
+    def __new__(cls, phrase: builtins.str, language: str | Language = Language.English) -> Mnemonic:
         r"""
         Create a mnemonic from an existing phrase.
         
@@ -533,7 +533,7 @@ class Mnemonic:
             Exception: If the phrase is invalid.
         """
     @staticmethod
-    def validate(phrase: builtins.str, language: typing.Optional[Language] = None) -> builtins.bool:
+    def validate(phrase: builtins.str, language: str | Language = Language.English) -> builtins.bool:
         r"""
         Validate a mnemonic phrase.
         
@@ -621,7 +621,7 @@ class NetworkId:
             Exception: If the network_id format is invalid.
         """
     @staticmethod
-    def with_suffix(network_type: NetworkType, suffix: builtins.int) -> NetworkId:
+    def with_suffix(network_type: str | NetworkType, suffix: builtins.int) -> NetworkId:
         r"""
         Create a NetworkId with a specific suffix.
         
@@ -819,7 +819,7 @@ class PendingTransaction:
         Returns:
             list[UtxoEntryReference]: List of UTXO entries.
         """
-    def create_input_signature(self, input_index: builtins.int, private_key: PrivateKey, sighash_type: typing.Optional[SighashType] = None) -> builtins.str:
+    def create_input_signature(self, input_index: builtins.int, private_key: PrivateKey, sighash_type: str | SighashType | None = SighashType.All) -> builtins.str:
         r"""
         Create a signature for a specific input.
         
@@ -845,7 +845,7 @@ class PendingTransaction:
         Raises:
             Exception: If filling fails.
         """
-    def sign_input(self, input_index: builtins.int, private_key: PrivateKey, sighash_type: typing.Optional[SighashType] = None) -> None:
+    def sign_input(self, input_index: builtins.int, private_key: PrivateKey, sighash_type: str | SighashType | None = SighashType.All) -> None:
         r"""
         Sign a specific input with a private key.
         
@@ -921,7 +921,7 @@ class PrivateKey:
         Raises:
             Exception: If derivation fails.
         """
-    def to_address(self, network: NetworkType) -> Address:
+    def to_address(self, network: str | NetworkType) -> Address:
         r"""
         Derive a Schnorr address from this private key.
         
@@ -934,7 +934,7 @@ class PrivateKey:
         Raises:
             Exception: If derivation fails.
         """
-    def to_address_ecdsa(self, network: NetworkType) -> Address:
+    def to_address_ecdsa(self, network: str | NetworkType) -> Address:
         r"""
         Derive an ECDSA address from this private key.
         
@@ -1039,7 +1039,7 @@ class PublicKey:
         Returns:
             str: The public key as a hex string.
         """
-    def to_address(self, network: NetworkType) -> Address:
+    def to_address(self, network: str | NetworkType) -> Address:
         r"""
         Derive a Schnorr address from this public key.
         
@@ -1052,7 +1052,7 @@ class PublicKey:
         Raises:
             Exception: If address derivation fails.
         """
-    def to_address_ecdsa(self, network: NetworkType) -> Address:
+    def to_address_ecdsa(self, network: str | NetworkType) -> Address:
         r"""
         Derive an ECDSA address from this public key.
         
@@ -1178,7 +1178,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def receive_addresses(self, network_type: NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[Address]:
+    def receive_addresses(self, network_type: str | NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[Address]:
         r"""
         Derive a range of receive addresses.
         
@@ -1193,7 +1193,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def receive_address(self, network_type: NetworkType, index: builtins.int) -> Address:
+    def receive_address(self, network_type: str | NetworkType, index: builtins.int) -> Address:
         r"""
         Derive a receive address at the given index.
         
@@ -1207,7 +1207,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def receive_addresses_as_strings(self, network_type: NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[builtins.str]:
+    def receive_addresses_as_strings(self, network_type: str | NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[builtins.str]:
         r"""
         Derive a range of receive addresses as strings.
         
@@ -1222,7 +1222,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def receive_address_as_string(self, network_type: NetworkType, index: builtins.int) -> builtins.str:
+    def receive_address_as_string(self, network_type: str | NetworkType, index: builtins.int) -> builtins.str:
         r"""
         Derive a receive address as string.
         
@@ -1290,7 +1290,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def change_addresses(self, network_type: NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[Address]:
+    def change_addresses(self, network_type: str | NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[Address]:
         r"""
         Derive a range of change addresses.
         
@@ -1305,7 +1305,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def change_address(self, network_type: NetworkType, index: builtins.int) -> Address:
+    def change_address(self, network_type: str | NetworkType, index: builtins.int) -> Address:
         r"""
         Derive a change address at the given index.
         
@@ -1319,7 +1319,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def change_addresses_as_strings(self, network_type: NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[builtins.str]:
+    def change_addresses_as_strings(self, network_type: str | NetworkType, start: builtins.int, end: builtins.int) -> builtins.list[builtins.str]:
         r"""
         Derive a range of change addresses as strings.
         
@@ -1334,7 +1334,7 @@ class PublicKeyGenerator:
         Raises:
             Exception: If derivation fails.
         """
-    def change_address_as_string(self, network_type: NetworkType, index: builtins.int) -> builtins.str:
+    def change_address_as_string(self, network_type: str | NetworkType, index: builtins.int) -> builtins.str:
         r"""
         Derive a change address as string.
         
@@ -1385,7 +1385,7 @@ class Resolver:
         Returns:
             list[str]: The resolver URL list.
         """
-    def get_node(self, encoding: Encoding, network_id: NetworkId) -> typing.Any:
+    def get_node(self, encoding: str | Encoding, network_id: NetworkId) -> typing.Any:
         r"""
         Get a node descriptor from the resolver (async).
         
@@ -1399,7 +1399,7 @@ class Resolver:
         Raises:
             Exception: If no node is available or resolution fails.
         """
-    def get_url(self, encoding: Encoding, network_id: NetworkId) -> typing.Any:
+    def get_url(self, encoding: str | Encoding, network_id: NetworkId) -> typing.Any:
         r"""
         Get a node URL from the resolver (async).
         
@@ -1465,7 +1465,7 @@ class RpcClient:
         Returns:
             str | None: The node ID, or None if not connected via resolver.
         """
-    def __new__(cls, resolver: typing.Optional[Resolver] = None, url: typing.Optional[builtins.str] = None, encoding: typing.Optional[Encoding] = None, network_id: typing.Optional[NetworkId] = None) -> RpcClient:
+    def __new__(cls, resolver: typing.Optional[Resolver] = None, url: typing.Optional[builtins.str] = None, encoding: str | Encoding | None = Encoding.Borsh, network_id: typing.Optional[NetworkId] = None) -> RpcClient:
         r"""
         Create a new RPC client.
         
@@ -2021,7 +2021,7 @@ class Transaction:
         Raises:
             Exception: If the subnetwork_id is invalid or transaction creation fails.
         """
-    def addresses(self, network_type: NetworkType) -> builtins.list[Address]:
+    def addresses(self, network_type: str | NetworkType) -> builtins.list[Address]:
         r"""
         Extract unique addresses from transaction inputs.
         
@@ -2434,7 +2434,7 @@ class XOnlyPublicKey:
         Returns:
             str: The x-only public key as a hex string.
         """
-    def to_address(self, network: NetworkType) -> Address:
+    def to_address(self, network: str | NetworkType) -> Address:
         r"""
         Derive a Schnorr address from this x-only public key.
         
@@ -2444,7 +2444,7 @@ class XOnlyPublicKey:
         Returns:
             Address: The derived Schnorr address.
         """
-    def to_address_ecdsa(self, network: NetworkType) -> Address:
+    def to_address_ecdsa(self, network: str | NetworkType) -> Address:
         r"""
         Derive an ECDSA address from this x-only public key.
         
@@ -2752,8 +2752,8 @@ class Encoding(enum.Enum):
     wRPC protocol encoding
     
     Variants:
-        Borsh
-        JSON
+        - Borsh
+        - JSON
     
     Category: RPC/Core
     """
@@ -3070,12 +3070,12 @@ class SighashType(enum.Enum):
     Kaspa signature hash types for transaction signing.
     
     Variants:
-        All: Sign all inputs and outputs.
-        None: Sign all inputs, no outputs.
-        Single: Sign all inputs and corresponding output.
-        AllAnyOneCanPay: Sign single input and all outputs.
-        NoneAnyOneCanPay: Sign single input, no outputs.
-        SingleAnyOneCanPay: Sign single input and corresponding output.
+        - All: Sign all inputs and outputs.
+        - None: Sign all inputs, no outputs.
+        - Single: Sign all inputs and corresponding output.
+        - AllAnyOneCanPay: Sign single input and all outputs.
+        - NoneAnyOneCanPay: Sign single input, no outputs.
+        - SingleAnyOneCanPay: Sign single input and corresponding output.
     
     Category: Wallet/Core
     """
@@ -3086,7 +3086,7 @@ class SighashType(enum.Enum):
     NoneAnyOneCanPay = ...
     SingleAnyOneCanPay = ...
 
-def address_from_script_public_key(script_public_key: ScriptPublicKey, network: NetworkType) -> Address:
+def address_from_script_public_key(script_public_key: ScriptPublicKey, network: str | NetworkType) -> Address:
     r"""
     Extract the address from a script public key.
     
@@ -3157,7 +3157,7 @@ def calculate_transaction_mass(network_id: NetworkId, tx: Transaction, minimum_s
     Category: Wallet/Transactions
     """
 
-def create_input_signature(tx: Transaction, input_index: builtins.int, private_key: PrivateKey, sighash_type: typing.Optional[SighashType] = None) -> builtins.str:
+def create_input_signature(tx: Transaction, input_index: builtins.int, private_key: PrivateKey, sighash_type: str | SighashType | None = SighashType.All) -> builtins.str:
     r"""
     Create a signature for a specific transaction input.
     
@@ -3176,7 +3176,7 @@ def create_input_signature(tx: Transaction, input_index: builtins.int, private_k
     Category: Wallet/Transactions
     """
 
-def create_multisig_address(minimum_signatures: builtins.int, keys: typing.Sequence[PublicKey], network_type: NetworkType, ecdsa: typing.Optional[builtins.bool] = False, account_kind: typing.Optional[AccountKind] = None) -> Address:
+def create_multisig_address(minimum_signatures: builtins.int, keys: typing.Sequence[PublicKey], network_type: str | NetworkType, ecdsa: typing.Optional[builtins.bool] = False, account_kind: typing.Optional[AccountKind] = None) -> Address:
     r"""
     Create a multisig address from multiple public keys.
     
@@ -3439,7 +3439,7 @@ def sompi_to_kaspa(sompi: builtins.int) -> builtins.float:
     Category: Core/Utils
     """
 
-def sompi_to_kaspa_string_with_suffix(sompi: builtins.int, network: NetworkType) -> builtins.str:
+def sompi_to_kaspa_string_with_suffix(sompi: builtins.int, network: str | NetworkType) -> builtins.str:
     r"""
     Convert sompi to a formatted KAS string with network suffix.
     

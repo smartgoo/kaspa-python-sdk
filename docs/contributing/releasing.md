@@ -1,162 +1,121 @@
 # Releasing
 
-This page covers the release process including version management, changelog updates, and documentation versioning.
+This guide covers branching strategy, CI/CD workflows, and the release process.
+
+## Branching Strategy
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Latest development code, always deployable |
+| `v*` tags | Release versions (e.g., `v1.0.0`) |
+| Feature branches | Short-lived branches merged to `main` |
+
+**Workflow:**
+
+1. Development happens on feature branches, merged to `main`
+2. Releases are created by tagging commits with `vX.Y.Z`
+3. Tags trigger automated builds and deployments
+
+## CI/CD Workflows
+
+Three GitHub Actions workflows automate the project:
+
+### `ci.yml` — Continuous Integration
+
+**Triggers:** All pushes and pull requests
+
+| Job | Description |
+|-----|-------------|
+| **Lint** | `cargo fmt --check`, `cargo clippy` |
+| **Build & Test** | Build package, run unit tests |
+| **Docs** | Verify documentation builds |
+
+### `docs.yml` — Documentation Deployment
+
+**Triggers:** Push to `main`, version tags, manual dispatch
+
+Builds documentation with MkDocs and deploys to GitHub Pages using GitHub Actions deployment.
+
+### `deploy.yml` — Release Builds
+
+**Triggers:** GitHub Release published
+
+Builds wheels for all platforms (Linux, macOS, Windows) and Python versions (3.9–3.14), then attaches them to the GitHub Release.
 
 ## Version Numbers
 
-### Locations
-
-Version numbers are maintained in two files:
+Versions are maintained in two files:
 
 | File | Format | Example |
 |------|--------|---------|
-| `pyproject.toml` | PEP 440 | `2.0.0`, `2.0.0.dev0`, `2.1.0a1` |
-| `Cargo.toml` | SemVer | `2.0.0`, `2.0.0-dev`, `2.1.0-alpha.1` |
+| `pyproject.toml` | PEP 440 | `2.0.0`, `2.0.0.dev0` |
+| `Cargo.toml` | SemVer | `2.0.0`, `2.0.0-dev` |
 
-### Development Versions
-
-During development, use pre-release suffixes:
-
-```toml
-# pyproject.toml
-version = "2.1.0.dev0"
-
-# Cargo.toml
-version = "2.1.0-dev"
-```
-
-### Version Progression
+**Progression:**
 
 ```
-2.0.0.dev0  →  2.0.0a1  →  2.0.0b1  →  2.0.0rc1  →  2.0.0
-    ↓
-(after release, bump to next dev)
-    ↓
-2.1.0.dev0  →  ...
+2.0.0.dev0 → 2.0.0a1 → 2.0.0b1 → 2.0.0rc1 → 2.0.0 → 2.1.0.dev0
 ```
 
 ## Changelog
 
-The changelog follows [Keep a Changelog](https://keepachangelog.com/) format.
-
-### During Development
-
-Add entries to the `[Unreleased]` section as changes are made:
-
-```markdown
-## [Unreleased]
-
-### Added
-- New feature X
-
-### Changed
-- Modified behavior Y
-
-### Fixed
-- Bug fix Z
-
-### Breaking Changes
-- API change requiring migration
-```
-
-### At Release Time
-
-1. Rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`
-2. Add a new empty `[Unreleased]` section at the top
-
-## Documentation Versioning
-
-Documentation is versioned using [mike](https://github.com/jimporter/mike). Each release gets its own documentation version.
-
-### Aliases
-
-| Alias | Purpose |
-|-------|---------|
-| `latest` | Points to most recent stable release (default for users) |
-| `dev` | Points to development/pre-release docs |
-
-### Deploying Documentation
-
-**Deploy dev docs** (from main branch, pre-release):
-
-```bash
-mike deploy 2.0.0-dev dev --push
-```
-
-**Deploy a release** (updates `latest` alias):
-
-```bash
-mike deploy 2.0.0 latest --update-aliases --push
-```
-
-**Set default version** (one-time or when changing default):
-
-```bash
-mike set-default latest --push
-```
-
-**List deployed versions:**
-
-```bash
-mike list
-```
-
-**Delete a version:**
-
-```bash
-mike delete 2.0.0-dev --push
-```
+Follow [Keep a Changelog](https://keepachangelog.com/) format. Add entries to `[Unreleased]` during development, then rename to `[X.Y.Z] - YYYY-MM-DD` at release.
 
 ## Release Checklist
 
-### Pre-Release
+### 1. Pre-Release Verification
 
-- [ ] All tests pass (`./check`)
-- [ ] CHANGELOG `[Unreleased]` section has all changes documented
-- [ ] Documentation builds without errors (`mkdocs build --strict`)
+```bash
+./check  # Runs lints, tests, and doc build
+```
 
-### Release
+### 2. Update Version & Changelog
 
-1. **Update version numbers:**
-   ```bash
-   # pyproject.toml: version = "X.Y.Z"
-   # Cargo.toml: version = "X.Y.Z"
-   ```
+Edit `pyproject.toml` and `Cargo.toml`:
 
-2. **Update CHANGELOG:**
-   - Rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`
-   - Add new `[Unreleased]` section
+```toml
+version = "X.Y.Z"  # Remove dev suffix
+```
 
-3. **Commit and tag:**
-   ```bash
-   git add -A
-   git commit -m "Release vX.Y.Z"
-   git tag vX.Y.Z
-   git push origin main --tags
-   ```
+Update `CHANGELOG.md`:
 
-4. **Deploy documentation:**
-   ```bash
-   mike deploy X.Y.Z latest --update-aliases --push
-   ```
+- Rename `[Unreleased]` → `[X.Y.Z] - YYYY-MM-DD`
+- Add new empty `[Unreleased]` section
 
-5. **Build and publish to PyPI:**
-   ```bash
-   ./build-release
-   # Upload wheel from target/wheels/
-   ```
+### 3. Commit, Tag, and Push
 
-### Post-Release
+```bash
+git add -A
+git commit -m "Release vX.Y.Z"
+git tag vX.Y.Z
+git push origin main --tags
+```
 
-1. **Bump to next dev version:**
-   ```bash
-   # pyproject.toml: version = "X.Y.Z+1.dev0"
-   # Cargo.toml: version = "X.Y.Z+1-dev"
-   ```
+### 4. Create GitHub Release
 
-2. **Commit:**
-   ```bash
-   git commit -am "Begin X.Y.Z+1 development"
-   git push
-   ```
+1. Go to **Releases → Draft a new release**
+2. Select the `vX.Y.Z` tag
+3. Add release notes (copy from CHANGELOG)
+4. Click **Publish release**
 
+This triggers:
+
+- `deploy.yml` → Builds and attaches wheels
+- `docs.yml` → Deploys documentation
+
+### 5. Post-Release
+
+Bump to next dev version:
+
+```toml
+# pyproject.toml
+version = "X.Y.Z+1.dev0"
+
+# Cargo.toml  
+version = "X.Y.Z+1-dev"
+```
+
+```bash
+git commit -am "Begin X.Y.Z+1 development"
+git push
+```

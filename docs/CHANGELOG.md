@@ -3,8 +3,24 @@
 *Target: 2.0.0*
 
 ### Added
+- Enum `PyAddressVersion` exposed to Python as `AddressVersion`
+- Enum `PyNetworkType` exposed to Python as `NetworkType`
+- Enum `PyEncoding` exposed to Python as `Encoding`
+- Documentation site using [MkDocs](https://www.mkdocs.org/), [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/), and [mike](https://github.com/jimporter/mike).
+- Automatic generation of (most of) the stub (.pyi) file using `pyo3-stub-gen` crate and a binary. RPC TypedDicts (Request/Response structures, RPC types) are manually maintained in `kaspa_rpc.pyi` still.
+- Unit and integration tests with [pytest]https://docs.pytest.org/en/stable/.
+- Bumped rusty-kaspa version to commit [3c2115d](https://github.com/kaspanet/rusty-kaspa/commit/3c2115d9fd70935fc6d18777d6a66784d0466a95).
+- `GetVirtualChainFromBlockV2` RPC method.
 
 ### Changed
+- Moved Kaspa Python SDK out of Rusty-Kaspa (as a workspace member crate) to its own dedicated repository. The internals of this project have changed significantly as a result. However, all APIs exposed to Python remain unchanged. 
+- All Python-exposed structs and enums are prefixed with `Py` (e.g. `PyAddress`) internally. The corresponding Python class name has not changed (prefix is dropped in Python).
+- All Python-exposed functions are prefixed with `py_` (e.g. `py_sign_message`) internally. The corresponding Python function name has not changed (prefix is dropped in Python).
+- All enum parameter types across all functions/methods can be passed as a string or enum variant. Prior, only a string was accepted. `Opcodes` is the exception to this.
+- Standardize internal Rust method names for getters/setters to comply with pyo3 and pyo3-stub-gen. Prefix all with `get_` or `set_`. Remove unnecessary name overrides.
+- All setters changed to use consistent `value` for parameter name.
+- `PrivateKeyGenerator` constructor accepts `xprv` parameter as both a `str` or `XPrv` instance now.
+- `PublicKeyGenerator.from_master_xprv()` accepts `xprv` parameter as both a `str` or `XPrv` instance now.
 
 ### Fixed
 

@@ -1,5 +1,14 @@
 ## [Unreleased]
-TODO
+
+*Target: 2.0.0*
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Breaking Changes
 
 ## [1.0.1.post2] - 2025-11-13
 ### Added

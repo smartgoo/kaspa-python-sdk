@@ -112,6 +112,7 @@ nav:
       - Building: contributing/building.md
       - Testing: contributing/testing.md
       - Documentation: contributing/documentation.md
+      - Releasing: contributing/releasing.md
       - Architecture & Design: contributing/architecture-design.md
       - PyO3 Core Concepts: contributing/pyo3-core-concepts.md
   - Changelog: CHANGELOG.md

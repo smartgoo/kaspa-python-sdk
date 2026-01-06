@@ -70,5 +70,5 @@ This includes MkDocs related packages for generating this documentation website.
 
 ## Next Steps
 
-Once installed, the [Quickstart Guide](quickstart.md) has several brief examples.
+Once installed, the [Examples](examples.md) page has several brief examples.
 

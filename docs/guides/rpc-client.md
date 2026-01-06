@@ -1,15 +1,14 @@
 # RPC Client
 
-This guide covers connecting to Kaspa nodes and using the RPC API with the Python SDK.
+This guide covers the Kaspa RPC Client - connecting to Kaspa nodes and basic RPC API use.
 
 ## Overview
 
 The Kaspa Python SDK provides an asynchronous RPC client for communicating with Kaspa nodes via WebSocket. Features include:
 
-- **Automatic node discovery** via Resolver
-- **Connection management** with reconnection support
-- **Full RPC API** coverage
-- **Event subscriptions** for real-time updates
+- **Automatic node discovery (PNN)** via Resolver.
+- **Connection management** with reconnection support.
+- **Full RPC API** coverage, including event subscriptions for real-time updates.
 
 ## Quick Start
 
@@ -444,5 +443,5 @@ async def safe_rpc_call():
 
 - [API Reference](../reference/index.md)
 - [Transactions Guide](transactions.md)
-- [Quickstart Guide](../getting-started/quickstart.md)
+- [Examples](../getting-started/examples.md)
 

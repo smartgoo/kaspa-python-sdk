@@ -97,7 +97,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Installation: getting-started/installation.md
-      - Quickstart: getting-started/quickstart.md
+      - Examples: getting-started/examples.md
   - Guides:
       - Addresses: guides/addresses.md
       - Mnemonics: guides/mnemonics.md
@@ -106,5 +106,13 @@ nav:
       - Message Signing: guides/message-signing.md
       - RPC Client: guides/rpc-client.md
   - API Reference: reference/
+  - Contributing:
+      - Overview: contributing/index.md
+      - Development Setup: contributing/setup.md
+      - Building: contributing/building.md
+      - Testing: contributing/testing.md
+      - Documentation: contributing/documentation.md
+      - Architecture & Design: contributing/architecture-design.md
+      - PyO3 Core Concepts: contributing/pyo3-core-concepts.md
   - Changelog: CHANGELOG.md
 

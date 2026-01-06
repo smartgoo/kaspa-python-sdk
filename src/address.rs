@@ -5,10 +5,10 @@ use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::*;
 
 crate::wrap_unit_enum_for_py!(
-    /// Kaspa Address version (`PubKey`, `PubKey ECDSA`, `ScriptHash`)
-    /// PubKey addresses always have the version byte set to 0
-    /// PubKey ECDSA addresses always have the version byte set to 1
-    /// ScriptHash addresses always have the version byte set to 8
+    /// Kaspa Address version (`PubKey`, `PubKeyECDSA`, `ScriptHash`)
+    ///-  PubKey addresses always have the version byte set to 0
+    /// - PubKey ECDSA addresses always have the version byte set to 1
+    /// - ScriptHash addresses always have the version byte set to 8
     ///
     /// Category: Core/Types
     PyAddressVersion, "AddressVersion", Version, {
@@ -106,7 +106,7 @@ impl PyAddress {
     }
 
     /// The string representation of the address version.
-    /// Versions are `PubKey`, `PubKey ECDSA`, or `ScriptHash`.
+    /// Versions are `PubKey`, `PubKeyECDSA`, or `ScriptHash`.
     ///
     /// Returns:
     ///     str: The address version.
@@ -144,7 +144,7 @@ impl PyAddress {
         Ok(())
     }
 
-    /// The bech32 encoded payload of the address (public key or script hash).
+    /// The bech32 encoded payload of the address.
     ///
     /// Returns:
     ///     str: The payload portion of the address.

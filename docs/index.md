@@ -1,19 +1,24 @@
 # Kaspa Python SDK
 
-Welcome to the Kaspa Python SDK documentation. This library provides a Python SDK for interacting with the Kaspa blockchain, built from Rust source code, leveraging native [rusty-kaspa](https://github.com/kaspanet/rusty-kaspa) under the hood as much as possible.
+This Python package, `kaspa`, provides an SDK for interacting with the Kaspa network from Python.
+
+`kaspa` is a native extension module built from bindings to Rust and [rusty-kaspa](https://github.com/kaspanet/rusty-kaspa) source. [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/) are used to create bindings and build the extension module. More information can be found in 
+
+!!! warning "Beta Status"
+    This project is considered beta status.
 
 This project very closely mirrors [Kaspa's WASM SDK](https://kaspa.aspectron.org/docs/), while trying to respect Python conventions. Feature parity with WASM SDK is a work in progress, not all features are available yet in Python.
 
+This documentation site currently provides API reference and basic usage guides. General cryptocurrency concepts, development practices, and Kaspa specific concepts are not covered here.
+
 ## Features
 
-This SDK provides features across the following categories:
+This SDK provides features in two primary categories:
 
-- **Address Management** - Create, validate, and manipulate Kaspa addresses
-- **Key Management** - HD wallet key derivation, mnemonic phrases, and key generation
-- **Transactions** - Construct, sign, broadcast and built scripts
-- **RPC Client** - Connect to Kaspa nodes via WebSocket RPC
+- **RPC Client** - Connect to Kaspa nodes via RPC.
+- **Wallet Management** - Wallet related functionality (key management, derivation, addresses, transactions, etc.).
 
-Most features gaps with WASM SDK exist around Wallet functionality.
+Most features gaps with Kaspa WASM SDK exist around Wallet functionality.
 
 ## A (Very) Basic Example
 
@@ -33,7 +38,7 @@ if __name__ == "__main__":
 ## Getting Started
 
 1. [Installation](getting-started/installation.md) - Set up the SDK in your environment
-2. [Quickstart](getting-started/quickstart.md) - Build your first Kaspa application
+2. [Examples](getting-started/examples.md) - Build your first Kaspa application
 
 ## Guides
 

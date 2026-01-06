@@ -8,10 +8,10 @@ crate::wrap_unit_enum_for_py!(
     /// Kaspa network type enumeration.
     ///
     /// Variants:
-    ///     Mainnet: The production Kaspa network.
-    ///     Testnet: The test network for development.
-    ///     Devnet: The development network.
-    ///     Simnet: The simulation network for testing.
+    ///     - Mainnet: The production Kaspa network.
+    ///     - Testnet: The test network for development.
+    ///     - Devnet: The development network.
+    ///     - Simnet: The simulation network for testing.
     ///
     /// Category: Core/Types
     PyNetworkType, "NetworkType", NetworkType, {

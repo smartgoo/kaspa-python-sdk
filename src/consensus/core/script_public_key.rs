@@ -5,7 +5,7 @@ use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::str::FromStr;
 
-/// A script public key (locking script).
+/// A script public key.
 ///
 /// Represents the locking conditions for an output. This script defines
 /// the conditions that must be met to spend the associated funds.

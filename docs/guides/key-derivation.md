@@ -2,14 +2,16 @@
 
 This guide covers hierarchical deterministic (HD) wallet key derivation in the Kaspa Python SDK.
 
+!!! danger "Security Warning"
+    **Handle Private Keys Securely**
+
+    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted here for brevity.
+
+    Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
+
 ## Overview
 
-The Kaspa SDK implements BIP-32 hierarchical deterministic wallets, allowing you to derive an unlimited number of keys from a single seed. This provides:
-
-- **Single backup** - One seed phrase backs up all keys
-- **Key organization** - Structured derivation paths
-- **Privacy** - New addresses for each transaction
-- **Account separation** - Multiple accounts from one seed
+The Kaspa SDK implements BIP-32 hierarchical deterministic wallets, allowing you to derive an unlimited number of keys from a single seed.
 
 ## Derivation Path Structure
 

@@ -66,7 +66,7 @@ class Address:
     def version(self) -> builtins.str:
         r"""
         The string representation of the address version.
-        Versions are `PubKey`, `PubKey ECDSA`, or `ScriptHash`.
+        Versions are `PubKey`, `PubKeyECDSA`, or `ScriptHash`.
         
         Returns:
             str: The address version.
@@ -99,7 +99,7 @@ class Address:
     @property
     def payload(self) -> builtins.str:
         r"""
-        The bech32 encoded payload of the address (public key or script hash).
+        The bech32 encoded payload of the address.
         
         Returns:
             str: The payload portion of the address.
@@ -1810,7 +1810,7 @@ class ScriptBuilder:
 @typing.final
 class ScriptPublicKey:
     r"""
-    A script public key (locking script).
+    A script public key.
     
     Represents the locking conditions for an output. This script defines
     the conditions that must be met to spend the associated funds.
@@ -2735,10 +2735,10 @@ class XPub:
 @typing.final
 class AddressVersion(enum.Enum):
     r"""
-    Kaspa Address version (`PubKey`, `PubKey ECDSA`, `ScriptHash`)
-    PubKey addresses always have the version byte set to 0
-    PubKey ECDSA addresses always have the version byte set to 1
-    ScriptHash addresses always have the version byte set to 8
+    Kaspa Address version (`PubKey`, `PubKeyECDSA`, `ScriptHash`)
+    -  PubKey addresses always have the version byte set to 0
+    - PubKey ECDSA addresses always have the version byte set to 1
+    - ScriptHash addresses always have the version byte set to 8
     
     Category: Core/Types
     """
@@ -2778,10 +2778,10 @@ class NetworkType(enum.Enum):
     Kaspa network type enumeration.
     
     Variants:
-        Mainnet: The production Kaspa network.
-        Testnet: The test network for development.
-        Devnet: The development network.
-        Simnet: The simulation network for testing.
+        - Mainnet: The production Kaspa network.
+        - Testnet: The test network for development.
+        - Devnet: The development network.
+        - Simnet: The simulation network for testing.
     
     Category: Core/Types
     """

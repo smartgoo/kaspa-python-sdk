@@ -58,6 +58,8 @@ use workflow_rpc::{client::Ctl, encoding::Encoding};
 ///     - NewBlockTemplate: Triggered when a new block template is available for mining.
 ///     - Connect: Triggered when the RPC client connects to a node.
 ///     - Disconnect: Triggered when the RPC client disconnects from a node.
+/// 
+/// Category: RPC/Core
 #[gen_stub_pyclass_enum]
 #[pyclass(name = "NotificationEvent", skip_from_py_object)]
 #[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -535,7 +537,7 @@ impl PyRpcClient {
     /// Register a callback for RPC events.
     ///
     /// Args:
-    ///     event: Event type ("connect", "disconnect", "UtxosChanged", etc.).
+    ///     event: Event type as kebab string or NotificationEvent variant. See NotificationEvent for acceptable values.
     ///     callback: Function to call when event occurs.
     ///     *args: Additional arguments to pass to callback.
     ///     **kwargs: Additional keyword arguments to pass to callback.
@@ -579,7 +581,7 @@ impl PyRpcClient {
     /// Remove an event listener.
     ///
     /// Args:
-    ///     event: Event type to remove listener from.
+    ///     event: Event type as kebab string or NotificationEvent variant. See NotificationEvent for acceptable values.
     ///     callback: Specific callback to remove, or None to remove all.
     ///
     /// Raises:

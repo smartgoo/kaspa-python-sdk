@@ -22,10 +22,12 @@
 - All setters changed to use consistent `value` for parameter name.
 - `PrivateKeyGenerator` constructor accepts `xprv` parameter as both a `str` or `XPrv` instance now.
 - `PublicKeyGenerator.from_master_xprv()` accepts `xprv` parameter as both a `str` or `XPrv` instance now.
+- Python 3.9 is no longer supported. Minimum supported version is now 3.10.
 
 ### Fixed
 
 ### Breaking Changes
+- Python 3.9 is no longer supported. Minimum supported version is now 3.10.
 
 ## [1.0.1.post2] - 2025-11-13
 ### Added

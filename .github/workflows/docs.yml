@@ -63,7 +63,12 @@ jobs:
             VERSION="${{ github.ref_name }}"
             VERSION="${VERSION#v}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "alias=latest" >> $GITHUB_OUTPUT
+            # Only set 'latest' alias for stable releases (no dev/alpha/beta/rc)
+            if [[ ! "$VERSION" =~ (dev|a[0-9]|b[0-9]|rc[0-9]) ]]; then
+              echo "alias=latest" >> $GITHUB_OUTPUT
+            else
+              echo "alias=" >> $GITHUB_OUTPUT
+            fi
           else
             echo "version=dev" >> $GITHUB_OUTPUT
             echo "alias=" >> $GITHUB_OUTPUT

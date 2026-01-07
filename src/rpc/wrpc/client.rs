@@ -58,7 +58,7 @@ use workflow_rpc::{client::Ctl, encoding::Encoding};
 ///     - NewBlockTemplate: Triggered when a new block template is available for mining.
 ///     - Connect: Triggered when the RPC client connects to a node.
 ///     - Disconnect: Triggered when the RPC client disconnects from a node.
-/// 
+///
 /// Category: RPC/Core
 #[gen_stub_pyclass_enum]
 #[pyclass(name = "NotificationEvent", skip_from_py_object)]

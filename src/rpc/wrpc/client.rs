@@ -1,5 +1,5 @@
 use crate::address::PyAddress;
-use crate::consensus::core::network::PyNetworkId;
+use crate::consensus::core::network::{PyNetworkId, PyNetworkType};
 use crate::rpc::encoding::PyEncoding;
 use crate::rpc::model::*;
 use crate::rpc::notification::PyNotification;
@@ -27,6 +27,7 @@ use pyo3::{
     types::{PyDict, PyModule, PyTuple},
 };
 use pyo3_stub_gen::derive::*;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::{
     sync::{
@@ -38,6 +39,64 @@ use std::{
 use workflow_core::channel::{Channel, DuplexChannel};
 use workflow_log::*;
 use workflow_rpc::{client::Ctl, encoding::Encoding};
+
+/// Notification event types for RPC client subscriptions.
+///
+/// Use with `RpcClient.subscribe()` and `RpcClient.unsubscribe()` to manage
+/// event subscriptions for real-time updates from a Kaspa node.
+///
+/// Variants:
+///     - All: Subscribe to all available notification events at once.
+///     - BlockAdded: Triggered when a new block is added to the DAG.
+///     - VirtualChainChanged: Triggered when the virtual (selected parent) chain changes.
+///     - FinalityConflict: Triggered when a finality conflict is detected.
+///     - FinalityConflictResolved: Triggered when a finality conflict is resolved.
+///     - UtxosChanged: Triggered when UTXOs for subscribed addresses change.
+///     - SinkBlueScoreChanged: Triggered when the sink block's blue score changes.
+///     - VirtualDaaScoreChanged: Triggered when the virtual DAA score changes.
+///     - PruningPointUtxoSetOverride: Triggered when the pruning point UTXO set is overridden.
+///     - NewBlockTemplate: Triggered when a new block template is available for mining.
+///     - Connect: Triggered when the RPC client connects to a node.
+///     - Disconnect: Triggered when the RPC client disconnects from a node.
+#[gen_stub_pyclass_enum]
+#[pyclass(name = "NotificationEvent", skip_from_py_object)]
+#[derive(Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PyNotificationEvent {
+    All,
+
+    // Event Types
+    BlockAdded,
+    VirtualChainChanged,
+    FinalityConflict,
+    FinalityConflictResolved,
+    UtxosChanged,
+    SinkBlueScoreChanged,
+    VirtualDaaScoreChanged,
+    PruningPointUtxoSetOverride,
+    NewBlockTemplate,
+
+    // RPC Control
+    Connect,
+    Disconnect,
+}
+
+impl<'py> FromPyObject<'_, 'py> for PyNotificationEvent {
+    type Error = PyErr;
+
+    fn extract(obj: Borrowed<'_, 'py, PyAny>) -> PyResult<Self> {
+        if let Ok(s) = obj.extract::<String>() {
+            serde_json::from_value::<PyNotificationEvent>(serde_json::Value::String(s))
+                .map_err(|err| PyException::new_err(err.to_string()))
+        } else if let Ok(t) = obj.cast::<PyNotificationEvent>() {
+            Ok(t.borrow().clone())
+        } else {
+            Err(PyException::new_err(
+                "Expected type `str` or `NotificationEvent`",
+            ))
+        }
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 enum NotificationEvent {
@@ -60,6 +119,47 @@ impl FromStr for NotificationEvent {
                 "Invalid notification event type: `{}`",
                 s
             )))
+        }
+    }
+}
+
+impl From<PyNotificationEvent> for NotificationEvent {
+    fn from(value: PyNotificationEvent) -> Self {
+        match value {
+            PyNotificationEvent::All => NotificationEvent::All,
+
+            // Event Types
+            PyNotificationEvent::BlockAdded => {
+                NotificationEvent::Notification(EventType::BlockAdded)
+            }
+            PyNotificationEvent::VirtualChainChanged => {
+                NotificationEvent::Notification(EventType::VirtualChainChanged)
+            }
+            PyNotificationEvent::FinalityConflict => {
+                NotificationEvent::Notification(EventType::FinalityConflict)
+            }
+            PyNotificationEvent::FinalityConflictResolved => {
+                NotificationEvent::Notification(EventType::FinalityConflictResolved)
+            }
+            PyNotificationEvent::UtxosChanged => {
+                NotificationEvent::Notification(EventType::UtxosChanged)
+            }
+            PyNotificationEvent::SinkBlueScoreChanged => {
+                NotificationEvent::Notification(EventType::SinkBlueScoreChanged)
+            }
+            PyNotificationEvent::VirtualDaaScoreChanged => {
+                NotificationEvent::Notification(EventType::VirtualDaaScoreChanged)
+            }
+            PyNotificationEvent::PruningPointUtxoSetOverride => {
+                NotificationEvent::Notification(EventType::PruningPointUtxoSetOverride)
+            }
+            PyNotificationEvent::NewBlockTemplate => {
+                NotificationEvent::Notification(EventType::NewBlockTemplate)
+            }
+
+            // RPC Control
+            PyNotificationEvent::Connect => NotificationEvent::RpcCtl(Ctl::Connect),
+            PyNotificationEvent::Disconnect => NotificationEvent::RpcCtl(Ctl::Disconnect),
         }
     }
 }
@@ -407,8 +507,30 @@ impl PyRpcClient {
         })
     }
 
-    // fn stop() TODO
-    // fn trigger_abort() TODO
+    /// Stop background RPC services (automatically stopped when invoking RpcClient.disconnect).
+    fn stop<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let slf = self.clone();
+        let inner = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            inner
+                .client
+                .stop()
+                .await
+                .map_err(|err| PyException::new_err(err.to_string()))?;
+            slf.stop_notification_task()
+                .await
+                .map_err(|err| PyException::new_err(err.to_string()))?;
+            Ok(())
+        })
+    }
+
+    /// Triggers a disconnection on the underlying WebSocket
+    /// if the WebSocket is in connected state.
+    /// This is intended for debug purposes only.
+    /// Can be used to test application reconnection logic.
+    pub fn trigger_abort(&self) {
+        self.0.client.trigger_abort().ok();
+    }
 
     /// Register a callback for RPC events.
     ///
@@ -424,13 +546,12 @@ impl PyRpcClient {
     fn add_event_listener(
         &self,
         py: Python,
-        event: String,
+        event: PyNotificationEvent,
         callback: Py<PyAny>,
         args: &Bound<'_, PyTuple>,
         kwargs: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<()> {
-        let event = NotificationEvent::from_str(event.as_str())
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+        let event: NotificationEvent = event.into();
 
         let args = args.into_pyobject(py)?.extract::<Py<PyTuple>>()?;
 
@@ -464,9 +585,12 @@ impl PyRpcClient {
     /// Raises:
     ///     Exception: If the event type is invalid.
     #[pyo3(signature = (event, callback=None))]
-    fn remove_event_listener(&self, event: String, callback: Option<Py<PyAny>>) -> PyResult<()> {
-        let event = NotificationEvent::from_str(event.as_str())
-            .map_err(|err| PyException::new_err(err.to_string()))?;
+    fn remove_event_listener(
+        &self,
+        event: PyNotificationEvent,
+        callback: Option<Py<PyAny>>,
+    ) -> PyResult<()> {
+        let event: NotificationEvent = event.into();
         let mut callbacks = self.0.callbacks.lock().unwrap();
 
         match (&event, callback) {
@@ -477,11 +601,6 @@ impl PyRpcClient {
             (NotificationEvent::All, Some(callback)) => {
                 // Remove given callback from "all" events
                 for callbacks in callbacks.values_mut() {
-                    // callbacks.retain(|c| {
-                    //     let cb_ref = c.callback.bind(py);
-                    //     let callback_ref = callback.bind(py);
-                    //     cb_ref.as_ref().ne(callback_ref.as_ref()).unwrap_or(true)
-                    // });
                     callbacks.retain(|entry| entry.callback.as_ref().as_ptr() != callback.as_ptr());
                 }
             }
@@ -492,11 +611,6 @@ impl PyRpcClient {
             (_, Some(callback)) => {
                 // Remove given callback from given event
                 if let Some(callbacks) = callbacks.get_mut(&event) {
-                    // callbacks.retain(|c| {
-                    //     let cb_ref = c.callback.bind(py);
-                    //     let callback_ref = callback.bind(py);
-                    //     cb_ref.as_ref().ne(callback_ref.as_ref()).unwrap_or(true)
-                    // });
                     callbacks.retain(|entry| entry.callback.as_ref().as_ptr() != callback.as_ptr());
                 }
             }
@@ -504,8 +618,25 @@ impl PyRpcClient {
         Ok(())
     }
 
-    // fn clear_event_listener TODO
-    // fn default_port TODO
+    // fn clear_event_listener TODO?
+    // This functionality already exists via clear_event_listener("all", callback)
+
+    /// Get the default RPC port for a given encoding and network type.
+    ///
+    /// Args:
+    ///     encoding: RPC encoding format ("borsh" or "json").
+    ///     network: Network type (e.g., "mainnet", "testnet-10", "testnet-11").
+    ///
+    /// Returns:
+    ///     int: The default port number for the specified configuration.
+    #[staticmethod]
+    fn default_port(encoding: PyEncoding, network: PyNetworkType) -> PyResult<u16> {
+        let network_type = NetworkType::from(network);
+        match encoding {
+            PyEncoding::Borsh => Ok(network_type.default_borsh_rpc_port()),
+            PyEncoding::SerdeJson => Ok(network_type.default_json_rpc_port()),
+        }
+    }
 
     /// Remove all registered event listeners.
     fn remove_all_event_listeners(&self) -> PyResult<()> {

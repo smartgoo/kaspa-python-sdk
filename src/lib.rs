@@ -134,6 +134,7 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<rpc::encoding::PyEncoding>()?;
     m.add_class::<rpc::wrpc::resolver::PyResolver>()?;
+    m.add_class::<rpc::wrpc::client::PyNotificationEvent>()?;
     m.add_class::<rpc::wrpc::client::PyRpcClient>()?;
 
     m.add_function(wrap_pyfunction!(wallet::core::message::py_sign_message, m)?)?;

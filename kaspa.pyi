@@ -1529,7 +1529,18 @@ class RpcClient:
         Raises:
             Exception: If starting fails.
         """
-    def add_event_listener(self, event: builtins.str, callback: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
+    def stop(self) -> typing.Any:
+        r"""
+        Stop background RPC services (automatically stopped when invoking RpcClient.disconnect).
+        """
+    def trigger_abort(self) -> None:
+        r"""
+        Triggers a disconnection on the underlying WebSocket
+        if the WebSocket is in connected state.
+        This is intended for debug purposes only.
+        Can be used to test application reconnection logic.
+        """
+    def add_event_listener(self, event: NotificationEvent, callback: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
         r"""
         Register a callback for RPC events.
         
@@ -1542,7 +1553,7 @@ class RpcClient:
         Raises:
             Exception: If the event type is invalid.
         """
-    def remove_event_listener(self, event: builtins.str, callback: typing.Optional[typing.Any] = None) -> None:
+    def remove_event_listener(self, event: NotificationEvent, callback: typing.Optional[typing.Any] = None) -> None:
         r"""
         Remove an event listener.
         
@@ -1552,6 +1563,18 @@ class RpcClient:
         
         Raises:
             Exception: If the event type is invalid.
+        """
+    @staticmethod
+    def default_port(encoding: Encoding, network: NetworkType) -> builtins.int:
+        r"""
+        Get the default RPC port for a given encoding and network type.
+        
+        Args:
+            encoding: RPC encoding format ("borsh" or "json").
+            network: Network type (e.g., "mainnet", "testnet-10", "testnet-11").
+        
+        Returns:
+            int: The default port number for the specified configuration.
         """
     def remove_all_event_listeners(self) -> None:
         r"""
@@ -2229,23 +2252,6 @@ class TransactionOutput:
 @typing.final
 class UtxoEntries:
     r"""
-    UTXO entries collection for flexible input handling.
-    
-    This type is not intended to be instantiated directly from Python.
-    It serves as a helper type that allows Rust functions to accept a list
-    of UTXO entries in multiple convenient forms.
-    
-    Accepts:
-        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
-        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
-    
-    Category: Wallet/Transactions
-    """
-    ...
-
-@typing.final
-class UtxoEntries:
-    r"""
     A collection of UTXO entry references.
     
     Provides methods for managing and querying multiple UTXOs.
@@ -2279,6 +2285,23 @@ class UtxoEntries:
         Returns:
             int: The sum of all UTXO values in sompi.
         """
+
+@typing.final
+class UtxoEntries:
+    r"""
+    UTXO entries collection for flexible input handling.
+    
+    This type is not intended to be instantiated directly from Python.
+    It serves as a helper type that allows Rust functions to accept a list
+    of UTXO entries in multiple convenient forms.
+    
+    Accepts:
+        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
+        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
+    
+    Category: Wallet/Transactions
+    """
+    ...
 
 @typing.final
 class UtxoEntry:
@@ -2731,6 +2754,41 @@ class XPub:
         Returns:
             PublicKey: The public key.
         """
+
+@typing.final
+class NotificationEvent(enum.Enum):
+    r"""
+    Notification event types for RPC client subscriptions.
+    
+    Use with `RpcClient.subscribe()` and `RpcClient.unsubscribe()` to manage
+    event subscriptions for real-time updates from a Kaspa node.
+    
+    Variants:
+        - All: Subscribe to all available notification events at once.
+        - BlockAdded: Triggered when a new block is added to the DAG.
+        - VirtualChainChanged: Triggered when the virtual (selected parent) chain changes.
+        - FinalityConflict: Triggered when a finality conflict is detected.
+        - FinalityConflictResolved: Triggered when a finality conflict is resolved.
+        - UtxosChanged: Triggered when UTXOs for subscribed addresses change.
+        - SinkBlueScoreChanged: Triggered when the sink block's blue score changes.
+        - VirtualDaaScoreChanged: Triggered when the virtual DAA score changes.
+        - PruningPointUtxoSetOverride: Triggered when the pruning point UTXO set is overridden.
+        - NewBlockTemplate: Triggered when a new block template is available for mining.
+        - Connect: Triggered when the RPC client connects to a node.
+        - Disconnect: Triggered when the RPC client disconnects from a node.
+    """
+    All = ...
+    BlockAdded = ...
+    VirtualChainChanged = ...
+    FinalityConflict = ...
+    FinalityConflictResolved = ...
+    UtxosChanged = ...
+    SinkBlueScoreChanged = ...
+    VirtualDaaScoreChanged = ...
+    PruningPointUtxoSetOverride = ...
+    NewBlockTemplate = ...
+    Connect = ...
+    Disconnect = ...
 
 @typing.final
 class AddressVersion(enum.Enum):

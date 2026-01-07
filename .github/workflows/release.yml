@@ -48,10 +48,6 @@ jobs:
             echo "CC=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
           fi
 
-      - name: Install OpenSSL header (Linux only)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install pkg-config libssl-dev
-      
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -59,6 +55,9 @@ jobs:
           args: --release --strip --out dist --interpreter 3.10 3.11 3.12 3.13 3.14
           sccache: 'true'
           manylinux: ${{ matrix.platform.manylinux || '' }}
+          # Install OpenSSL inside the manylinux Docker container
+          before-script-linux: |
+            yum install -y openssl-devel perl-IPC-Cmd || true
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -41,11 +41,8 @@ jobs:
         if: runner.os == 'Linux' && matrix.platform.target == 'aarch64'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross pkg-config
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross
           echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-          echo "PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV  # Ensure cross mode
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
@@ -55,10 +52,7 @@ jobs:
           sccache: 'true'
           manylinux: ${{ matrix.platform.manylinux || '' }}
           before-script-linux: |
-            if command -v yum >/dev/null; then
-              yum update -y && yum install -y openssl-devel perl
-            fi
-            if command -v apt-get >/dev/null; then
+            if [ "${{ matrix.platform.target }}" != "aarch64" ]; then
               apt-get update -y && apt-get install -y pkg-config libssl-dev
             fi
       

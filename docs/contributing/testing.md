@@ -2,8 +2,6 @@
 
 ## Unit Tests
 
-Unit tests don't require network access and test individual components:
-
 ```bash
 # All unit tests
 pytest tests/unit -v
@@ -16,8 +14,6 @@ pytest tests/unit/test_address.py::test_address_validation -v
 ```
 
 ## Integration Tests
-
-Integration tests require network access to connect to Kaspa testnet:
 
 ```bash
 pytest tests/integration -v

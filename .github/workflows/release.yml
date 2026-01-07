@@ -62,28 +62,26 @@ jobs:
           name: ${{ runner.os }}-${{ matrix.platform.target }}
           path: dist/
 
-  collect-python-sdk-artifacts:
-    name: Collect Python SDK Artifacts
+  upload-to-release:
+    name: Upload Wheels to GitHub Release
     needs: build-python-sdk
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
       
-      - name: Zip artifacts
+      - name: Flatten wheel files
         run: |
-          cd artifacts
-          zip -r ../kaspa-python-sdk.zip .
+          mkdir -p wheels
+          find artifacts -name "*.whl" -exec mv {} wheels/ \;
+          ls -la wheels/
       
-      - name: Upload consolidated release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload wheels to release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./kaspa-python-sdk.zip
-          asset_name: "kaspa-python-sdk-${{ github.event.release.tag_name }}.zip"
-          asset_content_type: application/zip
+          files: wheels/*.whl
 

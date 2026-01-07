@@ -413,35 +413,3 @@ async def main():
 
 asyncio.run(main())
 ```
-
-## Error Handling
-
-```python
-async def safe_rpc_call():
-    try:
-        result = await client.get_info()
-        return result
-    except ConnectionError:
-        print("Connection lost, reconnecting...")
-        await client.connect()
-        return await client.get_info()
-    except Exception as e:
-        print(f"RPC error: {e}")
-        return None
-```
-
-## Best Practices
-
-1. **Use Resolver** for automatic node discovery
-2. **Handle disconnections** gracefully
-3. **Unsubscribe** when done with events
-4. **Close connections** when finished
-5. **Use asyncio** properly for concurrent operations
-6. **Set timeouts** for production applications
-
-## See Also
-
-- [API Reference](../reference/index.md)
-- [Transactions Guide](transactions.md)
-- [Examples](../getting-started/examples.md)
-

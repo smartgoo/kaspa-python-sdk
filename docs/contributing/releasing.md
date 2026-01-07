@@ -2,20 +2,6 @@
 
 This guide covers branching strategy, CI/CD workflows, and the release process.
 
-## Branching Strategy
-
-| Branch | Purpose |
-|--------|---------|
-| `main` | Latest development code, always deployable |
-| `v*` tags | Release versions (e.g., `v1.0.0`) |
-| Feature branches | Short-lived branches merged to `main` |
-
-**Workflow:**
-
-1. Development happens on feature branches, merged to `main`
-2. Releases are created by tagging commits with `vX.Y.Z`
-3. Tags trigger automated builds and deployments
-
 ## CI/CD Workflows
 
 Three GitHub Actions workflows automate the project:
@@ -47,6 +33,12 @@ Builds versioned documentation with MkDocs + mike and deploys to `gh-pages` bran
 **Triggers:** GitHub Release published
 
 Builds wheels for all platforms (Linux, macOS, Windows) and Python versions (3.9–3.13), then attaches them to the GitHub Release.
+
+## Branch & Tags
+
+1. Development in feature branches, merged to `main`
+2. Releases created by tagging commits with `vX.Y.Z`
+3. Tags trigger automated builds and deployments
 
 ## Version Numbers
 

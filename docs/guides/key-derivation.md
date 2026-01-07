@@ -9,25 +9,13 @@ This guide covers hierarchical deterministic (HD) wallet key derivation in the K
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
-## Overview
-
-The Kaspa SDK implements BIP-32 hierarchical deterministic wallets, allowing you to derive an unlimited number of keys from a single seed.
-
-## Derivation Path Structure
-
-Kaspa uses the following derivation path structure:
+## Derivation Path
 
 ```
 m / purpose' / coin_type' / account' / change / address_index
 ```
 
-| Level | Value | Description |
-|-------|-------|-------------|
-| Purpose | 44' | BIP-44 standard |
-| Coin Type | 111111' | Kaspa's registered coin type |
-| Account | 0', 1', ... | Account index (hardened) |
-| Change | 0 or 1 | 0 = receive, 1 = change |
-| Address Index | 0, 1, ... | Sequential address index |
+See [Kaspa MDBook's page on derivation](https://kaspa-mdbook.aspectron.com/wallets/addresses.html) for more information.
 
 ## Extended Keys
 
@@ -110,8 +98,6 @@ path.push(0, hardened=True)  # Add hardened child
 ```
 
 ## Key Generators
-
-For typical wallet operations, use key generators:
 
 ### Private Key Generator
 
@@ -200,8 +186,6 @@ change_addrs = pub_gen.change_addresses(NetworkType.Mainnet, 0, 5)
 
 ## Multi-Signature Wallets
 
-For multi-signature setups, use the cosigner index:
-
 ```python
 from kaspa import PrivateKeyGenerator, PublicKeyGenerator
 
@@ -272,19 +256,3 @@ for i in range(3):
     assert priv_addr.to_string() == pub_addr.to_string()
     print(f"Address {i}: {priv_addr.to_string()}")
 ```
-
-## Best Practices
-
-1. **Use key generators** for typical wallet operations
-2. **Keep XPrv secure** - never expose or transmit
-3. **Share XPub** for watch-only wallets
-4. **Use hardened derivation** (') for account-level keys
-5. **Increment address indices** sequentially
-6. **Use change addresses** for transaction outputs
-
-## See Also
-
-- [API Reference](../reference/index.md)
-- [Mnemonics Guide](mnemonics.md)
-- [Transactions Guide](transactions.md)
-

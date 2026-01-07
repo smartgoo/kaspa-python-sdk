@@ -9,20 +9,6 @@ This guide covers building, signing, and broadcasting transactions with the Kasp
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
-## Overview
-
-Kaspa transactions consist of:
-
-- **Inputs** - References to previous transaction outputs (UTXOs) being spent
-- **Outputs** - New outputs being created (payments and change)
-- **Signatures** - Cryptographic proofs of authorization
-
-## Transaction Lifecycle
-
-```
-UTXOs → Build Transaction → Sign → Broadcast → Confirmation
-```
-
 ## Using the Generator
 
 The `Generator` class handles UTXO selection, fee calculation, and change management:
@@ -101,7 +87,7 @@ generator = Generator(
 
 ## Estimating Transactions
 
-Before sending, estimate the transaction:
+Transactions can be estimated prior to submission.
 
 ```python
 from kaspa import Generator, estimate_transactions
@@ -193,7 +179,7 @@ pending_tx.fill_input(0, signature_script_bytes)
 
 ## Manual Transaction Building
 
-For complete control, build transactions manually:
+Transactions can be built manually:
 
 ```python
 from kaspa import (
@@ -373,19 +359,3 @@ kas = sompi_to_kaspa(150000000)  # 1.5 KAS
 formatted = sompi_to_kaspa_string_with_suffix(150000000, "mainnet")
 # "1.5 KAS"
 ```
-
-## Best Practices
-
-1. **Always estimate** before sending large transactions
-2. **Use the Generator** for automatic UTXO management
-3. **Set appropriate fees** for timely confirmation
-4. **Verify signatures** when signing (`verify_sig=True`)
-5. **Handle errors** gracefully (network issues, insufficient funds)
-6. **Test on testnet** before mainnet
-
-## See Also
-
-- [API Reference](../reference/index.md)
-- [RPC Client Guide](rpc-client.md)
-- [Key Derivation Guide](key-derivation.md)
-

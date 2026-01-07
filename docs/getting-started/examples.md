@@ -184,13 +184,3 @@ async def send_transaction():
 
 asyncio.run(send_transaction())
 ```
-
-## Next Steps
-
-Now that you understand the basics, explore these guides:
-
-- [Addresses](../guides/addresses.md) - Deep dive into address handling
-- [Key Derivation](../guides/key-derivation.md) - HD wallet derivation paths
-- [Transactions](../guides/transactions.md) - Advanced transaction building
-- [RPC Client](../guides/rpc-client.md) - Complete RPC API reference
-

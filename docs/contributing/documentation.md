@@ -104,6 +104,7 @@ pub fn constructor(param_name: &str) -> PyResult<Self> {
 | `Raises:` | Exception documentation |
 | `Note:` | Additional information |
 | `Example:` | Code examples |
+| `Category:` | API Reference category |
 
 ## Categories
 

@@ -67,8 +67,3 @@ pip install -e ".[docs]" # Installs from local pyproject.toml
 ```
 
 This includes MkDocs related packages for generating this documentation website.
-
-## Next Steps
-
-Once installed, the [Examples](examples.md) page has several brief examples.
-

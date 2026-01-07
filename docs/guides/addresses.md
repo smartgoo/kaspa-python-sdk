@@ -58,8 +58,6 @@ print(f"Address: {address.to_string()}")
 
 ## Validating Addresses
 
-Always validate addresses before use:
-
 ```python
 from kaspa import Address
 
@@ -172,10 +170,3 @@ multisig_address = create_multisig_address(
 
 print(f"Multisig address: {multisig_address.to_string()}")
 ```
-
-## See Also
-
-- [API Reference](../reference/index.md)
-- [Key Derivation Guide](key-derivation.md)
-- [Transactions Guide](transactions.md)
-

@@ -43,6 +43,6 @@ The project includes a `check` script that automates various builds, lints, and 
 ./check
 ```
 
-See [building workflows - ./check](building.md#approximate-ci-validation-check) for details.
+See [building workflows - ./check](building.md#approximate-ci-validation-script) for details.
 
 The locally built `kaspa` module can then be imported and used from Python.

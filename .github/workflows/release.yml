@@ -2,54 +2,31 @@ name: Release
 on:
   release:
     types: [ published ]
-  workflow_dispatch:
 
 jobs:
-  build-linux:
-    name: Build Linux (${{ matrix.target }})
-    runs-on: ubuntu-latest
+  build-python-sdk:
+    name: Building Python SDK (${{ matrix.platform.runner }} ${{ matrix.platform.target }})
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - target: x86_64
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
             manylinux: auto
-          - target: aarch64
+          - runner: ubuntu-latest
+            target: aarch64
+            # ring crate 0.17 fails to build for aarch64 using manylinux: auto, hence manylinux_2_28
             manylinux: manylinux_2_28
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+          - runner: macos-latest
+            target: aarch64
+          - runner: windows-latest
+            target: x86_64
+          # - runner: windows-latest
+          #   target: aarch64
 
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.target }}
-          manylinux: ${{ matrix.manylinux }}
-          args: --release --strip --out dist --interpreter 3.10 3.11 3.12 3.13 3.14
-          sccache: 'true'
-          before-script-linux: |
-            # Install OpenSSL development packages in manylinux container
-            if command -v yum &> /dev/null; then
-              yum install -y openssl-devel perl-IPC-Cmd
-            elif command -v apk &> /dev/null; then
-              apk add openssl-dev
-            elif command -v apt-get &> /dev/null; then
-              apt-get update && apt-get install -y libssl-dev pkg-config
-            fi
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-${{ matrix.target }}
-          path: dist/
-
-  build-macos:
-    name: Build macOS (${{ matrix.target }})
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [x86_64, aarch64]
+    runs-on: ${{ matrix.platform.runner }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -58,49 +35,40 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+      
+      - name: Install cross-compilation tools (Linux only)
+        if: runner.os == 'Linux' && matrix.platform.target != 'x86_64'
+        run: |
+          sudo apt-get update
+          if [ "${{ matrix.platform.target }}" == "aarch64" ]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+            echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          elif [ "${{ matrix.platform.target }}" == "armv7" ]; then
+            sudo apt-get install -y gcc-arm-linux-gnueabihf
+            echo "CC=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
+          fi
 
+      - name: Install OpenSSL header (Linux only)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install pkg-config libssl-dev
+      
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target }}-apple-darwin
+          target: ${{ matrix.platform.target }}
           args: --release --strip --out dist --interpreter 3.10 3.11 3.12 3.13 3.14
           sccache: 'true'
-
+          manylinux: ${{ matrix.platform.manylinux || '' }}
+      
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-${{ matrix.target }}
-          path: dist/
-
-  build-windows:
-    name: Build Windows (x86_64)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: x86_64
-          args: --release --strip --out dist --interpreter 3.10 3.11 3.12 3.13 3.14
-          sccache: 'true'
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows-x86_64
+          name: ${{ runner.os }}-${{ matrix.platform.target }}
           path: dist/
 
   upload-to-release:
     name: Upload Wheels to GitHub Release
-    needs: [build-linux, build-macos, build-windows]
-    if: github.event_name == 'release'
+    needs: build-python-sdk
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -108,14 +76,16 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: wheels-*
           path: artifacts
-          merge-multiple: true
-
-      - name: List wheels
-        run: ls -la artifacts/
-
+      
+      - name: Flatten wheel files
+        run: |
+          mkdir -p wheels
+          find artifacts -name "*.whl" -exec mv {} wheels/ \;
+          ls -la wheels/
+      
       - name: Upload wheels to release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/*.whl
+          files: wheels/*.whl
+

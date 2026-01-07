@@ -150,6 +150,7 @@ impl PendingTransaction {
     ///
     /// Raises:
     ///     Exception: If signing fails.
+    #[pyo3(signature = (input_index, private_key, sighash_type=None))]
     fn create_input_signature(
         &self,
         input_index: u8,

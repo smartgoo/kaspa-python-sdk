@@ -2252,6 +2252,23 @@ class TransactionOutput:
 @typing.final
 class UtxoEntries:
     r"""
+    UTXO entries collection for flexible input handling.
+    
+    This type is not intended to be instantiated directly from Python.
+    It serves as a helper type that allows Rust functions to accept a list
+    of UTXO entries in multiple convenient forms.
+    
+    Accepts:
+        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
+        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
+    
+    Category: Wallet/Transactions
+    """
+    ...
+
+@typing.final
+class UtxoEntries:
+    r"""
     A collection of UTXO entry references.
     
     Provides methods for managing and querying multiple UTXOs.
@@ -2285,23 +2302,6 @@ class UtxoEntries:
         Returns:
             int: The sum of all UTXO values in sompi.
         """
-
-@typing.final
-class UtxoEntries:
-    r"""
-    UTXO entries collection for flexible input handling.
-    
-    This type is not intended to be instantiated directly from Python.
-    It serves as a helper type that allows Rust functions to accept a list
-    of UTXO entries in multiple convenient forms.
-    
-    Accepts:
-        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
-        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
-    
-    Category: Wallet/Transactions
-    """
-    ...
 
 @typing.final
 class UtxoEntry:
@@ -3567,6 +3567,7 @@ Example:
     >>> print(response["blockCount"])
 """
 
+from enum import Enum
 from typing import TypedDict
 
 
@@ -3620,18 +3621,30 @@ class RpcFeeEstimate(TypedDict):
     lowBuckets: list[RpcFeeRateBucket]
 
 
+class RpcVerboseData(TypedDict):
+    """Represent Kaspa transaction input verbose data"""
+    ...
+
+
 class RpcTransactionInput(TypedDict):
     """A transaction input."""
     previousOutpoint: RpcOutpoint
     signatureScript: str
     sequence: int
     sigOpCount: int
+    verboseData: RpcVerboseData | None
+
+
+class RpcTransactionOutputVerboseData(TypedDict):
+    scriptPublicKeyType: str
+    scriptPublicKeyAddress: str
 
 
 class RpcTransactionOutput(TypedDict):
     """A transaction output."""
     value: int
-    scriptPublicKey: RpcScriptPublicKey
+    scriptPublicKey: str
+    verboseData: RpcTransactionOutputVerboseData | None
 
 
 class RpcTransaction(TypedDict):
@@ -3644,7 +3657,7 @@ class RpcTransaction(TypedDict):
     gas: int
     payload: str
     mass: int
-    verboseData: "RpcTransactionVerboseData | None"
+    verboseData: RpcTransactionVerboseData | None
 
 
 class RpcTransactionVerboseData(TypedDict, total=False):
@@ -3658,8 +3671,9 @@ class RpcTransactionVerboseData(TypedDict, total=False):
 
 class RpcBlockHeader(TypedDict):
     """A block header."""
+    hash: str
     version: int
-    parents: list["RpcBlockLevelParents"]
+    parentsByLevel: list[list[str]]
     hashMerkleRoot: str
     acceptedIdMerkleRoot: str
     utxoCommitment: str
@@ -3670,11 +3684,6 @@ class RpcBlockHeader(TypedDict):
     blueWork: str
     blueScore: int
     pruningPoint: str
-
-
-class RpcBlockLevelParents(TypedDict):
-    """Parents at a specific block level."""
-    parentHashes: list[str]
 
 
 class RpcBlockVerboseData(TypedDict, total=False):
@@ -3698,11 +3707,35 @@ class RpcBlock(TypedDict):
     verboseData: RpcBlockVerboseData | None
 
 
+class RpcRawHeader(TypedDict):
+    version: int
+    parentsByLevel: list[list[str]]
+    hashMerkleRoot: str
+    acceptedIdMerkleRoot: str
+    utxoCommitment: str
+    timestamp: int
+    bits: int
+    nonce: u64
+    daaScore: int
+    blueWork: str
+    blueScore: int
+    pruningPoint: str
+
+
+class RpcRawBlock(TypedDict):
+    """
+        Raw Rpc block type - without a cached header hash and without verbose data.
+        Used for mining APIs (get_block_template & submit_block)
+    """
+    header: RpcRawHeader
+    transactions: list[RpcTransaction]
+
+
 class RpcMempoolEntry(TypedDict):
     """A mempool entry."""
     fee: int
     transaction: RpcTransaction
-    isOrphan: bool
+    is_orphan: bool
 
 
 class RpcMempoolEntryByAddress(TypedDict):
@@ -3718,12 +3751,17 @@ class RpcAcceptedTransactionIds(TypedDict):
     acceptedTransactionIds: list[str]
 
 
-class RpcProcessMetrics(TypedDict):
+class ProcessMetrics(TypedDict):
     """Process metrics."""
     residentSetSize: int
     virtualMemorySize: int
-    cpuUsagePercentage: float
-    cpuCoresNum: int
+    coreNum: int
+    cpuUsage: float
+    fdNum: int
+    diskIoReadBytes: int
+    diskIoWriteBytes: int
+    diskIoReadPerSec: float
+    diskIoWritePerSec: float
 
 
 class RpcStorageMetrics(TypedDict):
@@ -3731,20 +3769,26 @@ class RpcStorageMetrics(TypedDict):
     storageSizeBytes: int
 
 
-class RpcConsensusMetrics(TypedDict):
+class ConsensusMetrics(TypedDict):
     """Consensus metrics."""
-    blocksSubmittedCount: int
-    headerCounts: int
-    depCounts: int
-    bodyCounts: int
-    txsCounts: int
-    chainBlockCounts: int
-    massCounts: int
-    virtualParentHashesCount: int
-    virtualDaaScore: int
+    nodeBlocksSubmittedCount: int
+    nodeHeadersProcessedCount: int
+    nodeDependenciesProcessedCount: int
+    nodeBodiesProcessedCount: int
+    nodeTransactionsProcessedCount: int
+    nodeChainBlocksProcessedCount: int
+    nodeMassProcessedCount: int
+    nodeDatabaseBlocksCount: int
+    nodeDatabaseHeadersCount: int
+    networkMempoolSize: int
+    networkTipHashesCount: int
+    networkDifficulty: float
+    networkPastMedianTime: int
+    networkVirtualParentHashesCount: int
+    networkVirtualDaaScore: int
 
 
-class RpcConnectionMetrics(TypedDict):
+class ConnectionMetrics(TypedDict):
     """Connection metrics."""
     borshLiveConnections: int
     borshConnectionAttempts: int
@@ -3752,19 +3796,20 @@ class RpcConnectionMetrics(TypedDict):
     jsonLiveConnections: int
     jsonConnectionAttempts: int
     jsonHandshakeFailures: int
+    activePeers: int
 
 
 class RpcPeerInfo(TypedDict):
     """Peer information."""
     id: str
-    address: str
-    lastPingDuration: int
-    isOutbound: bool
-    timeOffset: int
-    userAgent: str
-    advertisedProtocolVersion: int
-    timeConnected: int
-    isIbdPeer: bool
+    address: RpcPeerAddress
+    last_ping_duration: int
+    is_outbound: bool
+    time_offset: int
+    user_agent: str
+    advertised_protocol_version: int
+    time_connected: int
+    is_ibd_peer: bool
 
 
 class RpcPeerAddress(TypedDict):
@@ -3773,8 +3818,194 @@ class RpcPeerAddress(TypedDict):
     port: int
 
 
+class RpcDataVerbosityLevel(Enum):
+    """Verbosity level for GetVirtualChainFromBlockV2Request"""
+    _None = 0,
+    Low = 1,
+    High = 2,
+    Full = 3,
+
+
+class RpcOptionalHeader(TypedDict):
+    """Represents a block header with optional fields populated based on verbosity level.
+
+    Fields are included based on the RpcDataVerbosityLevel specified in the request.
+    Each attribute is only populated when the verbosity level meets or exceeds
+    the required level for that field.
+
+    Attributes:
+        hash: The block hash. Level: None (always included).
+        version: Block version number. Level: Low.
+        parentsByLevel: Compressed parent block hashes by level. Level: High.
+        hashMerkleRoot: Merkle root of block hashes. Level: High.
+        acceptedIdMerkleRoot: Merkle root of accepted transaction IDs. Level: High.
+        utxoCommitment: UTXO commitment hash. Level: Full.
+        timestamp: Block timestamp in milliseconds. Level: Low.
+        bits: Difficulty target bits. Level: Low.
+        nonce: Block nonce. Level: Low.
+        daaScore: Difficulty adjustment algorithm score. Level: Low.
+        blueWork: Cumulative blue work. Level: Low.
+        blueScore: Blue score of the block. Level: Low.
+        pruningPoint: Pruning point block hash. Level: Full.
+    """
+    hash: str | None
+    version: int | None
+    parentsByLevel: list[tuple[int, list[str]]] | None
+    hashMerkleRoot: str | None
+    acceptedIdMerkleRoot: str | None
+    utxoCommitment: str | None
+    timestamp: int | None
+    bits: int | None
+    nonce: int | None
+    daaScore: int | None
+    blueWork: str | None
+    blueScore: int | None
+    pruningPoint: str | None
+
+
+class RpcOptionalTransactionOutpoint(TypedDict):
+    """Represents a Kaspa transaction outpoint"""
+    transactionId: str | None
+    index: int | None
+
+
+class RpcOptionalUtxoEntryVerboseData(TypedDict):
+    """Represents verbose data for a UTXO entry with optional fields based on verbosity level.
+
+    Attributes:
+        scriptPublicKeyType: The type/class of the script public key. Level: Low.
+        scriptPublicKeyAddress: The address derived from the script public key. Level: Low.
+    """
+    scriptPublicKeyType: str | None
+    scriptPublicKeyAddress: str | None
+
+
+class RpcOptionalUtxoEntry(TypedDict):
+    """Represents a UTXO entry with optional fields based on verbosity level.
+
+    Attributes:
+        amount: The amount in sompi. Level: High.
+        scriptPublicKey: The script public key. Level: High.
+        blockDaaScore: The DAA score of the block containing this UTXO. Level: Full.
+        isCoinbase: Whether this UTXO is from a coinbase transaction. Level: High.
+        verboseData: Additional verbose data for this UTXO entry.
+    """
+    amount: int | None
+    scriptPublicKey: str | None
+    blockDaaScore: int | None
+    isCoinbase: bool | None
+    verboseData: RpcOptionalUtxoEntryVerboseData | None
+
+
+class RpcOptionalTransactionInputVerboseData(TypedDict):
+    """Represent Kaspa transaction input verbose data"""
+    utxoEntry: RpcOptionalUtxoEntry | None
+
+
+class RpcOptionalTransactionOutputVerboseData(TypedDict):
+    """Represents verbose data for a transaction output with optional fields based on verbosity level.
+
+    Attributes:
+        scriptPublicKeyType: The type/class of the script public key. Level: Low.
+        scriptPublicKeyAddress: The address derived from the script public key. Level: Low.
+    """
+    scriptPublicKeyType: str | None
+    scriptPublicKeyAddress: str | None
+
+
+class RpcOptionalTransactionOutput(TypedDict):
+    """Represents a transaction output with optional fields based on verbosity level.
+
+    Attributes:
+        value: The output value in sompi. Level: Low.
+        scriptPublicKey: The script public key for this output. Level: Low.
+        verboseData: Additional verbose data for this output.
+    """
+    value: int | None
+    scriptPublicKey: str | None
+    verboseData: RpcOptionalTransactionOutputVerboseData | None
+
+
+class RpcOptionalTransactionInput(TypedDict):
+    """Represents a transaction input with optional fields based on verbosity level.
+
+    Attributes:
+        previousOutpoint: The outpoint being spent. Level: High.
+        signatureScript: The signature script (hex encoded). Level: Low.
+        sequence: The sequence number. Level: High.
+        sigOpCount: The signature operation count. Level: High.
+        verboseData: Additional verbose data for this input.
+    """
+    previousOutpoint: RpcOptionalTransactionOutpoint | None # TODO
+    signatureScript: str | None
+    sequence: int | None
+    sigOpCount: int | None
+    verboseData: RpcOptionalTransactionInputVerboseData | None # TODO
+
+
+class RpcOptionalTransactionOutput(TypedDict):
+    """Represents a transaction output with optional fields based on verbosity level.
+
+    Attributes:
+        value: The output value in sompi. Level: Low.
+        scriptPublicKey: The script public key for this output. Level: Low.
+        verboseData: Additional verbose data for this output.
+    """
+    value: int | None
+    scriptPublicKey: RpcScriptPublicKey | None
+    verboseData: RpcOptionalTransactionOutputVerboseData | None # TODO
+
+
+class RpcOptionalTransactionVerboseData(TypedDict):
+    """Represents verbose data for a transaction with optional fields based on verbosity level.
+
+    Attributes:
+        transactionId: The transaction ID. Level: Low.
+        hash: The transaction hash. Level: Low.
+        computeMass: The computed mass of the transaction. Level: High.
+        blockHash: The hash of the block containing this transaction. Level: Low.
+        blockTime: The timestamp of the block containing this transaction. Level: Low.
+    """
+    transactionId: str | None
+    hash: str | None
+    computeMass: int | None
+    blockHash: str | None
+    blockTime: int | None
+
+
+class RpcOptionalTransaction(TypedDict):
+    """Represents a transaction with optional fields based on verbosity level.
+
+    Attributes:
+        version: The transaction version. Level: Full.
+        inputs: List of transaction inputs.
+        outputs: List of transaction outputs.
+        lockTime: The lock time of the transaction. Level: Full.
+        subnetworkId: The subnetwork ID. Level: Full.
+        gas: The gas limit. Level: Full.
+        payload: The transaction payload (hex encoded). Level: High.
+        mass: The transaction mass. Level: High.
+        verboseData: Additional verbose data for this transaction.
+    """
+    version: int | None
+    inputs: list[RpcOptionalTransactionInput] | None
+    outputs: list[RpcOptionalTransactionOutput] | None
+    lockTime: int | None
+    subnetworkId: str | None
+    gas: int | None
+    payload: list[int] | None
+    mass: int | None
+    verboseData: RpcOptionalTransactionVerboseData | None
+
+
+class RpcChainBlockAcceptedTransactions(TypedDict):
+    """Transaction acceptance data returned by GetVirtualChainFromBlockV2"""
+    chainBlockHeader: RpcOptionalHeader
+    acceptedTransactions: list[RpcOptionalTransaction]
+
+
 # =============================================================================
-# Request Types (optional parameters for RPC methods)
+# Request Types
 # =============================================================================
 
 class GetBlockCountRequest(TypedDict, total=False):
@@ -3814,6 +4045,7 @@ class GetMetricsRequest(TypedDict, total=False):
     bandwidthMetrics: bool
     consensusMetrics: bool
     storageMetrics: bool
+    customMetrics: bool
 
 
 class GetConnectionsRequest(TypedDict, total=False):
@@ -3978,12 +4210,14 @@ class GetVirtualChainFromBlockRequest(TypedDict):
     """Request for get_virtual_chain_from_block."""
     startHash: str
     includeAcceptedTransactionIds: bool
+    minConfirmationCount: int | None
 
 
 class GetVirtualChainFromBlockV2Request(TypedDict):
     """Request for get_virtual_chain_from_block_v2."""
     startHash: str
-    includeAcceptedTransactionIds: bool
+    dataVerbosityLevel: RpcDataVerbosityLevel | None
+    minConfirmationCount: int | None
 
 
 class ResolveFinalityConflictRequest(TypedDict):
@@ -4020,7 +4254,7 @@ class GetBlockCountResponse(TypedDict):
 
 class GetBlockDagInfoResponse(TypedDict):
     """Response from get_block_dag_info."""
-    networkName: str
+    network: str
     blockCount: int
     headerCount: int
     tipHashes: list[str]
@@ -4060,21 +4294,38 @@ class GetPeerAddressesResponse(TypedDict):
     bannedAddresses: list[RpcPeerAddress]
 
 
+class BandwidthMetrics(TypedDict):
+    borshBytesTx: int
+    borshBytesRx: int
+    jsonBytesTx: int
+    jsonBytesRx: int
+    p2pBytesTx: int
+    p2pBytesRx: int
+    grpcBytesTx: int
+    grpcBytesRx: int
+
+
 class GetMetricsResponse(TypedDict, total=False):
     """Response from get_metrics."""
-    processMetrics: RpcProcessMetrics
-    connectionMetrics: RpcConnectionMetrics
-    bandwidthMetrics: dict
-    consensusMetrics: RpcConsensusMetrics
-    storageMetrics: RpcStorageMetrics
     serverTime: int
+    processMetrics: ProcessMetrics
+    connectionMetrics: ConnectionMetrics
+    bandwidthMetrics: BandwidthMetrics
+    consensusMetrics: ConsensusMetrics
+    storageMetrics: RpcStorageMetrics
+    customMetrics: dict | None
+
+
+class ConnectionsProfileData(TypedDict):
+    cpuUsage: int
+    memoryUsage: int
 
 
 class GetConnectionsResponse(TypedDict):
     """Response from get_connections."""
-    clientsCount: int
-    peersCount: int
-    profileData: dict | None
+    clients: int
+    peers: int
+    profileData: ConnectionsProfileData | None
 
 
 class GetSinkResponse(TypedDict):
@@ -4099,7 +4350,7 @@ class ShutdownResponse(TypedDict):
 
 class GetServerInfoResponse(TypedDict):
     """Response from get_server_info."""
-    rpcApiVersion: list[int]
+    rpcApiVersion: int
     rpcApiRevision: int
     serverVersion: str
     networkId: str
@@ -4121,16 +4372,17 @@ class GetFeeEstimateResponse(TypedDict):
 class GetCurrentNetworkResponse(TypedDict):
     """Response from get_current_network."""
     network: str
-    suffix: int | None
 
 
 class GetSystemInfoResponse(TypedDict):
     """Response from get_system_info."""
     version: str
-    systemId: str | None
-    gitHash: str | None
+    systemId: list[int] | None
+    gitHash: list[int] | None
+    cpuPhysicalCores: int
     totalMemory: int
-    coreNum: int
+    fdLimit: int
+    proxySocketLimitPerCpuCore: int | None
 
 
 class AddPeerResponse(TypedDict):
@@ -4176,7 +4428,7 @@ class GetBlocksResponse(TypedDict):
 
 class GetBlockTemplateResponse(TypedDict):
     """Response from get_block_template."""
-    block: RpcBlock
+    block: RpcRawBlock
     isSynced: bool
 
 
@@ -4198,7 +4450,7 @@ class GetFeeEstimateExperimentalResponse(TypedDict):
 
 class GetHeadersResponse(TypedDict):
     """Response from get_headers."""
-    headers: list[str]
+    headers: list[RpcBlockHeader]
 
 
 class GetMempoolEntriesResponse(TypedDict):
@@ -4228,7 +4480,7 @@ class GetUtxosByAddressesResponse(TypedDict):
 
 class GetUtxoReturnAddressResponse(TypedDict):
     """Response from get_utxo_return_address."""
-    address: str | None
+    returnAddress: str | None
 
 
 class GetVirtualChainFromBlockResponse(TypedDict):
@@ -4242,7 +4494,7 @@ class GetVirtualChainFromBlockV2Response(TypedDict):
     """Response from get_virtual_chain_from_block_v2."""
     removedChainBlockHashes: list[str]
     addedChainBlockHashes: list[str]
-    acceptedTransactionIds: list[RpcAcceptedTransactionIds]
+    chainBlockAcceptedTransactions: list[RpcChainBlockAcceptedTransactions]
 
 
 class ResolveFinalityConflictResponse(TypedDict):

@@ -10,7 +10,7 @@
 - Documentation site using [MkDocs](https://www.mkdocs.org/), [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/), and [mike](https://github.com/jimporter/mike).
 - Automatic generation of (most of) the stub (.pyi) file using `pyo3-stub-gen` crate and a binary. RPC TypedDicts (Request/Response structures, RPC types) are manually maintained in `kaspa_rpc.pyi` still.
 - Unit and integration tests with [pytest]https://docs.pytest.org/en/stable/.
-- Bumped rusty-kaspa version to commit [3c2115d](https://github.com/kaspanet/rusty-kaspa/commit/3c2115d9fd70935fc6d18777d6a66784d0466a95).
+- Bumped rusty-kaspa version to commit ad4111e.
 - `GetVirtualChainFromBlockV2` RPC method.
 
 ### Changed

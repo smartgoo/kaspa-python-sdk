@@ -9,6 +9,10 @@ A handful of brief examples showing core features of the Kaspa Python SDK.
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
+## Examples on Github
+
+In addition to the examples below, there is a collection of examples included in this project's Github repository, [found here](https://github.com/smartgoo/kaspa-python-sdk/tree/master/examples).
+
 ## Kaspa RPC Client
 
 ```python

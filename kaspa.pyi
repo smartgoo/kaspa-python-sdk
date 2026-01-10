@@ -3748,7 +3748,10 @@ class RpcAcceptedTransactionIds(TypedDict):
 
 
 class ProcessMetrics(TypedDict):
-    """Process metrics."""
+    """Process metrics.
+    
+    Category: RPC/Types
+    """
     residentSetSize: int
     virtualMemorySize: int
     coreNum: int
@@ -3766,7 +3769,10 @@ class RpcStorageMetrics(TypedDict):
 
 
 class ConsensusMetrics(TypedDict):
-    """Consensus metrics."""
+    """Consensus metrics.
+    
+    Category: RPC/Types
+    """
     nodeBlocksSubmittedCount: int
     nodeHeadersProcessedCount: int
     nodeDependenciesProcessedCount: int
@@ -3785,7 +3791,10 @@ class ConsensusMetrics(TypedDict):
 
 
 class ConnectionMetrics(TypedDict):
-    """Connection metrics."""
+    """Connection metrics.
+    
+    Category: RPC/Types
+    """
     borshLiveConnections: int
     borshConnectionAttempts: int
     borshHandshakeFailures: int
@@ -3806,6 +3815,21 @@ class RpcPeerInfo(TypedDict):
     advertised_protocol_version: int
     time_connected: int
     is_ibd_peer: bool
+
+
+class BandwidthMetrics(TypedDict):
+    """Bandwidth metrics for various protocols.
+    
+    Category: RPC/Types
+    """
+    borshBytesTx: int
+    borshBytesRx: int
+    jsonBytesTx: int
+    jsonBytesRx: int
+    p2pBytesTx: int
+    p2pBytesRx: int
+    grpcBytesTx: int
+    grpcBytesRx: int
 
 
 class RpcPeerAddress(TypedDict):
@@ -4277,18 +4301,6 @@ class GetPeerAddressesResponse(TypedDict):
     bannedAddresses: list[RpcPeerAddress]
 
 
-class BandwidthMetrics(TypedDict):
-    """Bandwidth metrics for various protocols."""
-    borshBytesTx: int
-    borshBytesRx: int
-    jsonBytesTx: int
-    jsonBytesRx: int
-    p2pBytesTx: int
-    p2pBytesRx: int
-    grpcBytesTx: int
-    grpcBytesRx: int
-
-
 class GetMetricsResponse(TypedDict, total=False):
     """Response from get_metrics."""
     serverTime: int
@@ -4301,7 +4313,10 @@ class GetMetricsResponse(TypedDict, total=False):
 
 
 class ConnectionsProfileData(TypedDict):
-    """Profile data for connection resource usage."""
+    """Profile data for connection resource usage.
+    
+    Category: RPC/Types
+    """
     cpuUsage: int
     memoryUsage: int
 

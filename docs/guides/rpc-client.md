@@ -41,7 +41,7 @@ asyncio.run(main())
 
 ### Using a Resolver
 
-The Resolver automatically finds available nodes:
+The Resolver automatically finds available PNN nodes:
 
 ```python
 from kaspa import RpcClient, Resolver
@@ -260,7 +260,22 @@ metrics = await client.get_metrics({
 
 ## Event Subscriptions
 
-Subscribe to real-time events:
+Subscribe to real-time events.
+
+### Available Events
+
+| Event | Subscription Method |
+|-------|---------------------|
+| `utxos-changed` | `subscribe_utxos_changed()` |
+| `block-added` | `subscribe_block_added()` |
+| `virtual-chain-changed` | `subscribe_virtual_chain_changed()` |
+| `virtual-daa-score-changed` | `subscribe_virtual_daa_score_changed()` |
+| `sink-blue-score-changed` | `subscribe_sink_blue_score_changed()` |
+| `finality-conflict` | `subscribe_finality_conflict()` |
+| `finality-conflict-resolved` | `subscribe_finality_conflict_resolved()` |
+| `new-block-template` | `subscribe_new_block_template()` |
+| `pruning-point-utxo-set-override` | `subscribe_pruning_point_utxo_set_override()` |
+
 
 ### UTXO Changes
 
@@ -316,20 +331,6 @@ def on_daa_change(event):
 client.add_event_listener("virtual-daa-score-changed", on_daa_change)
 await client.subscribe_virtual_daa_score_changed()
 ```
-
-### Available Events
-
-| Event | Subscription Method |
-|-------|---------------------|
-| `utxos-changed` | `subscribe_utxos_changed()` |
-| `block-added` | `subscribe_block_added()` |
-| `virtual-chain-changed` | `subscribe_virtual_chain_changed()` |
-| `virtual-daa-score-changed` | `subscribe_virtual_daa_score_changed()` |
-| `sink-blue-score-changed` | `subscribe_sink_blue_score_changed()` |
-| `finality-conflict` | `subscribe_finality_conflict()` |
-| `finality-conflict-resolved` | `subscribe_finality_conflict_resolved()` |
-| `new-block-template` | `subscribe_new_block_template()` |
-| `pruning-point-utxo-set-override` | `subscribe_pruning_point_utxo_set_override()` |
 
 ### Managing Listeners
 

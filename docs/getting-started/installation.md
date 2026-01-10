@@ -2,12 +2,15 @@
 
 This guide covers installation of the Kaspa Python SDK.
 
-This Python package can be [installed from PyPi](#installation-via-pypi) or [built from source](#installation-from-source). **With any crypto related library, it is always recommended to build from trusted source code.**
+This Python package can be [installed from PyPi](#installation-via-pypi) or [built from source](#installation-from-source). 
+
+!!! warning "Security Warning"
+    With any crypto development library, it is always recommended to build from trusted source code.
 
 
 ## Requirements
 
-- Python versions 3.9 thru 3.14 are supported
+- Python versions 3.10 thru 3.14 are supported
 - pip package manager
 
 
@@ -27,7 +30,7 @@ The following OS/architectures have pre-built wheels available on PyPi:
 | macOS    | Apple Silicon (arm64) | Supported |
 | Windows  | x86_64       | Supported |
 
-Support for alternate builds will require [building from source](#installation-from-source). Building from sdist is not yet supported, as such an sdist is not available on PyPi.
+Support for alternate targets will require [building from source](#installation-from-source). Building from sdist is not yet supported, as such an sdist is not available on PyPi.
 
 
 ## Installation from Source
@@ -36,19 +39,18 @@ Support for alternate builds will require [building from source](#installation-f
 
 2. Clone the Kaspa Python SDK repository:
 ```bash
-# Clone the repository
 git clone https://github.com/smartgoo/kaspa-python-sdk.git
 cd kaspa-python-sdk
 ```
 
-3. Run `./build-release` sh script to build source and built (wheel) dists. The built wheel (`.whl`) file path will be printed: `Built wheel for CPython 3.x to <filepath>`. The `.whl` file can be copied to another location or machine (of the same OS/architecture).
+3. Run `./build-release` shell script to build source and built (wheel) dists. The built wheel (`.whl`) file path will be printed: `Built wheel for CPython 3.x to <filepath>`. The `.whl` file can be copied to another location or machine (of the same OS/architecture).
 
 4. Install the wheel built by the prior step using `pip install <.whl filepath>`.
 
 
 ## Optional Dependencies
 
-### Development (and testing):
+### Development (and testing)
 
 ```bash
 pip install kaspa[dev] # Installs from PyPi pyproject.toml

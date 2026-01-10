@@ -1,11 +1,13 @@
 # Kaspa Python SDK
 
-> [!CAUTION]
-> **This repository is under active development. Intended solely to assess feasibility of moving Kaspa Python SDK into its own repository.**
->
-> **Do NOT use this repository.**
+> [!WARNING]
+> **This project is beta status, not intended for use in critical applications/environments.**
 > 
-> **The current `kaspa` Python package source can be found [here](https://github.com/aspectron/rusty-kaspa/tree/python).**
+> Kasa Python SDK source has historically lived [here](https://github.com/aspectron/rusty-kaspa/tree/python). The current `kaspa` PyPi package is built from that source.
+>
+> This repository is the potential future home of Kaspa Python SDK source. It has reached parity (feature, stability, etc.) with the existing codebase.
+> 
+> **You can build/install the `kaspa` Python package from this repository. See instructions [here](https://smartgoo.github.io/kaspa-python-sdk/dev/getting-started/installation/#installation-from-source).**
 
 ---
 
@@ -13,9 +15,18 @@ The Kaspa Python SDK provides bindings to Rust & [Rusty-Kaspa](https://github.co
 
 A native extension module, `kaspa`, is built from these bindings using [PyO3](https://pyo3.rs/v0.20.0/) and [Maturin](https://www.maturin.rs).
 
+## Features
+
+This SDK provides features in two primary categories:
+
+- RPC Client - Connect to Kaspa nodes via RPC.
+- Wallet Management - Wallet related functionality (key management, derivation, addresses, transactions, etc.).
+
+Most feature gaps with Kaspa WASM SDK exist around Wallet functionality. Over time, features will be added to the Kaspa Python SDK to bring it as close as possible.
+
 ## Documentation
 
-Full documentation is available at the [documentation site](https://smartgoo.github.io/kaspa-python-sdk/dev/), including:
+Full documentation is available on the [documentation site](https://smartgoo.github.io/kaspa-python-sdk/dev/), including:
 
 - [Installation Guide](https://smartgoo.github.io/kaspa-python-sdk/dev/getting-started/installation/)
 - [Examples](https://smartgoo.github.io/kaspa-python-sdk/dev/getting-started/examples/)

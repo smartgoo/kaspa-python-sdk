@@ -90,6 +90,9 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/external-links.js
+
 watch:
   - kaspa.pyi
 
@@ -109,12 +112,12 @@ nav:
       - Installation: getting-started/installation.md
       - Examples: getting-started/examples.md
   - Guides:
+      - RPC Client: guides/rpc-client.md
       - Addresses: guides/addresses.md
+      - Transactions: guides/transactions.md
       - Mnemonics: guides/mnemonics.md
       - Key Derivation: guides/key-derivation.md
-      - Transactions: guides/transactions.md
       - Message Signing: guides/message-signing.md
-      - RPC Client: guides/rpc-client.md
   - API Reference: reference/
   - Contributing:
       - Overview: contributing/index.md

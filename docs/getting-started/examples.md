@@ -9,7 +9,11 @@ A handful of brief examples showing core features of the Kaspa Python SDK.
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
-## Interacting with the Kaspa Network via RPC
+## Examples on Github
+
+In addition to the examples below, there is a collection of examples included in this project's Github repository, [found here](https://github.com/smartgoo/kaspa-python-sdk/tree/master/examples).
+
+## Kaspa RPC Client
 
 ```python
 import asyncio
@@ -38,9 +42,7 @@ async def main():
 asyncio.run(main())
 ```
 
-## Checking Balances
-
-Query the balance of an address:
+## Check Address Balances
 
 ```python
 import asyncio

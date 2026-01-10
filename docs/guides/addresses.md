@@ -115,9 +115,6 @@ address.prefix = "kaspatest"
 print(f"Testnet address: {address.to_string()}")
 ```
 
-!!! warning
-    Changing the prefix doesn't change the underlying key. It only changes the encoding. Sending to the wrong network prefix could result in lost funds.
-
 ## Address from Script
 
 Create an address from a script public key:

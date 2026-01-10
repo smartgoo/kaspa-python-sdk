@@ -1,18 +1,23 @@
 site_name: Kaspa Python SDK
 site_description: Kaspa Python SDK
 site_url: https://smartgoo.github.io/kaspa-python-sdk/
-# repo_url: https://github.com/smartgoo/kaspa-python-sdk
+repo_url: https://github.com/smartgoo/kaspa-python-sdk
 repo_name: kaspa-python-sdk
-# edit_uri: edit/main/docs/
+edit_uri: edit/main/docs/
 
 theme:
   name: material
+  language: en
+  favicon: assets/kaspa.png
+  logo: assets/kaspa.png
   features:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.top
     - navigation.indexes
+    - navigation.tracking
+    - navigation.path
     - search.suggest
     - search.highlight
     - content.code.copy
@@ -21,13 +26,13 @@ theme:
     - toc.follow
   palette:
     - scheme: default
-      primary: indigo
+      primary: teal
       accent: blue
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: indigo
+      primary: teal
       accent: blue
       toggle:
         icon: material/brightness-4
@@ -85,13 +90,21 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/external-links.js
+
+watch:
+  - kaspa.pyi
+
 extra:
   version:
     provider: mike
     default: latest
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/your-org/kaspa-python
+      link: https://github.com/smartgoo/kaspa-python-sdk
+
+copyright: Copyright &copy; 2022-2026 Kaspa developers
 
 nav:
   - Home: index.md
@@ -99,12 +112,12 @@ nav:
       - Installation: getting-started/installation.md
       - Examples: getting-started/examples.md
   - Guides:
+      - RPC Client: guides/rpc-client.md
       - Addresses: guides/addresses.md
+      - Transactions: guides/transactions.md
       - Mnemonics: guides/mnemonics.md
       - Key Derivation: guides/key-derivation.md
-      - Transactions: guides/transactions.md
       - Message Signing: guides/message-signing.md
-      - RPC Client: guides/rpc-client.md
   - API Reference: reference/
   - Contributing:
       - Overview: contributing/index.md
@@ -116,4 +129,3 @@ nav:
       - Architecture & Design: contributing/architecture-design.md
       - PyO3 Core Concepts: contributing/pyo3-core-concepts.md
   - Changelog: CHANGELOG.md
-

@@ -2,10 +2,10 @@
 
 This Python package, `kaspa`, provides an SDK for interacting with the Kaspa network from Python.
 
-`kaspa` is a native extension module built from bindings to Rust and [rusty-kaspa](https://github.com/kaspanet/rusty-kaspa) source. [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/) are used to create bindings and build the extension module. More information can be found in 
+`kaspa` is a native extension module built from bindings to Rust and [rusty-kaspa](https://github.com/kaspanet/rusty-kaspa) source. [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/) are used to create bindings and build the extension module. More information on the inner workings can be found in the [Contributing section](contributing/index.md).
 
 !!! warning "Beta Status"
-    This project is considered beta status.
+    This project is in beta status.
 
 This project very closely mirrors [Kaspa's WASM SDK](https://kaspa.aspectron.org/docs/), while trying to respect Python conventions. Feature parity with WASM SDK is a work in progress, not all features are available yet in Python.
 

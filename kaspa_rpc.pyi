@@ -1,15 +1,9 @@
 """
-TypedDict definitions for Kaspa RPC request and response types.
+TypedDict definitions for Kaspa RPC request/response messages & contained types.
 
-These types describe the dictionary structures used when calling RPC methods
-on the RpcClient. Request types are passed as the `request` parameter, and
-response types describe what the async methods return.
+This file is maunally maintained and appended to kaspa.pyi file via stub gen process.
 
-Example:
-    >>> client = RpcClient(...)
-    >>> await client.connect()
-    >>> response: GetBlockDagInfoResponse = await client.get_block_dag_info()
-    >>> print(response["blockCount"])
+Long term, attempts should be made to auto generate.
 """
 
 from enum import Enum
@@ -81,6 +75,7 @@ class RpcTransactionInput(TypedDict):
 
 
 class RpcTransactionOutputVerboseData(TypedDict):
+    """Verbose data for a transaction output."""
     scriptPublicKeyType: str
     scriptPublicKeyAddress: str
 
@@ -153,6 +148,7 @@ class RpcBlock(TypedDict):
 
 
 class RpcRawHeader(TypedDict):
+    """A raw block header without a cached hash."""
     version: int
     parentsByLevel: list[list[str]]
     hashMerkleRoot: str
@@ -160,7 +156,7 @@ class RpcRawHeader(TypedDict):
     utxoCommitment: str
     timestamp: int
     bits: int
-    nonce: u64
+    nonce: int
     daaScore: int
     blueWork: str
     blueScore: int
@@ -197,7 +193,10 @@ class RpcAcceptedTransactionIds(TypedDict):
 
 
 class ProcessMetrics(TypedDict):
-    """Process metrics."""
+    """Process metrics.
+    
+    Category: RPC/Types
+    """
     residentSetSize: int
     virtualMemorySize: int
     coreNum: int
@@ -215,7 +214,10 @@ class RpcStorageMetrics(TypedDict):
 
 
 class ConsensusMetrics(TypedDict):
-    """Consensus metrics."""
+    """Consensus metrics.
+    
+    Category: RPC/Types
+    """
     nodeBlocksSubmittedCount: int
     nodeHeadersProcessedCount: int
     nodeDependenciesProcessedCount: int
@@ -234,7 +236,10 @@ class ConsensusMetrics(TypedDict):
 
 
 class ConnectionMetrics(TypedDict):
-    """Connection metrics."""
+    """Connection metrics.
+    
+    Category: RPC/Types
+    """
     borshLiveConnections: int
     borshConnectionAttempts: int
     borshHandshakeFailures: int
@@ -255,6 +260,21 @@ class RpcPeerInfo(TypedDict):
     advertised_protocol_version: int
     time_connected: int
     is_ibd_peer: bool
+
+
+class BandwidthMetrics(TypedDict):
+    """Bandwidth metrics for various protocols.
+    
+    Category: RPC/Types
+    """
+    borshBytesTx: int
+    borshBytesRx: int
+    jsonBytesTx: int
+    jsonBytesRx: int
+    p2pBytesTx: int
+    p2pBytesRx: int
+    grpcBytesTx: int
+    grpcBytesRx: int
 
 
 class RpcPeerAddress(TypedDict):
@@ -386,19 +406,6 @@ class RpcOptionalTransactionInput(TypedDict):
     sequence: int | None
     sigOpCount: int | None
     verboseData: RpcOptionalTransactionInputVerboseData | None # TODO
-
-
-class RpcOptionalTransactionOutput(TypedDict):
-    """Represents a transaction output with optional fields based on verbosity level.
-
-    Attributes:
-        value: The output value in sompi. Level: Low.
-        scriptPublicKey: The script public key for this output. Level: Low.
-        verboseData: Additional verbose data for this output.
-    """
-    value: int | None
-    scriptPublicKey: RpcScriptPublicKey | None
-    verboseData: RpcOptionalTransactionOutputVerboseData | None # TODO
 
 
 class RpcOptionalTransactionVerboseData(TypedDict):
@@ -739,17 +746,6 @@ class GetPeerAddressesResponse(TypedDict):
     bannedAddresses: list[RpcPeerAddress]
 
 
-class BandwidthMetrics(TypedDict):
-    borshBytesTx: int
-    borshBytesRx: int
-    jsonBytesTx: int
-    jsonBytesRx: int
-    p2pBytesTx: int
-    p2pBytesRx: int
-    grpcBytesTx: int
-    grpcBytesRx: int
-
-
 class GetMetricsResponse(TypedDict, total=False):
     """Response from get_metrics."""
     serverTime: int
@@ -762,6 +758,10 @@ class GetMetricsResponse(TypedDict, total=False):
 
 
 class ConnectionsProfileData(TypedDict):
+    """Profile data for connection resource usage.
+    
+    Category: RPC/Types
+    """
     cpuUsage: int
     memoryUsage: int
 

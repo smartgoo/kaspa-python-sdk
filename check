@@ -7,14 +7,14 @@ cargo fmt --all
 cargo clippy -- -D warnings
 
 # Build development
-echo "Running build-dev..."
+echo "Running ./build-dev script..."
 ./build-dev
 
 # Activate virtual environment (build-dev creates it)
 source env/bin/activate
 
 # Install optional dependencies (dev + docs)
-echo "Installing optional dependencies..."
+echo "Installing optional dependencies required for dev & docs..."
 pip install -e ".[dev,docs]"
 
 # Run pytest

@@ -1,6 +1,7 @@
 import asyncio
 from kaspa import Resolver, RpcClient
 
+
 async def main():
     client = RpcClient(resolver=Resolver())
     await client.connect()
@@ -15,4 +16,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

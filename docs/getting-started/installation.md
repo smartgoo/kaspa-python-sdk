@@ -1,7 +1,5 @@
 # Installation
 
-This guide covers installation of the Kaspa Python SDK.
-
 This Python package can be [installed from PyPi](#installation-via-pypi) or [built from source](#installation-from-source). 
 
 !!! warning "Security Warning"

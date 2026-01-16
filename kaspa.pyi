@@ -2248,21 +2248,6 @@ class TransactionOutput:
 @typing.final
 class UtxoEntries:
     r"""
-    UTXO entries collection for flexible input handling.
-    
-    This type is not intended to be instantiated directly from Python.
-    It serves as a helper type that allows Rust functions to accept a list
-    of UTXO entries in multiple convenient forms.
-    
-    Accepts:
-        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
-        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
-    """
-    ...
-
-@typing.final
-class UtxoEntries:
-    r"""
     A collection of UTXO entry references.
     
     Provides methods for managing and querying multiple UTXOs.
@@ -2295,6 +2280,21 @@ class UtxoEntries:
             int: The sum of all UTXO values in sompi.
         """
     def __eq__(self, other: UtxoEntries) -> builtins.bool: ...
+
+@typing.final
+class UtxoEntries:
+    r"""
+    UTXO entries collection for flexible input handling.
+    
+    This type is not intended to be instantiated directly from Python.
+    It serves as a helper type that allows Rust functions to accept a list
+    of UTXO entries in multiple convenient forms.
+    
+    Accepts:
+        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
+        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
+    """
+    ...
 
 @typing.final
 class UtxoEntry:

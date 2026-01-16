@@ -15,6 +15,7 @@ from kaspa import (
     kaspa_to_sompi
 )
 
+
 def derive(seed, account_index):
     xprv = XPrv(seed).derive_path(f"m/45'/111111'/{account_index}'")
     xpub = xprv.to_xpub()
@@ -22,17 +23,21 @@ def derive(seed, account_index):
     pub = xpub.derive_child(1).to_public_key()
     return prv, pub
 
+
 async def main():
     seed = Mnemonic('predict cloud noise economy home stereo tag cancel adult pistol act remove equip cricket man summer neutral black art miracle foam world clown say').to_seed()
 
     prv1, pub1 = derive(seed, 0)
-    print(f'Account 1:\n - prv: {prv1.to_string()}\n - pub: {pub1.to_string()}\n')
+    print(
+        f'Account 1:\n - prv: {prv1.to_string()}\n - pub: {pub1.to_string()}\n')
 
     prv2, pub2 = derive(seed, 1)
-    print(f'Account 2:\n - prv: {prv2.to_string()}\n - pub: {pub2.to_string()}\n')
+    print(
+        f'Account 2:\n - prv: {prv2.to_string()}\n - pub: {pub2.to_string()}\n')
 
     prv3, pub3 = derive(seed, 2)
-    print(f'Account 3:\n - prv: {prv3.to_string()}\n - pub: {pub3.to_string()}\n')
+    print(
+        f'Account 3:\n - prv: {prv3.to_string()}\n - pub: {pub3.to_string()}\n')
 
     # Multisig address creation - from script
     # schnorr
@@ -46,7 +51,7 @@ async def main():
     spk = redeem_script.create_pay_to_script_hash_script()
     address = address_from_script_public_key(spk, network="testnet")
     print(f"Multisig Address: {address.to_string()}\n")
-    
+
     # ECDSA
     # ecdsa_redeem_script = ScriptBuilder()\
     #     .add_i64(2)\
@@ -59,10 +64,12 @@ async def main():
     # ecdsa_address = address_from_script_public_key(ecdsa_spk, network="testnet")
 
     # Multisig address creation - from kaspa package
-    assert address.to_string() == create_multisig_address(2, [pub1, pub2, pub3], 'testnet').to_string()
+    assert address.to_string() == create_multisig_address(
+        2, [pub1, pub2, pub3], 'testnet').to_string()
     # assert ecdsa_address.to_string() == create_multisig_address(2, [pub1, pub2, pub3], 'testnet', True).to_string()
-    
-    proceed = input("Send funds to address above before proceeding (enter 'y' to proceed): ")
+
+    proceed = input(
+        "Send funds to address above before proceeding (enter 'y' to proceed): ")
     if proceed != 'y':
         return
 
@@ -72,7 +79,8 @@ async def main():
 
     tx = create_transactions(
         entries=utxos['entries'],
-        outputs=[{'address': 'kaspatest:prsajwtrefzex5wsmyk3rfkyzaq3wdwzczzr6jptgyzk4pacl9lzvtv8h30j9', 'amount': kaspa_to_sompi(1)}],
+        outputs=[{'address': 'kaspatest:prsajwtrefzex5wsmyk3rfkyzaq3wdwzczzr6jptgyzk4pacl9lzvtv8h30j9',
+                  'amount': kaspa_to_sompi(1)}],
         change_address=address,
         priority_fee=kaspa_to_sompi(1),
         network_id='testnet-10',

@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-*Target: 2.0.0*
+*Target: 1.1.0*
 
 ### Added
 - Enum `PyAddressVersion` exposed to Python as `AddressVersion`

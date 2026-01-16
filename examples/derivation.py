@@ -6,7 +6,8 @@ from kaspa import (
 )
 
 if __name__ == "__main__":
-    mnemonic = Mnemonic("hunt bitter praise lift buyer topic crane leopard uniform network inquiry over grain pass match crush marine strike doll relax fortune trumpet sunny silk")
+    mnemonic = Mnemonic(
+        "hunt bitter praise lift buyer topic crane leopard uniform network inquiry over grain pass match crush marine strike doll relax fortune trumpet sunny silk")
     seed = mnemonic.to_seed()
 
     xprv = XPrv(seed)
@@ -25,7 +26,8 @@ if __name__ == "__main__":
 
     # Derive address via public key
     private_key = xprv.derive_path("m/44'/111111'/0'/0/1").to_private_key()
-    print(f'Address via private key: {private_key.to_address("mainnet").to_string()}')
+    print(
+        f'Address via private key: {private_key.to_address("mainnet").to_string()}')
     print(f'Private key: {private_key.to_string()}')
 
     # XPrv with ktrv prefix
@@ -51,5 +53,3 @@ if __name__ == "__main__":
     print(xpub.derive_path("m/1").into_string("xpub"))
     # Get public key from xpub
     print(xpub.to_public_key().to_string())
-
-

@@ -10,8 +10,10 @@ from kaspa import (
     sign_transaction
 )
 
+
 async def main():
-    private_key = PrivateKey("389840d7696e89c38856a066175e8e92697f0cf182b854c883237a50acaf1f69")
+    private_key = PrivateKey(
+        "389840d7696e89c38856a066175e8e92697f0cf182b854c883237a50acaf1f69")
     keypair = private_key.to_keypair()
     address = keypair.to_address(network="testnet")
     print(address.to_string())

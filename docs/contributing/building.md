@@ -17,7 +17,7 @@ This script:
 3. Generates Python stub files (`.pyi`)
 4. Builds and installs the extension module in development mode
 
-The development build is faster but not optimized. After running, activate the environment:
+The development build is faster but not optimized. After running, the virtual environment should be active. If not, it can be activated via:
 
 ```bash
 source env/bin/activate

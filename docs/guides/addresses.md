@@ -1,7 +1,5 @@
 # Addresses
 
-This guide covers working with Kaspa addresses in the Python SDK.
-
 ## Overview
 
 Kaspa addresses are encoded representations of public keys or script hashes. They include:

@@ -1,17 +1,17 @@
 # Examples
 
-A handful of brief examples showing core features of the Kaspa Python SDK.
+This page contains a handful of brief examples showing core features of the Kaspa Python SDK.
 
 !!! danger "Security Warning"
     **Handle Private Keys Securely**
 
-    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted here for brevity.
+    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted for brevity.
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 
 ## Examples on Github
 
-In addition to the examples below, there is a collection of examples included in this project's Github repository, [found here](https://github.com/smartgoo/kaspa-python-sdk/tree/master/examples).
+In addition to the examples below, a collection of examples can be found in the Github repository [here](https://github.com/smartgoo/kaspa-python-sdk/tree/master/examples).
 
 ## Kaspa RPC Client
 

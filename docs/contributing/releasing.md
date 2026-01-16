@@ -1,7 +1,5 @@
 # Releasing
 
-This guide covers branching strategy, CI/CD workflows, and the release process.
-
 ## CI/CD Workflows
 
 Three GitHub Actions workflows automate the project:
@@ -18,11 +16,11 @@ Three GitHub Actions workflows automate the project:
 
 ### `docs.yml` — Documentation Deployment
 
-**Triggers:** Push to `main` (or `poc` during development), version tags, manual dispatch
+**Triggers:** Push to `main`, version tags, manual dispatch
 
-Builds versioned documentation with MkDocs + mike and deploys to `gh-pages` branch.
+Builds versioned documentation with [MkDocs](https://www.mkdocs.org/) + [mike](https://github.com/jimporter/mike) and deploys to `gh-pages` branch.
 
-| Trigger | Version | Alias |
+| Trigger | Version on Docs Site | Alias |
 |---------|---------|-------|
 | Push to `main`/`poc` | `dev` | — |
 | Tag `v1.0.0` | `1.0.0` | `latest` |
@@ -32,7 +30,7 @@ Builds versioned documentation with MkDocs + mike and deploys to `gh-pages` bran
 
 **Triggers:** GitHub Release published
 
-Builds wheels for all platforms (Linux, macOS, Windows) and Python versions (3.9–3.13), then attaches them to the GitHub Release.
+Builds wheels for all platforms (Linux, macOS, Windows) and supported Python versions, then attaches them to the GitHub Release.
 
 ## Branch & Tags
 
@@ -57,7 +55,15 @@ Versions are maintained in two files:
 
 ## Changelog
 
-Follow [Keep a Changelog](https://keepachangelog.com/) format. Add entries to `[Unreleased]` during development, then rename to `[X.Y.Z] - YYYY-MM-DD` at release.
+[Keep a Changelog](https://keepachangelog.com/) format. Add to `[Unreleased]` during development with a target release version:
+
+```md
+## [Unreleased]
+
+*Target: 1.1.0*
+```
+
+Then rename to `[X.Y.Z] - YYYY-MM-DD` at release.
 
 ## Release Checklist
 
@@ -80,26 +86,18 @@ Update `CHANGELOG.md`:
 - Rename `[Unreleased]` → `[X.Y.Z] - YYYY-MM-DD`
 - Add new empty `[Unreleased]` section
 
-### 3. Commit, Tag, and Push
-
-```bash
-git add -A
-git commit -m "Release vX.Y.Z"
-git tag vX.Y.Z
-git push origin main --tags
-```
+### 3. Commit, Tag, and Push to GitHub
 
 ### 4. Create GitHub Release
-
-1. Go to **Releases → Draft a new release**
-2. Select the `vX.Y.Z` tag
-3. Add release notes (copy from CHANGELOG)
-4. Click **Publish release**
 
 This triggers:
 
 - `release.yml` → Builds and attaches wheels
 - `docs.yml` → Deploys documentation
+
+### 5. Upload built wheels to PyPi 
+
+This step is currently manual but should be automated at some point.
 
 ### 5. Post-Release
 
@@ -111,9 +109,4 @@ version = "X.Y.Z+1.dev0"
 
 # Cargo.toml  
 version = "X.Y.Z+1-dev"
-```
-
-```bash
-git commit -am "Begin X.Y.Z+1 development"
-git push
 ```

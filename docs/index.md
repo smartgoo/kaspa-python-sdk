@@ -44,6 +44,12 @@ if __name__ == "__main__":
 
 <div class="grid cards" markdown>
 
+- **[RPC Client](guides/rpc-client.md)**  
+  Connect to Kaspa nodes
+
+- **[Transactions](guides/transactions.md)**  
+  Build and sign transactions
+
 - **[Addresses](guides/addresses.md)**  
   Create and validate Kaspa addresses
 
@@ -53,14 +59,8 @@ if __name__ == "__main__":
 - **[Key Derivation](guides/key-derivation.md)**  
   HD wallet key generation
 
-- **[Transactions](guides/transactions.md)**  
-  Build and sign transactions
-
 - **[Message Signing](guides/message-signing.md)**  
   Sign and verify messages
-
-- **[RPC Client](guides/rpc-client.md)**  
-  Connect to Kaspa nodes
 
 </div>
 

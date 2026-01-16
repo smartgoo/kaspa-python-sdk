@@ -5,7 +5,7 @@ This guide covers building, signing, and broadcasting transactions with the Kasp
 !!! danger "Security Warning"
     **Handle Private Keys Securely**
 
-    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted here for brevity.
+    **These examples do not use proper private key/mnemonic/seed handling.** This is omitted for brevity.
 
     Never store your private keys in plain text, or directly in source code. Store securely offline. Anyone with access to this phrase has full control over your funds.
 

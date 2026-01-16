@@ -15,10 +15,10 @@ echo "Activating virtual environment '$VENV_DIR'"
 source $VENV_DIR/bin/activate
 
 if ! command -v maturin &> /dev/null; then
-    echo "Maturin not found in '$VENV_DIR', installing Maturin"
+    echo "Maturin not found in '$VENV_DIR', installing..."
     pip install maturin
 else
-    echo "Maturin is already installed in '$VENV_DIR'"
+    echo "Maturin is already installed (in '$VENV_DIR'). Installed version is:"
     maturin --version
 fi
 

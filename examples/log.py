@@ -6,6 +6,7 @@ FORMAT = '%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(messag
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
 
+
 async def main():
     client = kaspa.RpcClient(resolver=kaspa.Resolver())
     await client.connect()

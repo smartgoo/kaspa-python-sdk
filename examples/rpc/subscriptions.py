@@ -5,7 +5,7 @@ from kaspa import RpcClient, Resolver
 
 def subscription_callback(event, name, **kwargs):
     # print(event['nonexistent key'])
-    
+
     # try:
     #     print(event['nonexistent key'])
     # except KeyError:
@@ -13,8 +13,10 @@ def subscription_callback(event, name, **kwargs):
 
     print(f"{name} | {event}")
 
+
 def block_added_handler(event):
     print(f"block_added_handler: {event}")
+
 
 async def rpc_subscriptions(client: RpcClient):
     # client.add_event_listener("all", subscription_callback, callback_id=1, kwarg1="Im a kwarg!!")
@@ -38,9 +40,10 @@ async def rpc_subscriptions(client: RpcClient):
     await client.unsubscribe_block_added()
     await client.unsubscribe_new_block_template()
 
+
 async def main():
     client = RpcClient(resolver=Resolver(), network_id="mainnet")
-    
+
     await client.connect()
     print(f"Client is connected: {client.is_connected}")
 

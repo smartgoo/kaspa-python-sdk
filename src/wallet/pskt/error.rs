@@ -1,5 +1,4 @@
 use kaspa_wallet_pskt::wasm::error::Error as NativeError;
-use pyo3::PyErrArguments;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;

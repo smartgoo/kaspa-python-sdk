@@ -56,7 +56,9 @@ crate::create_py_exception!(
     PyPsktError, "PsktError"
 );
 
-// Rust error internal custom Python exception over Rust/Python interface
+// Internal error type
+// Wraps natively defined WASM Error
+// Returns corresponding custom Python exception to python
 pub struct Error(NativeError);
 
 impl From<Error> for PyErr {

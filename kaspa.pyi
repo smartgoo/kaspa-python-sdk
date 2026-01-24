@@ -763,6 +763,57 @@ class Outputs:
     ...
 
 @typing.final
+class PSKT:
+    r"""
+    Partially Signed Kaspa Transaction
+    """
+    @property
+    def role(self) -> builtins.str: ...
+    @property
+    def payload(self) -> builtins.str: ...
+    def __new__(cls, payload: typing.Any) -> PSKT: ...
+    def serialize(self) -> builtins.str: ...
+    def creator(self) -> PSKT:
+        r"""
+        Change role to `CREATOR`
+        """
+    def to_constructor(self) -> PSKT:
+        r"""
+        Change role to `CONSTRUCTOR`
+        """
+    def to_updater(self) -> PSKT:
+        r"""
+        Change role to `UPDATER`
+        """
+    def to_signer(self) -> PSKT:
+        r"""
+        Change role to `SIGNER`
+        """
+    def to_combiner(self) -> PSKT:
+        r"""
+        Change role to `COMBINER`
+        """
+    def to_finalizer(self) -> PSKT:
+        r"""
+        Change role to `FINALIZER`
+        """
+    def to_extractor(self) -> PSKT:
+        r"""
+        Change role to `EXTRACTOR`
+        """
+    def fallback_lock_time(self, lock_time: builtins.int) -> PSKT: ...
+    def inputs_modifiable(self) -> PSKT: ...
+    def outputs_modifiable(self) -> PSKT: ...
+    def no_more_inputs(self) -> PSKT: ...
+    def no_more_outputs(self) -> PSKT: ...
+    def input_and_redeem_script(self, input: TransactionInput, data: builtins.str) -> PSKT: ...
+    def input(self, input: TransactionInput) -> PSKT: ...
+    def output(self, output: TransactionOutput) -> PSKT: ...
+    def set_sequence(self, n: builtins.int, input_index: builtins.int) -> PSKT: ...
+    def calculate_id(self) -> Hash: ...
+    def calculate_mass(self, data: NetworkId) -> builtins.int: ...
+
+@typing.final
 class PaymentOutput:
     r"""
     A payment destination with address and amount.
@@ -2447,6 +2498,21 @@ class UtxoContext:
 @typing.final
 class UtxoEntries:
     r"""
+    UTXO entries collection for flexible input handling.
+    
+    This type is not intended to be instantiated directly from Python.
+    It serves as a helper type that allows Rust functions to accept a list
+    of UTXO entries in multiple convenient forms.
+    
+    Accepts:
+        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
+        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
+    """
+    ...
+
+@typing.final
+class UtxoEntries:
+    r"""
     A collection of UTXO entry references.
     
     Provides methods for managing and querying multiple UTXOs.
@@ -2487,21 +2553,6 @@ class UtxoEntries:
             dict: the UtxoEntries in dictionary form.
         """
     def __eq__(self, other: UtxoEntries) -> builtins.bool: ...
-
-@typing.final
-class UtxoEntries:
-    r"""
-    UTXO entries collection for flexible input handling.
-    
-    This type is not intended to be instantiated directly from Python.
-    It serves as a helper type that allows Rust functions to accept a list
-    of UTXO entries in multiple convenient forms.
-    
-    Accepts:
-        list[UtxoEntryReference]: A list of UtxoEntryReference objects.
-        list[dict]: A list of dicts with UtxoEntryReference-compatible keys.
-    """
-    ...
 
 @typing.final
 class UtxoEntry:

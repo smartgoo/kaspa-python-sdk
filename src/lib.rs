@@ -12,7 +12,7 @@ use pyo3_stub_gen::define_stub_info_gatherer;
 define_stub_info_gatherer!(stub_info);
 
 #[pymodule]
-fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn kaspa(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3_log::init();
 
     m.add_class::<address::PyAddress>()?;
@@ -156,6 +156,46 @@ fn kaspa(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<wallet::keys::publickey::PyXOnlyPublicKey>()?;
     m.add_class::<wallet::keys::xprv::PyXPrv>()?;
     m.add_class::<wallet::keys::xpub::PyXPub>()?;
+
+    m.add(
+        "PsktCustomError",
+        py.get_type::<wallet::pskt::error::PsktCustomError>(),
+    )?;
+    m.add(
+        "PsktStateError",
+        py.get_type::<wallet::pskt::error::PsktStateError>(),
+    )?;
+    m.add(
+        "PsktExpectedStateError",
+        py.get_type::<wallet::pskt::error::PsktExpectedStateError>(),
+    )?;
+    m.add(
+        "PsktCtorError",
+        py.get_type::<wallet::pskt::error::PsktCtorError>(),
+    )?;
+    m.add(
+        "PsktInvalidPayloadError",
+        py.get_type::<wallet::pskt::error::PsktInvalidPayloadError>(),
+    )?;
+    m.add(
+        "PsktTxNotFinalizedError",
+        py.get_type::<wallet::pskt::error::PsktTxNotFinalizedError>(),
+    )?;
+    m.add(
+        "PsktCreateNotAllowedError",
+        py.get_type::<wallet::pskt::error::PsktCreateNotAllowedError>(),
+    )?;
+    m.add(
+        "PsktNotInitializedError",
+        py.get_type::<wallet::pskt::error::PsktNotInitializedError>(),
+    )?;
+    m.add(
+        "PsktConsensusClientError",
+        py.get_type::<wallet::pskt::error::PsktConsensusClientError>(),
+    )?;
+    m.add("PsktError", py.get_type::<wallet::pskt::error::PsktError>())?;
+
+    m.add_class::<wallet::pskt::PyPSKT>()?;
 
     Ok(())
 }

@@ -1,7 +1,15 @@
 pub mod error;
 
+use crate::consensus::client::input::PyTransactionInput;
+use crate::consensus::client::output::PyTransactionOutput;
 use crate::consensus::client::transaction::PyTransaction;
-use kaspa_consensus_client::Transaction;
+use crate::consensus::core::network::PyNetworkId;
+use crate::consensus::core::tx::TransactionId;
+use error::PyPsktError;
+use kaspa_consensus_client::{Transaction, TransactionInput, TransactionOutput};
+use kaspa_consensus_core::network::NetworkType;
+use kaspa_wallet_pskt::pskt::Input;
+use kaspa_wallet_pskt::wasm::error::Error;
 use kaspa_wallet_pskt::{
     pskt::{Inner, PSKT},
     role::*,
@@ -9,7 +17,7 @@ use kaspa_wallet_pskt::{
 };
 use pyo3::{exceptions::PyException, prelude::*};
 use pyo3_stub_gen::derive::*;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 /// Partially Signed Kaspa Transaction
 #[gen_stub_pyclass]
@@ -17,6 +25,21 @@ use std::sync::{Arc, Mutex};
 #[derive(Clone)]
 pub struct PyPSKT {
     state: Arc<Mutex<Option<State>>>,
+}
+
+impl PyPSKT {
+    fn take(&self) -> State {
+        self.state.lock().unwrap().take().unwrap()
+    }
+
+    fn replace(&self, state: State) -> PyResult<PyPSKT> {
+        self.state.lock().unwrap().replace(state);
+        Ok(self.clone())
+    }
+
+    fn state(&self) -> MutexGuard<'_, Option<State>> {
+        self.state.lock().unwrap()
+    }
 }
 
 #[gen_stub_pymethods]
@@ -49,9 +72,11 @@ impl PyPSKT {
     }
 
     #[getter]
-    pub fn get_payload(&self) -> JsValue {
+    pub fn get_payload(&self) -> PyResult<String> {
         let state = self.state();
-        workflow_wasm::serde::to_value(state.as_ref().unwrap()).unwrap()
+        serde_json::to_string(state.as_ref().unwrap())
+            .map_err(|err| PyException::new_err(err.to_string()))
+        // workflow_wasm::serde::to_value(state.as_ref().unwrap()).unwrap()
     }
 
     pub fn serialize(&self) -> String {
@@ -59,27 +84,14 @@ impl PyPSKT {
         serde_json::to_string(state.as_ref().unwrap()).unwrap()
     }
 
-    fn state(&self) -> MutexGuard<'_, Option<State>> {
-        self.state.lock().unwrap()
-    }
-
-    fn take(&self) -> State {
-        self.state.lock().unwrap().take().unwrap()
-    }
-
-    fn replace(&self, state: State) -> PyResult<PyPSKT> {
-        self.state.lock().unwrap().replace(state);
-        Ok(self.clone())
-    }
-
     /// Change role to `CREATOR`
     pub fn creator(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::NoOp(inner) => match inner {
                 None => State::Creator(PSKT::default()),
-                Some(_) => Err(Error::CreateNotAllowed)?,
+                Some(_) => Err(PyPsktError(Error::CreateNotAllowed))?,
             },
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -88,9 +100,11 @@ impl PyPSKT {
     /// Change role to `CONSTRUCTOR`
     pub fn to_constructor(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Constructor(inner.ok_or(Error::NotInitialized)?.into()),
+            State::NoOp(inner) => {
+                State::Constructor(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
             State::Creator(pskt) => State::Constructor(pskt.constructor()),
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -99,9 +113,11 @@ impl PyPSKT {
     /// Change role to `UPDATER`
     pub fn to_updater(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Updater(inner.ok_or(Error::NotInitialized)?.into()),
+            State::NoOp(inner) => {
+                State::Updater(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
             State::Constructor(constructor) => State::Updater(constructor.updater()),
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -110,11 +126,13 @@ impl PyPSKT {
     /// Change role to `SIGNER`
     pub fn to_signer(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Signer(inner.ok_or(Error::NotInitialized)?.into()),
+            State::NoOp(inner) => {
+                State::Signer(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
             State::Constructor(pskt) => State::Signer(pskt.signer()),
             State::Updater(pskt) => State::Signer(pskt.signer()),
             State::Combiner(pskt) => State::Signer(pskt.signer()),
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -123,11 +141,13 @@ impl PyPSKT {
     /// Change role to `COMBINER`
     pub fn to_combiner(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Combiner(inner.ok_or(Error::NotInitialized)?.into()),
+            State::NoOp(inner) => {
+                State::Combiner(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
             State::Constructor(pskt) => State::Combiner(pskt.combiner()),
             State::Updater(pskt) => State::Combiner(pskt.combiner()),
             State::Signer(pskt) => State::Combiner(pskt.combiner()),
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -136,9 +156,11 @@ impl PyPSKT {
     /// Change role to `FINALIZER`
     pub fn to_finalizer(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Finalizer(inner.ok_or(Error::NotInitialized)?.into()),
+            State::NoOp(inner) => {
+                State::Finalizer(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
             State::Combiner(pskt) => State::Finalizer(pskt.finalizer()),
-            state => Err(Error::state(state))?,
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -147,9 +169,13 @@ impl PyPSKT {
     /// Change role to `EXTRACTOR`
     pub fn to_extractor(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Extractor(inner.ok_or(Error::NotInitialized)?.into()),
-            State::Finalizer(pskt) => State::Extractor(pskt.extractor()?),
-            state => Err(Error::state(state))?,
+            State::NoOp(inner) => {
+                State::Extractor(inner.ok_or(PyPsktError(Error::NotInitialized))?.into())
+            }
+            State::Finalizer(pskt) => {
+                State::Extractor(pskt.extractor().map_err(Error::from).map_err(PyPsktError)?)
+            }
+            state => Err(PyPsktError(Error::state(state)))?,
         };
 
         self.replace(state)
@@ -158,7 +184,7 @@ impl PyPSKT {
     pub fn fallback_lock_time(&self, lock_time: u64) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.fallback_lock_time(lock_time)),
-            _ => Err(Error::expected_state("Creator"))?,
+            _ => Err(PyPsktError(Error::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -167,7 +193,7 @@ impl PyPSKT {
     pub fn inputs_modifiable(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.inputs_modifiable()),
-            _ => Err(Error::expected_state("Creator"))?,
+            _ => Err(PyPsktError(Error::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -176,7 +202,7 @@ impl PyPSKT {
     pub fn outputs_modifiable(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.outputs_modifiable()),
-            _ => Err(Error::expected_state("Creator"))?,
+            _ => Err(PyPsktError(Error::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -185,7 +211,7 @@ impl PyPSKT {
     pub fn no_more_inputs(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.no_more_inputs()),
-            _ => Err(Error::expected_state("Constructor"))?,
+            _ => Err(PyPsktError(Error::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -194,46 +220,66 @@ impl PyPSKT {
     pub fn no_more_outputs(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.no_more_outputs()),
-            _ => Err(Error::expected_state("Constructor"))?,
+            _ => Err(PyPsktError(Error::expected_state("Constructor")))?,
         };
 
         self.replace(state)
     }
 
-    pub fn input_and_redeem_scrtip(&self, input: &TransactionInputT, data: &JsValue) -> PyResult<PyPSKT> {
-        let obj = js_sys::Object::from(data.clone());
-
-        let input = TransactionInput::try_owned_from(input)?;
-        let mut input: Input = input.try_into()?;
-        let redeem_script = js_sys::Reflect::get(&obj, &"redeemScript".into())
-            .expect("Missing redeemscript field")
-            .as_string()
-            .expect("redeemscript must be a string");
-        input.redeem_script =
-            Some(hex::decode(redeem_script).map_err(|e| Error::custom(format!("Redeem script is not a hex string: {}", e)))?);
+    pub fn input_and_redeem_script(
+        &self,
+        input: PyTransactionInput,
+        data: String,
+    ) -> PyResult<PyPSKT> {
+        let input = TransactionInput::from(input);
+        let mut input: Input = input
+            .try_into()
+            .map_err(|err| PyPsktError(Error::from(err)))?;
+        // let redeem_script = js_sys::Reflect::get(&obj, &"redeemScript".into())
+        //     .expect("Missing redeemscript field")
+        //     .as_string()
+        //     .expect("redeemscript must be a string");
+        input.redeem_script = Some(hex::decode(data).map_err(|e| {
+            PyPsktError(Error::custom(format!(
+                "Redeem script is not a hex string: {}",
+                e
+            )))
+        })?);
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.input(input)),
-            _ => Err(Error::expected_state("Constructor"))?,
+            _ => Err(PyPsktError(Error::expected_state("Constructor")))?,
         };
 
         self.replace(state)
     }
 
-    pub fn input(&self, input: &TransactionInputT) -> PyResult<PyPSKT> {
-        let input = TransactionInput::try_owned_from(input)?;
+    pub fn input(&self, input: PyTransactionInput) -> PyResult<PyPSKT> {
+        let input = TransactionInput::from(input);
         let state = match self.take() {
-            State::Constructor(pskt) => State::Constructor(pskt.input(input.try_into()?)),
-            _ => Err(Error::expected_state("Constructor"))?,
+            State::Constructor(pskt) => State::Constructor(
+                pskt.input(
+                    input
+                        .try_into()
+                        .map_err(|err| PyPsktError(Error::from(err)))?,
+                ),
+            ),
+            _ => Err(PyPsktError(Error::expected_state("Constructor")))?,
         };
 
         self.replace(state)
     }
 
-    pub fn output(&self, output: &TransactionOutputT) -> PyResult<PyPSKT> {
-        let output = TransactionOutput::try_owned_from(output)?;
+    pub fn output(&self, output: PyTransactionOutput) -> PyResult<PyPSKT> {
+        let output = TransactionOutput::from(output);
         let state = match self.take() {
-            State::Constructor(pskt) => State::Constructor(pskt.output(output.try_into()?)),
-            _ => Err(Error::expected_state("Constructor"))?,
+            State::Constructor(pskt) => State::Constructor(
+                pskt.output(
+                    output
+                        .try_into()
+                        .map_err(|err| PyPsktError(Error::from(err)))?,
+                ),
+            ),
+            _ => Err(PyPsktError(Error::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -241,36 +287,39 @@ impl PyPSKT {
 
     pub fn set_sequence(&self, n: u64, input_index: usize) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::Updater(pskt) => State::Updater(pskt.set_sequence(n, input_index)?),
-            _ => Err(Error::expected_state("Updater"))?,
+            State::Updater(pskt) => State::Updater(
+                pskt.set_sequence(n, input_index)
+                    .map_err(|err| PyPsktError(Error::from(err)))?,
+            ),
+            _ => Err(PyPsktError(Error::expected_state("Updater")))?,
         };
 
         self.replace(state)
     }
 
-    #[wasm_bindgen(js_name = calculateId)]
-    pub fn calculate_id(&self) -> Result<TransactionId> {
+    pub fn calculate_id(&self) -> PyResult<TransactionId> {
         let state = self.state();
         match state.as_ref().unwrap() {
-            State::Signer(pskt) => Ok(pskt.calculate_id()),
-            _ => Err(Error::expected_state("Signer"))?,
+            State::Signer(pskt) => Ok(pskt.calculate_id().into()),
+            _ => Err(PyPsktError(Error::expected_state("Signer")))?,
         }
     }
 
-    #[wasm_bindgen(js_name = calculateMass)]
-    pub fn calculate_mass(&self, data: &JsValue) -> Result<u64> {
-        let obj = js_sys::Object::from(data.clone());
-        let network_id = js_sys::Reflect::get(&obj, &"networkId".into())
-            .map_err(|_| Error::custom("networkId is missing"))?
-            .as_string()
-            .ok_or_else(|| Error::custom("networkId must be a string"))?;
+    pub fn calculate_mass(&self, data: PyNetworkId) -> PyResult<u64> {
+        // let obj = js_sys::Object::from(data.clone());
+        // let network_id = js_sys::Reflect::get(&obj, &"networkId".into())
+        //     .map_err(|_| Error::custom("networkId is missing"))?
+        //     .as_string()
+        //     .ok_or_else(|| Error::custom("networkId must be a string"))?;
 
-        let network_id = NetworkType::from_str(&network_id).map_err(|e| Error::custom(format!("Invalid networkId: {}", e)))?;
+        // let network_id = NetworkType::from_str(&network_id)
+        //     .map_err(|e| Error::custom(format!("Invalid networkId: {}", e)))?;
+        let network_type = data.get_network_type();
 
         let cloned_pskt = self.clone();
 
         let extractor = {
-            let finalizer = cloned_pskt.finalizer()?;
+            let finalizer = cloned_pskt.to_finalizer()?;
 
             let finalizer_state = finalizer.state().clone().unwrap();
 
@@ -278,20 +327,30 @@ impl PyPSKT {
                 State::Finalizer(pskt) => {
                     for input in pskt.inputs.iter() {
                         if input.redeem_script.is_some() {
-                            return Err(Error::custom("Mass calculation is not supported for inputs with redeem scripts"));
+                            return Err(PyPsktError(Error::custom(
+                                "Mass calculation is not supported for inputs with redeem scripts",
+                            ))
+                            .into());
                         }
                     }
                     let pskt = pskt
-                        .finalize_sync(|inner: &Inner| -> Result<Vec<Vec<u8>>> { Ok(vec![vec![0u8, 65]; inner.inputs.len()]) })
-                        .map_err(|e| Error::custom(format!("Failed to finalize PSKT: {e}")))?;
-                    pskt.extractor()?
+                        .finalize_sync(|inner: &Inner| -> PyResult<Vec<Vec<u8>>> {
+                            Ok(vec![vec![0u8, 65]; inner.inputs.len()])
+                        })
+                        .map_err(|e| {
+                            PyPsktError(Error::custom(format!("Failed to finalize PSKT: {e}")))
+                        })?;
+                    pskt.extractor()
+                        .map_err(|err| PyPsktError(Error::TxNotFinalized(err)))?
                 }
                 _ => panic!("Finalizer state is not valid"),
             }
         };
         let tx = extractor
-            .extract_tx_unchecked(&network_id.into())
-            .map_err(|e| Error::custom(format!("Failed to extract transaction: {e}")))?;
+            .extract_tx_unchecked(&NetworkType::from(network_type).into())
+            .map_err(|e| {
+                PyPsktError(Error::custom(format!("Failed to extract transaction: {e}")))
+            })?;
         Ok(tx.tx.mass())
     }
 }

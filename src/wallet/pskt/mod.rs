@@ -49,7 +49,7 @@ impl PyPSKT {
     pub fn new(payload: Bound<'_, PyAny>) -> PyResult<Self> {
         let payload = if let Ok(p) = payload.extract::<String>() {
             let inner =
-                serde_json::from_str(&p).map_err(|err| PyException::new_err(err.to_string()))?;
+                serde_json::from_str(&p).map_err(|_| Error::from(NativeError::InvalidPayload))?;
             Ok(PyPSKT::from(State::NoOp(Some(inner))))
         } else if let Ok(py_tx) = payload.extract::<PyTransaction>() {
             let tx: Transaction = py_tx.into();
@@ -60,7 +60,7 @@ impl PyPSKT {
         } else if payload.is_none() {
             Ok(PyPSKT::from(State::Creator(PSKT::<Creator>::default())))
         } else {
-            Err(PyException::new_err("Invalid payload"))
+            Err(Error::from(NativeError::InvalidPayload))
         }?;
 
         Ok(payload)
@@ -249,10 +249,6 @@ impl PyPSKT {
         let mut input: Input = input
             .try_into()
             .map_err(|err| Error::from(NativeError::from(err)))?;
-        // let redeem_script = js_sys::Reflect::get(&obj, &"redeemScript".into())
-        //     .expect("Missing redeemscript field")
-        //     .as_string()
-        //     .expect("redeemscript must be a string");
         input.redeem_script = Some(hex::decode(data).map_err(|e| {
             Error::from(NativeError::custom(format!(
                 "Redeem script is not a hex string: {}",
@@ -320,14 +316,6 @@ impl PyPSKT {
     }
 
     pub fn calculate_mass(&self, data: PyNetworkId) -> PyResult<u64> {
-        // let obj = js_sys::Object::from(data.clone());
-        // let network_id = js_sys::Reflect::get(&obj, &"networkId".into())
-        //     .map_err(|_| Error::custom("networkId is missing"))?
-        //     .as_string()
-        //     .ok_or_else(|| Error::custom("networkId must be a string"))?;
-
-        // let network_id = NetworkType::from_str(&network_id)
-        //     .map_err(|e| Error::custom(format!("Invalid networkId: {}", e)))?;
         let network_type = data.get_network_type();
 
         let cloned_pskt = self.clone();

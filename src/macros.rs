@@ -61,3 +61,22 @@ macro_rules! wrap_unit_enum_for_py {
         // }
     };
 }
+
+#[macro_export]
+macro_rules! create_py_exception {
+    ($(#[$meta:meta])* $name:ident, $py_name:literal) => {
+        $(#[$meta])*
+        #[gen_stub_pyclass]
+        #[pyclass(name = $py_name, extends = PyException)]
+        pub struct $name;
+        
+        impl $name {
+            pub fn new_err<A>(args: A) -> PyErr
+            where
+                A: PyErrArguments + Send + Sync + 'static,
+            {
+                PyErr::new::<Self, A>(args)
+            }
+        }
+    };
+}

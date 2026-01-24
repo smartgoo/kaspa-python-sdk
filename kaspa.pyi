@@ -1113,10 +1113,6 @@ class PrivateKeyGenerator:
         """
 
 @typing.final
-class PsktCustomError(builtins.Exception):
-    ...
-
-@typing.final
 class PublicKey:
     r"""
     A public key for verifying signatures and deriving addresses.
@@ -1457,6 +1453,13 @@ class PublicKeyGenerator:
         Returns:
             str: The generator info string.
         """
+
+@typing.final
+class PyPsktCustomError(builtins.Exception):
+    r"""
+    Custom PSKT Error
+    """
+    ...
 
 @typing.final
 class Resolver:

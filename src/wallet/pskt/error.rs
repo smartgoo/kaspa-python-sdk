@@ -66,14 +66,16 @@ impl From<PsktError> for PyErr {
             Error::State(msg) => PyPsktStateError::new_err(msg),
             Error::ExpectedState(msg) => PyPsktExpectedStateError::new_err(msg),
             Error::Ctor(msg) => PyPsktCtorError::new_err(msg),
-            Error::InvalidPayload => PyPsktInvalidPayloadError::new_err("Invalid payload"),
+            Error::InvalidPayload => {
+                PyPsktInvalidPayloadError::new_err(Error::InvalidPayload.to_string())
+            }
             Error::TxNotFinalized(inner) => PyPsktTxNotFinalizedError::new_err(inner.to_string()),
-            Error::CreateNotAllowed => PyPsktCreateNotAllowedError::new_err(
-                "Create state is not allowed for PSKT initialized from transaction or a payload",
-            ),
-            Error::NotInitialized => PyPsktNotInitializedError::new_err(
-                "PSKT must be initialized with a payload or CREATE role",
-            ),
+            Error::CreateNotAllowed => {
+                PyPsktCreateNotAllowedError::new_err(Error::CreateNotAllowed.to_string())
+            }
+            Error::NotInitialized => {
+                PyPsktNotInitializedError::new_err(Error::NotInitialized.to_string())
+            }
             Error::ConsensusClient(inner) => PyPsktConsensusClientError::new_err(inner.to_string()),
             Error::Pskt(inner) => PyPsktError::new_err(inner.to_string()),
             _ => PyException::new_err("Unhandled error type"),

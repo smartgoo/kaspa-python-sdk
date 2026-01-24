@@ -2159,6 +2159,7 @@ dependencies = [
  "bincode",
  "faster-hex",
  "futures",
+ "hex",
  "kaspa-addresses",
  "kaspa-bip32",
  "kaspa-consensus-client",

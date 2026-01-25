@@ -9,8 +9,9 @@ use error::Error;
 use kaspa_consensus_client::{Transaction, TransactionInput, TransactionOutput};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_wallet_pskt::pskt::Input;
-use kaspa_wallet_pskt::wasm::error::Error as NativeError;
+use kaspa_wallet_pskt::wasm::error::Error as WasmError;
 use kaspa_wallet_pskt::{
+    error::Error as NativeError,
     pskt::{Inner, PSKT},
     role::*,
     wasm::pskt::State,
@@ -46,24 +47,28 @@ impl PyPSKT {
 #[pymethods]
 impl PyPSKT {
     #[new]
-    pub fn new(payload: Bound<'_, PyAny>) -> PyResult<Self> {
-        let payload = if let Ok(p) = payload.extract::<String>() {
-            let inner =
-                serde_json::from_str(&p).map_err(|_| Error::from(NativeError::InvalidPayload))?;
-            Ok(PyPSKT::from(State::NoOp(Some(inner))))
-        } else if let Ok(py_tx) = payload.extract::<PyTransaction>() {
-            let tx: Transaction = py_tx.into();
-            let inner: Inner = tx
-                .try_into()
-                .map_err(|_| PyException::new_err("Transaction to Inner failed"))?;
-            Ok(PyPSKT::from(State::NoOp(Some(inner))))
-        } else if payload.is_none() {
-            Ok(PyPSKT::from(State::Creator(PSKT::<Creator>::default())))
-        } else {
-            Err(Error::from(NativeError::InvalidPayload))
-        }?;
+    #[pyo3(signature = (payload=None))]
+    pub fn new(payload: Option<Bound<'_, PyAny>>) -> PyResult<Self> {
+        let pskt = match payload {
+            None => PyPSKT::from(State::Creator(PSKT::<Creator>::default())),
+            Some(p) => {
+                if let Ok(s) = p.extract::<String>() {
+                    let inner = serde_json::from_str(&s)
+                        .map_err(|_| Error::from(WasmError::InvalidPayload))?;
+                    PyPSKT::from(State::NoOp(Some(inner)))
+                } else if let Ok(py_tx) = p.extract::<PyTransaction>() {
+                    let tx: Transaction = py_tx.into();
+                    let inner: Inner = tx
+                        .try_into()
+                        .map_err(|err: NativeError| PyException::new_err(err.to_string()))?;
+                    PyPSKT::from(State::NoOp(Some(inner)))
+                } else {
+                    return Err(Error::from(WasmError::InvalidPayload).into());
+                }
+            }
+        };
 
-        Ok(payload)
+        Ok(pskt)
     }
 
     #[getter]
@@ -89,9 +94,9 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => match inner {
                 None => State::Creator(PSKT::default()),
-                Some(_) => Err(Error::from(NativeError::CreateNotAllowed))?,
+                Some(_) => Err(Error::from(WasmError::CreateNotAllowed))?,
             },
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -102,11 +107,11 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Constructor(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Creator(pskt) => State::Constructor(pskt.constructor()),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -117,11 +122,11 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Updater(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Constructor(constructor) => State::Updater(constructor.updater()),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -132,13 +137,13 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Signer(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Constructor(pskt) => State::Signer(pskt.signer()),
             State::Updater(pskt) => State::Signer(pskt.signer()),
             State::Combiner(pskt) => State::Signer(pskt.signer()),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -149,13 +154,13 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Combiner(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Constructor(pskt) => State::Combiner(pskt.combiner()),
             State::Updater(pskt) => State::Combiner(pskt.combiner()),
             State::Signer(pskt) => State::Combiner(pskt.combiner()),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -166,11 +171,11 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Finalizer(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Combiner(pskt) => State::Finalizer(pskt.finalizer()),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -181,15 +186,15 @@ impl PyPSKT {
         let state = match self.take() {
             State::NoOp(inner) => State::Extractor(
                 inner
-                    .ok_or(Error::from(NativeError::NotInitialized))?
+                    .ok_or(Error::from(WasmError::NotInitialized))?
                     .into(),
             ),
             State::Finalizer(pskt) => State::Extractor(
                 pskt.extractor()
-                    .map_err(NativeError::from)
+                    .map_err(WasmError::from)
                     .map_err(Error::from)?,
             ),
-            state => Err(Error::from(NativeError::state(state)))?,
+            state => Err(Error::from(WasmError::state(state)))?,
         };
 
         self.replace(state)
@@ -198,7 +203,7 @@ impl PyPSKT {
     pub fn fallback_lock_time(&self, lock_time: u64) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.fallback_lock_time(lock_time)),
-            _ => Err(Error::from(NativeError::expected_state("Creator")))?,
+            _ => Err(Error::from(WasmError::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -207,7 +212,7 @@ impl PyPSKT {
     pub fn inputs_modifiable(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.inputs_modifiable()),
-            _ => Err(Error::from(NativeError::expected_state("Creator")))?,
+            _ => Err(Error::from(WasmError::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -216,7 +221,7 @@ impl PyPSKT {
     pub fn outputs_modifiable(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Creator(pskt) => State::Creator(pskt.outputs_modifiable()),
-            _ => Err(Error::from(NativeError::expected_state("Creator")))?,
+            _ => Err(Error::from(WasmError::expected_state("Creator")))?,
         };
 
         self.replace(state)
@@ -225,7 +230,7 @@ impl PyPSKT {
     pub fn no_more_inputs(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.no_more_inputs()),
-            _ => Err(Error::from(NativeError::expected_state("Constructor")))?,
+            _ => Err(Error::from(WasmError::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -234,7 +239,7 @@ impl PyPSKT {
     pub fn no_more_outputs(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.no_more_outputs()),
-            _ => Err(Error::from(NativeError::expected_state("Constructor")))?,
+            _ => Err(Error::from(WasmError::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -248,16 +253,16 @@ impl PyPSKT {
         let input = TransactionInput::from(input);
         let mut input: Input = input
             .try_into()
-            .map_err(|err| Error::from(NativeError::from(err)))?;
+            .map_err(|err| Error::from(WasmError::from(err)))?;
         input.redeem_script = Some(hex::decode(data).map_err(|e| {
-            Error::from(NativeError::custom(format!(
+            Error::from(WasmError::custom(format!(
                 "Redeem script is not a hex string: {}",
                 e
             )))
         })?);
         let state = match self.take() {
             State::Constructor(pskt) => State::Constructor(pskt.input(input)),
-            _ => Err(Error::from(NativeError::expected_state("Constructor")))?,
+            _ => Err(Error::from(WasmError::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -270,10 +275,10 @@ impl PyPSKT {
                 pskt.input(
                     input
                         .try_into()
-                        .map_err(|err| Error::from(NativeError::from(err)))?,
+                        .map_err(|err| Error::from(WasmError::from(err)))?,
                 ),
             ),
-            _ => Err(Error::from(NativeError::expected_state("Constructor")))?,
+            _ => Err(Error::from(WasmError::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -286,10 +291,10 @@ impl PyPSKT {
                 pskt.output(
                     output
                         .try_into()
-                        .map_err(|err| Error::from(NativeError::from(err)))?,
+                        .map_err(|err| Error::from(WasmError::from(err)))?,
                 ),
             ),
-            _ => Err(Error::from(NativeError::expected_state("Constructor")))?,
+            _ => Err(Error::from(WasmError::expected_state("Constructor")))?,
         };
 
         self.replace(state)
@@ -299,9 +304,9 @@ impl PyPSKT {
         let state = match self.take() {
             State::Updater(pskt) => State::Updater(
                 pskt.set_sequence(n, input_index)
-                    .map_err(|err| Error::from(NativeError::from(err)))?,
+                    .map_err(|err| Error::from(WasmError::from(err)))?,
             ),
-            _ => Err(Error::from(NativeError::expected_state("Updater")))?,
+            _ => Err(Error::from(WasmError::expected_state("Updater")))?,
         };
 
         self.replace(state)
@@ -311,7 +316,7 @@ impl PyPSKT {
         let state = self.state();
         match state.as_ref().unwrap() {
             State::Signer(pskt) => Ok(pskt.calculate_id().into()),
-            _ => Err(Error::from(NativeError::expected_state("Signer")))?,
+            _ => Err(Error::from(WasmError::expected_state("Signer")))?,
         }
     }
 
@@ -329,7 +334,7 @@ impl PyPSKT {
                 State::Finalizer(pskt) => {
                     for input in pskt.inputs.iter() {
                         if input.redeem_script.is_some() {
-                            return Err(Error::from(NativeError::custom(
+                            return Err(Error::from(WasmError::custom(
                                 "Mass calculation is not supported for inputs with redeem scripts",
                             ))
                             .into());
@@ -340,12 +345,12 @@ impl PyPSKT {
                             Ok(vec![vec![0u8, 65]; inner.inputs.len()])
                         })
                         .map_err(|e| {
-                            Error::from(NativeError::custom(format!(
+                            Error::from(WasmError::custom(format!(
                                 "Failed to finalize PSKT: {e}"
                             )))
                         })?;
                     pskt.extractor()
-                        .map_err(|err| Error::from(NativeError::TxNotFinalized(err)))?
+                        .map_err(|err| Error::from(WasmError::TxNotFinalized(err)))?
                 }
                 _ => panic!("Finalizer state is not valid"),
             }
@@ -353,7 +358,7 @@ impl PyPSKT {
         let tx = extractor
             .extract_tx_unchecked(&NetworkType::from(network_type).into())
             .map_err(|e| {
-                Error::from(NativeError::custom(format!(
+                Error::from(WasmError::custom(format!(
                     "Failed to extract transaction: {e}"
                 )))
             })?;

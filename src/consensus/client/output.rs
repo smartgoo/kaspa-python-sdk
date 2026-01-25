@@ -75,7 +75,7 @@ impl PyTransactionOutput {
     /// Returns:
     ///     dict: the TransactionOutput in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
+        let dict = serde_pyobject::to_pyobject(py, &self.0.inner().clone())?;
         Ok(dict.cast_into()?)
     }
 

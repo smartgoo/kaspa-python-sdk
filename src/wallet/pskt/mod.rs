@@ -105,11 +105,9 @@ impl PyPSKT {
     /// Change role to `CONSTRUCTOR`
     pub fn to_constructor(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Constructor(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Constructor(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Creator(pskt) => State::Constructor(pskt.constructor()),
             state => Err(Error::from(WasmError::state(state)))?,
         };
@@ -120,11 +118,9 @@ impl PyPSKT {
     /// Change role to `UPDATER`
     pub fn to_updater(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Updater(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Updater(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Constructor(constructor) => State::Updater(constructor.updater()),
             state => Err(Error::from(WasmError::state(state)))?,
         };
@@ -135,11 +131,9 @@ impl PyPSKT {
     /// Change role to `SIGNER`
     pub fn to_signer(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Signer(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Signer(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Constructor(pskt) => State::Signer(pskt.signer()),
             State::Updater(pskt) => State::Signer(pskt.signer()),
             State::Combiner(pskt) => State::Signer(pskt.signer()),
@@ -152,11 +146,9 @@ impl PyPSKT {
     /// Change role to `COMBINER`
     pub fn to_combiner(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Combiner(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Combiner(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Constructor(pskt) => State::Combiner(pskt.combiner()),
             State::Updater(pskt) => State::Combiner(pskt.combiner()),
             State::Signer(pskt) => State::Combiner(pskt.combiner()),
@@ -169,11 +161,9 @@ impl PyPSKT {
     /// Change role to `FINALIZER`
     pub fn to_finalizer(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Finalizer(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Finalizer(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Combiner(pskt) => State::Finalizer(pskt.finalizer()),
             state => Err(Error::from(WasmError::state(state)))?,
         };
@@ -184,11 +174,9 @@ impl PyPSKT {
     /// Change role to `EXTRACTOR`
     pub fn to_extractor(&self) -> PyResult<PyPSKT> {
         let state = match self.take() {
-            State::NoOp(inner) => State::Extractor(
-                inner
-                    .ok_or(Error::from(WasmError::NotInitialized))?
-                    .into(),
-            ),
+            State::NoOp(inner) => {
+                State::Extractor(inner.ok_or(Error::from(WasmError::NotInitialized))?.into())
+            }
             State::Finalizer(pskt) => State::Extractor(
                 pskt.extractor()
                     .map_err(WasmError::from)
@@ -345,9 +333,7 @@ impl PyPSKT {
                             Ok(vec![vec![0u8, 65]; inner.inputs.len()])
                         })
                         .map_err(|e| {
-                            Error::from(WasmError::custom(format!(
-                                "Failed to finalize PSKT: {e}"
-                            )))
+                            Error::from(WasmError::custom(format!("Failed to finalize PSKT: {e}")))
                         })?;
                     pskt.extractor()
                         .map_err(|err| Error::from(WasmError::TxNotFinalized(err)))?

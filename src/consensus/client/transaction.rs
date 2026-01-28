@@ -1,20 +1,23 @@
 use crate::address::PyAddress;
 use crate::consensus::client::input::PyTransactionInput;
 use crate::consensus::client::output::PyTransactionOutput;
+use crate::consensus::convert::TryToPyDict;
 use crate::consensus::core::network::PyNetworkType;
 use crate::crypto::hashes::PyHash;
 use crate::types::PyBinary;
-use kaspa_consensus_client::{Transaction, TransactionInner, TransactionInput, TransactionOutput};
+use kaspa_consensus_client::{Transaction, TransactionInput, TransactionOutput};
 use kaspa_consensus_core::network::NetworkType;
 use kaspa_consensus_core::subnets;
 use kaspa_consensus_core::subnets::SubnetworkId;
 use kaspa_consensus_core::tx as cctx;
 use kaspa_txscript::extract_script_pub_key_address;
+use kaspa_utils::hex::FromHex;
+use pyo3::exceptions::PyKeyError;
 use pyo3::prelude::*;
-use pyo3::types::PyType;
+use pyo3::types::{PyList, PyType};
 use pyo3::{exceptions::PyException, types::PyDict};
 use pyo3_stub_gen::derive::*;
-use workflow_core::hex::{FromHex, ToHex};
+use workflow_core::hex::ToHex;
 
 /// A Kaspa transaction.
 ///
@@ -316,8 +319,7 @@ impl PyTransaction {
     /// Returns:
     ///     dict: the Transaction in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.inner().clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a Transaction from a dictionary.
@@ -367,17 +369,96 @@ impl From<&PyTransaction> for cctx::Transaction {
 impl TryFrom<&Bound<'_, PyDict>> for PyTransaction {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let inner: TransactionInner = serde_pyobject::from_pyobject(dict.clone())?;
+        // Parse id
+        let id_str: String = dict
+            .get_item("id")?
+            .ok_or_else(|| PyKeyError::new_err("Key `id` not present"))?
+            .extract()?;
+        let id = kaspa_hashes::Hash::from_hex(&id_str)
+            .map_err(|e| PyException::new_err(format!("Invalid id: {}", e)))?;
+
+        // Parse version
+        let version: u16 = dict
+            .get_item("version")?
+            .ok_or_else(|| PyKeyError::new_err("Key `version` not present"))?
+            .extract()?;
+
+        // Parse lockTime
+        let lock_time: u64 = dict
+            .get_item("lockTime")?
+            .ok_or_else(|| PyKeyError::new_err("Key `lockTime` not present"))?
+            .extract()?;
+
+        // Parse subnetworkId
+        let subnetwork_id_str: String = dict
+            .get_item("subnetworkId")?
+            .ok_or_else(|| PyKeyError::new_err("Key `subnetworkId` not present"))?
+            .extract()?;
+        let subnetwork_id: SubnetworkId = Vec::from_hex(&subnetwork_id_str)
+            .map_err(|err| PyException::new_err(err.to_string()))?
+            .as_slice()
+            .try_into()
+            .map_err(|err| {
+                PyException::new_err(format!("subnetwork_id conversion error: {}", err))
+            })?;
+
+        // Parse gas
+        let gas: u64 = dict
+            .get_item("gas")?
+            .ok_or_else(|| PyKeyError::new_err("Key `gas` not present"))?
+            .extract()?;
+
+        // Parse payload
+        let payload_str: String = dict
+            .get_item("payload")?
+            .ok_or_else(|| PyKeyError::new_err("Key `payload` not present"))?
+            .extract()?;
+        let payload: Vec<u8> = if payload_str.is_empty() {
+            Vec::new()
+        } else {
+            Vec::from_hex(&payload_str).map_err(|err| PyException::new_err(err.to_string()))?
+        };
+
+        // Parse mass
+        let mass: u64 = dict
+            .get_item("mass")?
+            .ok_or_else(|| PyKeyError::new_err("Key `mass` not present"))?
+            .extract()?;
+
+        // Parse inputs
+        let inputs_list = dict
+            .get_item("inputs")?
+            .ok_or_else(|| PyKeyError::new_err("Key `inputs` not present"))?;
+        let inputs_list = inputs_list.cast::<PyList>()?;
+        let mut inputs: Vec<TransactionInput> = Vec::new();
+        for input_item in inputs_list.iter() {
+            let input_dict = input_item.cast::<PyDict>()?;
+            let py_input = PyTransactionInput::try_from(input_dict)?;
+            inputs.push(py_input.into());
+        }
+
+        // Parse outputs
+        let outputs_list = dict
+            .get_item("outputs")?
+            .ok_or_else(|| PyKeyError::new_err("Key `outputs` not present"))?;
+        let outputs_list = outputs_list.cast::<PyList>()?;
+        let mut outputs: Vec<TransactionOutput> = Vec::new();
+        for output_item in outputs_list.iter() {
+            let output_dict = output_item.cast::<PyDict>()?;
+            let py_output = PyTransactionOutput::try_from(output_dict)?;
+            outputs.push(py_output.into());
+        }
+
         let tx = Transaction::new(
-            Some(inner.id),
-            inner.version,
-            inner.inputs,
-            inner.outputs,
-            inner.lock_time,
-            inner.subnetwork_id,
-            inner.gas,
-            inner.payload,
-            inner.mass,
+            Some(id),
+            version,
+            inputs,
+            outputs,
+            lock_time,
+            subnetwork_id,
+            gas,
+            payload,
+            mass,
         )
         .map_err(|err| PyException::new_err(err.to_string()))?;
         Ok(Self(tx))

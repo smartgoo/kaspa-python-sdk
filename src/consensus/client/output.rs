@@ -5,7 +5,7 @@ use pyo3::{
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-use crate::consensus::core::script_public_key::PyScriptPublicKey;
+use crate::consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey};
 
 /// A transaction output defining a payment destination.
 ///
@@ -75,8 +75,7 @@ impl PyTransactionOutput {
     /// Returns:
     ///     dict: the TransactionOutput in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.inner().clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a TransactionOutput from a dictionary.

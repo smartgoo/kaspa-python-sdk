@@ -288,16 +288,15 @@ class TestTransaction:
 
         d = tx.to_dict()
         assert isinstance(d, dict)
-        inner = d["inner"]
-        assert "id" in inner
-        assert "version" in inner
-        assert "inputs" in inner
-        assert "outputs" in inner
-        assert "lockTime" in inner
-        assert "subnetworkId" in inner
-        assert "gas" in inner
-        assert "payload" in inner
-        assert "mass" in inner
+        assert "id" in d
+        assert "version" in d
+        assert "inputs" in d
+        assert "outputs" in d
+        assert "lockTime" in d
+        assert "subnetworkId" in d
+        assert "gas" in d
+        assert "payload" in d
+        assert "mass" in d
 
     def test_transaction_from_dict_roundtrip(self):
         """Test Transaction to_dict/from_dict round-trip."""
@@ -311,7 +310,7 @@ class TestTransaction:
         original = Transaction(0, [input], [output], 100, "0" * 40, 0, "", 0)
 
         d = original.to_dict()
-        restored = Transaction.from_dict(d["inner"])
+        restored = Transaction.from_dict(d)
 
         assert original == restored
 
@@ -360,10 +359,9 @@ class TestUtxoEntry:
 
     def test_utxo_entry_to_dict(self):
         """Test UtxoEntry to_dict method."""
-        # Create a UtxoEntry via from_dict (nested structures need inner wrappers)
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
-            "outpoint": {"inner": {"transactionId": "a" * 64, "index": 0}},
+            "outpoint": {"transactionId": "a" * 64, "index": 0},
             "amount": 1000000,
             "scriptPublicKey": "20" + "a" * 64 + "ac",
             "blockDaaScore": 12345,
@@ -384,7 +382,7 @@ class TestUtxoEntry:
         """Test UtxoEntry to_dict/from_dict round-trip."""
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
-            "outpoint": {"inner": {"transactionId": "a" * 64, "index": 0}},
+            "outpoint": {"transactionId": "a" * 64, "index": 0},
             "amount": 1000000,
             "scriptPublicKey": "20" + "a" * 64 + "ac",
             "blockDaaScore": 12345,

@@ -1,9 +1,11 @@
 use crate::{
     consensus::client::{outpoint::PyTransactionOutpoint, utxo::PyUtxoEntryReference},
+    consensus::convert::TryToPyDict,
     types::PyBinary,
 };
-use kaspa_consensus_client::{TransactionInput, TransactionInputInner, UtxoEntryReference};
+use kaspa_consensus_client::{TransactionInput, UtxoEntryReference};
 use pyo3::{
+    exceptions::PyKeyError,
     prelude::*,
     types::{PyDict, PyType},
 };
@@ -144,8 +146,7 @@ impl PyTransactionInput {
     /// Returns:
     ///     dict: the TransactionInput in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.inner().clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a TransactionInput from a dictionary.
@@ -188,13 +189,63 @@ impl From<PyTransactionInput> for TransactionInput {
 impl TryFrom<&Bound<'_, PyDict>> for PyTransactionInput {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let inner: TransactionInputInner = serde_pyobject::from_pyobject(dict.clone())?;
+        // Parse previousOutpoint
+        let previous_outpoint = PyTransactionOutpoint::try_from(
+            dict.get_item("previousOutpoint")?
+                .ok_or_else(|| PyKeyError::new_err("Key `previousOutpoint` not present"))?
+                .cast::<PyDict>()?,
+        )?;
+
+        // Parse signatureScript (optional, can be None or empty string)
+        let signature_script: Option<Vec<u8>> =
+            if let Some(sig_item) = dict.get_item("signatureScript")? {
+                if sig_item.is_none() {
+                    None
+                } else {
+                    let sig_hex: String = sig_item.extract()?;
+                    if sig_hex.is_empty() {
+                        Some(Vec::new())
+                    } else {
+                        let mut data = vec![0u8; sig_hex.len() / 2];
+                        faster_hex::hex_decode(sig_hex.as_bytes(), &mut data)
+                            .map_err(|e| PyKeyError::new_err(format!("Invalid hex: {}", e)))?;
+                        Some(data)
+                    }
+                }
+            } else {
+                None
+            };
+
+        // Parse sequence
+        let sequence: u64 = dict
+            .get_item("sequence")?
+            .ok_or_else(|| PyKeyError::new_err("Key `sequence` not present"))?
+            .extract()?;
+
+        // Parse sigOpCount
+        let sig_op_count: u8 = dict
+            .get_item("sigOpCount")?
+            .ok_or_else(|| PyKeyError::new_err("Key `sigOpCount` not present"))?
+            .extract()?;
+
+        // Parse utxo (optional)
+        let utxo: Option<UtxoEntryReference> = if let Some(utxo_item) = dict.get_item("utxo")? {
+            if utxo_item.is_none() {
+                None
+            } else {
+                let utxo_dict = utxo_item.cast::<PyDict>()?;
+                Some(PyUtxoEntryReference::try_from(utxo_dict)?.into())
+            }
+        } else {
+            None
+        };
+
         let input = TransactionInput::new(
-            inner.previous_outpoint,
-            inner.signature_script,
-            inner.sequence,
-            inner.sig_op_count,
-            inner.utxo,
+            previous_outpoint.into(),
+            signature_script,
+            sequence,
+            sig_op_count,
+            utxo,
         );
         Ok(Self(input))
     }

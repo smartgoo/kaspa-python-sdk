@@ -1,11 +1,11 @@
 use super::outpoint::PyTransactionOutpoint;
-use crate::{address::PyAddress, consensus::core::script_public_key::PyScriptPublicKey};
+use crate::{address::PyAddress, consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey}};
 use kaspa_consensus_client::{UtxoEntry, UtxoEntryReference};
 use kaspa_utils::hex::FromHex;
 use pyo3::{
     exceptions::{PyException, PyKeyError},
     prelude::*,
-    types::{PyDict, PyType},
+    types::{PyDict, PyList, PyType},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::sync::Arc;
@@ -82,8 +82,7 @@ impl PyUtxoEntry {
     /// Returns:
     ///     dict: the UtxoEntry in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a UtxoEntry from a dictionary.
@@ -127,8 +126,54 @@ impl From<UtxoEntry> for PyUtxoEntry {
 impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntry {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let utxo_entry: UtxoEntry = serde_pyobject::from_pyobject(dict.clone())?;
-        Ok(Self(utxo_entry))
+        let address = if let Some(addr_item) = dict.get_item("address")? {
+            if addr_item.is_none() {
+                None
+            } else {
+                Some(PyAddress::try_from(addr_item.extract::<String>()?)?)
+            }
+        } else {
+            None
+        };
+
+        let outpoint = PyTransactionOutpoint::try_from(
+            dict.get_item("outpoint")?
+                .ok_or_else(|| PyKeyError::new_err("Key `outpoint` not present"))?
+                .cast::<PyDict>()?,
+        )?;
+
+        let amount: u64 = dict
+            .get_item("amount")?
+            .ok_or_else(|| PyKeyError::new_err("Key `amount` not present"))?
+            .extract()?;
+
+        let script_public_key = PyScriptPublicKey::from_hex(
+            dict.get_item("scriptPublicKey")?
+                .ok_or_else(|| PyKeyError::new_err("Key `scriptPublicKey` not present"))?
+                .extract::<&str>()?,
+        )
+        .map_err(|err| PyException::new_err(format!("{}", err)))?;
+
+        let block_daa_score: u64 = dict
+            .get_item("blockDaaScore")?
+            .ok_or_else(|| PyKeyError::new_err("Key `blockDaaScore` not present"))?
+            .extract()?;
+
+        let is_coinbase: bool = dict
+            .get_item("isCoinbase")?
+            .ok_or_else(|| PyKeyError::new_err("Key `isCoinbase` not present"))?
+            .extract()?;
+
+        let utxo = UtxoEntry {
+            address: address.map(|a| a.into()),
+            outpoint: outpoint.into(),
+            amount,
+            script_public_key: script_public_key.into(),
+            block_daa_score,
+            is_coinbase,
+        };
+
+        Ok(Self(utxo))
     }
 }
 
@@ -188,8 +233,16 @@ impl PyUtxoEntries {
     /// Returns:
     ///     dict: the UtxoEntries in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        let utxos = self.0
+            .clone()
+            .iter()
+            .map(|utxo_ref| utxo_ref.try_to_pydict(py))
+            .collect::<PyResult<Vec<Bound<'_, PyDict>>>>()?;
+
+        let dict = PyDict::new(py);
+        dict.set_item("utxos", PyList::new(py, utxos)?)?;
+
+        Ok(dict)
     }
 
     // Cannot be derived via pyclass(eq) as wrapped PyUtxoEntries type does not derive PartialEq/Eq
@@ -275,14 +328,29 @@ impl PyUtxoEntryReference {
         self.0.utxo.script_public_key.clone().into()
     }
 
-    /// Get a dictionary representation of the Transaction.
+    /// Get a dictionary representation of the UtxoEntryReference.
     /// Note that this creates a second separate object on the Python heap.
     ///
     /// Returns:
-    ///     dict: the Transaction in dictionary form.
+    ///     dict: the UtxoEntryReference in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
+    }
+
+    /// Create a UtxoEntryReference from a dictionary.
+    ///
+    /// Args:
+    ///     dict: Dictionary containing UTXO entry reference fields with keys:
+    ///         'address', 'outpoint', 'utxoEntry'.
+    ///
+    /// Returns:
+    ///     UtxoEntryReference: A new UtxoEntryReference instance.
+    ///
+    /// Raises:
+    ///     Exception: If required keys are missing or values are invalid.
+    #[classmethod]
+    fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
+        Self::try_from(dict)
     }
 }
 

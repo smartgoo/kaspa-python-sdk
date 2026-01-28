@@ -159,11 +159,13 @@ impl TryToPyDict for TransactionOutput {
 
 impl TryToPyDict for Transaction {
     fn try_to_pydict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        // Get ID before acquiring inner lock to avoid deadlock
+        let id = self.id().to_hex();
         let inner = self.inner();
         let dict = PyDict::new(py);
 
         // Set `id` key
-        dict.set_item("id", self.id().to_hex())?;
+        dict.set_item("id", id)?;
 
         // Set `inputs` key
         dict.set_item(

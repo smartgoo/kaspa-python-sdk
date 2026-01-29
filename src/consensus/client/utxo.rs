@@ -163,7 +163,10 @@ impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntry {
         } else if let Ok(spk_dict) = spk_obj.cast::<PyDict>() {
             PyScriptPublicKey::constructor(
                 spk_dict.as_any().get_item("version")?.extract::<u16>()?,
-                spk_dict.as_any().get_item("script")?.extract::<PyBinary>()?,
+                spk_dict
+                    .as_any()
+                    .get_item("script")?
+                    .extract::<PyBinary>()?,
             )?
         } else {
             return Err(PyValueError::new_err(
@@ -429,7 +432,10 @@ impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntryReference {
         } else if let Ok(spk_dict) = spk_obj.cast::<PyDict>() {
             PyScriptPublicKey::constructor(
                 spk_dict.as_any().get_item("version")?.extract::<u16>()?,
-                spk_dict.as_any().get_item("script")?.extract::<PyBinary>()?,
+                spk_dict
+                    .as_any()
+                    .get_item("script")?
+                    .extract::<PyBinary>()?,
             )?
         } else {
             return Err(PyValueError::new_err(

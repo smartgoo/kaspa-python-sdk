@@ -150,6 +150,9 @@ impl TryToPyDict for Transaction {
         // Set `id` key
         dict.set_item("id", id)?;
 
+        // Set `version` key
+        dict.set_item("version", inner.version)?;
+
         // Set `inputs` key
         dict.set_item(
             "inputs",

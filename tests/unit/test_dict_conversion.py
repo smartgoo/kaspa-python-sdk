@@ -188,10 +188,12 @@ class TestUtxoEntryReferenceDict:
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
             "outpoint": {"transactionId": "a" * 64, "index": 0},
-            "amount": 1000000,
-            "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
-            "blockDaaScore": 12345,
-            "isCoinbase": False,
+            "utxoEntry": {
+                "amount": 1000000,
+                "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
+                "blockDaaScore": 12345,
+                "isCoinbase": False,
+            },
         }
         entry_ref = UtxoEntryReference.from_dict(entry_dict)
 
@@ -199,20 +201,23 @@ class TestUtxoEntryReferenceDict:
         assert isinstance(d, dict)
         assert "address" in d
         assert "outpoint" in d
-        assert "amount" in d
-        assert "scriptPublicKey" in d
-        assert "blockDaaScore" in d
-        assert "isCoinbase" in d
+        assert "utxoEntry" in d
+        assert "amount" in d["utxoEntry"]
+        assert "scriptPublicKey" in d["utxoEntry"]
+        assert "blockDaaScore" in d["utxoEntry"]
+        assert "isCoinbase" in d["utxoEntry"]
 
     def test_utxo_entry_reference_from_dict_roundtrip(self):
         """Test UtxoEntryReference to_dict/from_dict round-trip."""
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
             "outpoint": {"transactionId": "a" * 64, "index": 0},
-            "amount": 1000000,
-            "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
-            "blockDaaScore": 12345,
-            "isCoinbase": False,
+            "utxoEntry": {
+                "amount": 1000000,
+                "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
+                "blockDaaScore": 12345,
+                "isCoinbase": False,
+            },
         }
         original = UtxoEntryReference.from_dict(entry_dict)
 

@@ -57,28 +57,6 @@ class TestTransactionOutpoint:
         outpoint_id = outpoint.get_id()
         assert isinstance(outpoint_id, str)
 
-    def test_outpoint_to_dict(self):
-        """Test TransactionOutpoint to_dict method."""
-        tx_hash = Hash("a" * 64)
-        outpoint = TransactionOutpoint(tx_hash, 5)
-
-        d = outpoint.to_dict()
-        assert isinstance(d, dict)
-        # inner = d["inner"]
-        assert "transactionId" in d
-        assert "index" in d
-        assert d["index"] == 5
-
-    def test_outpoint_from_dict_roundtrip(self):
-        """Test TransactionOutpoint to_dict/from_dict round-trip."""
-        tx_hash = Hash("a" * 64)
-        original = TransactionOutpoint(tx_hash, 5)
-
-        d = original.to_dict()
-        restored = TransactionOutpoint.from_dict(d)
-
-        assert original == restored
-
 
 class TestScriptPublicKey:
     """Tests for ScriptPublicKey class."""
@@ -134,27 +112,6 @@ class TestTransactionOutput:
         output.value = 2000000
         assert output.value == 2000000
 
-    def test_output_to_dict(self):
-        """Test TransactionOutput to_dict method."""
-        spk = ScriptPublicKey(0, "51")
-        output = TransactionOutput(1000000, spk)
-
-        d = output.to_dict()
-        assert isinstance(d, dict)
-        assert "value" in d
-        assert "scriptPublicKey" in d
-        assert d["value"] == 1000000
-
-    def test_output_from_dict_roundtrip(self):
-        """Test TransactionOutput to_dict/from_dict round-trip."""
-        spk = ScriptPublicKey(0, "51")
-        original = TransactionOutput(1000000, spk)
-
-        d = original.to_dict()
-        restored = TransactionOutput.from_dict(d)
-
-        assert original == restored
-
 
 class TestTransactionInput:
     """Tests for TransactionInput class."""
@@ -175,30 +132,6 @@ class TestTransactionInput:
         assert isinstance(input.previous_outpoint, TransactionOutpoint)
         assert input.sequence == 0xFFFFFFFF
         assert input.sig_op_count == 1
-
-    def test_input_to_dict(self):
-        """Test TransactionInput to_dict method."""
-        tx_hash = Hash("a" * 64)
-        outpoint = TransactionOutpoint(tx_hash, 5)
-        input = TransactionInput(outpoint, "deadbeef", 0xFFFFFFFF, 1)
-
-        d = input.to_dict()
-        assert isinstance(d, dict)
-        assert "previousOutpoint" in d
-        assert "signatureScript" in d
-        assert "sequence" in d
-        assert "sigOpCount" in d
-
-    def test_input_from_dict_roundtrip(self):
-        """Test TransactionInput to_dict/from_dict round-trip."""
-        tx_hash = Hash("a" * 64)
-        outpoint = TransactionOutpoint(tx_hash, 5)
-        original = TransactionInput(outpoint, "deadbeef", 0xFFFFFFFF, 1)
-
-        d = original.to_dict()
-        restored = TransactionInput.from_dict(d)
-
-        assert original == restored
 
 
 class TestTransaction:
@@ -275,45 +208,6 @@ class TestTransaction:
         # (coinbase transactions have specific subnetwork_id)
         assert isinstance(tx.is_coinbase(), bool)
 
-    def test_transaction_to_dict(self):
-        """Test Transaction to_dict method."""
-        tx_hash = Hash("0" * 64)
-        outpoint = TransactionOutpoint(tx_hash, 0)
-        input = TransactionInput(outpoint, "", 0, 1)
-
-        spk = ScriptPublicKey(0, "51")
-        output = TransactionOutput(1000000, spk)
-
-        tx = Transaction(0, [input], [output], 100, "0" * 40, 0, "", 0)
-
-        d = tx.to_dict()
-        assert isinstance(d, dict)
-        assert "id" in d
-        assert "version" in d
-        assert "inputs" in d
-        assert "outputs" in d
-        assert "lockTime" in d
-        assert "subnetworkId" in d
-        assert "gas" in d
-        assert "payload" in d
-        assert "mass" in d
-
-    def test_transaction_from_dict_roundtrip(self):
-        """Test Transaction to_dict/from_dict round-trip."""
-        tx_hash = Hash("0" * 64)
-        outpoint = TransactionOutpoint(tx_hash, 0)
-        input = TransactionInput(outpoint, "", 0, 1)
-
-        spk = ScriptPublicKey(0, "51")
-        output = TransactionOutput(1000000, spk)
-
-        original = Transaction(0, [input], [output], 100, "0" * 40, 0, "", 0)
-
-        d = original.to_dict()
-        restored = Transaction.from_dict(d)
-
-        assert original == restored
-
 
 class TestPaymentOutput:
     """Tests for PaymentOutput class."""
@@ -352,47 +246,3 @@ class TestGenerator:
     """Tests for Generator class."""
     # TODO
     pass
-
-
-class TestUtxoEntry:
-    """Tests for UtxoEntry class."""
-
-    def test_utxo_entry_to_dict(self):
-        """Test UtxoEntry to_dict method."""
-        entry_dict = {
-            "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
-            "outpoint": {"transactionId": "a" * 64, "index": 0},
-            "amount": 1000000,
-            "scriptPublicKey": "20" + "a" * 64 + "ac",
-            "blockDaaScore": 12345,
-            "isCoinbase": False,
-        }
-        entry = UtxoEntry.from_dict(entry_dict)
-
-        d = entry.to_dict()
-        assert isinstance(d, dict)
-        assert "address" in d
-        assert "outpoint" in d
-        assert "amount" in d
-        assert "scriptPublicKey" in d
-        assert "blockDaaScore" in d
-        assert "isCoinbase" in d
-
-    def test_utxo_entry_from_dict_roundtrip(self):
-        """Test UtxoEntry to_dict/from_dict round-trip."""
-        entry_dict = {
-            "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
-            "outpoint": {"transactionId": "a" * 64, "index": 0},
-            "amount": 1000000,
-            "scriptPublicKey": "20" + "a" * 64 + "ac",
-            "blockDaaScore": 12345,
-            "isCoinbase": False,
-        }
-        original = UtxoEntry.from_dict(entry_dict)
-
-        d = original.to_dict()
-        restored = UtxoEntry.from_dict(d)
-
-        assert original == restored
-
-

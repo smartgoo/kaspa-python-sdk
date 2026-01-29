@@ -1,5 +1,4 @@
 use kaspa_consensus_client::TransactionOutput;
-use kaspa_utils::hex::FromHex;
 use pyo3::{
     exceptions::PyValueError,
     prelude::*,
@@ -7,7 +6,10 @@ use pyo3::{
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-use crate::consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey};
+use crate::{
+    consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey},
+    types::PyBinary,
+};
 
 /// A transaction output defining a payment destination.
 ///
@@ -125,8 +127,11 @@ impl TryFrom<&Bound<'_, PyDict>> for PyTransactionOutput {
         let spk_obj = dict.as_any().get_item("scriptPublicKey")?;
         let spk = if let Ok(spk) = spk_obj.extract::<PyScriptPublicKey>() {
             spk
-        } else if let Ok(hex_str) = spk_obj.extract::<String>() {
-            PyScriptPublicKey::from_hex(&hex_str)?
+        } else if let Ok(dict) = spk_obj.cast::<PyDict>() {
+            PyScriptPublicKey::constructor(
+                dict.as_any().get_item("version")?.extract::<u16>()?,
+                dict.as_any().get_item("script")?.extract::<PyBinary>()?,
+            )?
         } else {
             return Err(PyValueError::new_err(
                 "Value for `scriptPublicKey` must be type ScriptPublicKey or str",

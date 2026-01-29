@@ -2,31 +2,35 @@ use kaspa_consensus_client::{
     Transaction, TransactionInput, TransactionOutpoint, TransactionOutput, UtxoEntry,
     UtxoEntryReference,
 };
+use kaspa_consensus_core::tx::ScriptPublicKey;
 use kaspa_utils::hex::ToHex;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
 /// Trait for converting Rust types to Python dictionaries.
 ///
-/// This trait provides a standardized way to convert wrapped SDK types
+/// This trait provides a standardized way to convert Rust types
 /// to Python dicts with a flat structure (no unnecessary nesting).
 ///
 /// A custom trait is required as `py: Python` is required fn arg so
 /// that dict can be created on the Python heap.
 pub trait TryToPyDict {
-    /// Convert this value to a Python dictionary.
-    ///
-    /// # Arguments
-    /// * `py` - Python interpreter token
-    ///
-    /// # Returns
-    /// A Python dictionary representation of the value.
     fn try_to_pydict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>>;
 }
 
 // **********************************************
 // Trait impls for rusty-kaspa native types
 // **********************************************
+
+impl TryToPyDict for ScriptPublicKey {
+    fn try_to_pydict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+        dict.set_item("version", self.version)?;
+        dict.set_item("script", self.script_as_hex())?;
+
+        Ok(dict)
+    }
+}
 
 impl TryToPyDict for TransactionOutpoint {
     fn try_to_pydict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
@@ -58,11 +62,7 @@ impl TryToPyDict for UtxoEntryReference {
         // Set `scriptPublicKey` key
         dict.set_item(
             "scriptPublicKey",
-            format!(
-                "{:02x}{}",
-                self.script_public_key().version(),
-                self.script_public_key().script().to_hex()
-            ),
+            self.script_public_key().try_to_pydict(py)?,
         )?;
 
         // Set `blockDaaScore` key
@@ -96,14 +96,7 @@ impl TryToPyDict for UtxoEntry {
         dict.set_item("amount", self.amount())?;
 
         // Set `scriptPublicKey` key
-        dict.set_item(
-            "scriptPublicKey",
-            format!(
-                "{:02x}{}",
-                self.script_public_key.version(),
-                self.script_public_key.script().to_hex()
-            ),
-        )?;
+        dict.set_item("scriptPublicKey", self.script_public_key.try_to_pydict(py)?)?;
 
         // Set `blockDaaScore` key
         dict.set_item("blockDaaScore", self.block_daa_score())?;
@@ -151,7 +144,11 @@ impl TryToPyDict for TransactionOutput {
         let dict = PyDict::new(py);
 
         dict.set_item("value", inner.value)?;
-        dict.set_item("scriptPublicKey", inner.script_public_key.script_as_hex())?;
+
+        dict.set_item(
+            "scriptPublicKey",
+            inner.script_public_key.try_to_pydict(py)?,
+        )?;
 
         Ok(dict)
     }

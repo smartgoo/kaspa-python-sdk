@@ -326,14 +326,22 @@ impl PyTransaction {
     ///
     /// Args:
     ///     dict: Dictionary containing transaction fields with keys:
-    ///         'id', 'version', `inputs`, `outputs`, `lockTime`,
-    ///         `subnetworkId, `gas`, `payload`, `mass`.
+    ///         - 'id' (str): Transaction ID as hex string
+    ///         - 'version' (int): Transaction version number
+    ///         - 'inputs' (list[dict]): List of input dictionaries
+    ///         - 'outputs' (list[dict]): List of output dictionaries
+    ///         - 'lockTime' (int): Lock time value
+    ///         - 'subnetworkId' (str): Subnetwork ID as hex string
+    ///         - 'gas' (int): Gas limit
+    ///         - 'payload' (str): Payload as hex string
+    ///         - 'mass' (int): Transaction mass
     ///
     /// Returns:
     ///     Transaction: A new Transaction instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)

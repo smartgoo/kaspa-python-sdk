@@ -153,13 +153,18 @@ impl PyTransactionInput {
     ///
     /// Args:
     ///     dict: Dictionary containing transaction input fields with keys:
-    ///         'previousOutpoint', 'signatureScript', 'sequence', 'sigOpCount'.
+    ///         - 'previousOutpoint' (dict): Dict with 'transactionId' (str) and 'index' (int) keys
+    ///         - 'signatureScript' (str | None): The signature script as hex string
+    ///         - 'sequence' (int): Sequence number
+    ///         - 'sigOpCount' (int): Signature operation count
+    ///         - 'utxo' (dict | None): Optional UTXO entry reference dict
     ///
     /// Returns:
     ///     TransactionInput: A new TransactionInput instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)

@@ -86,13 +86,15 @@ impl PyTransactionOutput {
     ///
     /// Args:
     ///     dict: Dictionary containing transaction output fields with keys:
-    ///         'value', 'scriptPublicKey'.
+    ///         - 'value' (int): The output value in sompi
+    ///         - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
     ///
     /// Returns:
     ///     TransactionOutput: A new TransactionOutput instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)
@@ -134,7 +136,7 @@ impl TryFrom<&Bound<'_, PyDict>> for PyTransactionOutput {
             )?
         } else {
             return Err(PyValueError::new_err(
-                "Value for `scriptPublicKey` must be type ScriptPublicKey or str",
+                "Value for `scriptPublicKey` must be type ScriptPublicKey or dict",
             ));
         };
 

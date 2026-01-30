@@ -2684,14 +2684,20 @@ class UtxoEntryReference:
         r"""
         Create a UtxoEntryReference from a dictionary.
         
-        Args:
-            dict: Dictionary containing UTXO entry reference fields with keys:
-                - 'address' (str | None): The address string
-                - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
-                - 'amount' (int): The UTXO value in sompi
-                - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
-                - 'blockDaaScore' (int): Block DAA score
-                - 'isCoinbase' (bool): Whether from coinbase transaction
+        Supports two formats:
+        
+        Flat format:
+            - 'address' (str | None): The address string
+            - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+            - 'amount' (int): The UTXO value in sompi
+            - 'scriptPublicKey' (dict | str): Dict with 'version' and 'script', or hex string
+            - 'blockDaaScore' (int): Block DAA score
+            - 'isCoinbase' (bool): Whether from coinbase transaction
+        
+        Nested format:
+            - 'address' (str | None): The address string
+            - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+            - 'utxoEntry' (dict): Nested dict containing amount, scriptPublicKey, blockDaaScore, isCoinbase
         
         Returns:
             UtxoEntryReference: A new UtxoEntryReference instance.

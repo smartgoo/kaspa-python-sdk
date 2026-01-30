@@ -42,17 +42,14 @@ impl TryToPyDict for UtxoEntryReference {
             serde_pyobject::to_pyobject(py, self.outpoint().inner())?,
         )?;
 
-        // Build nested `utxoEntry` dict
-        let utxo_entry_dict = PyDict::new(py);
-        utxo_entry_dict.set_item("amount", self.amount())?;
-        utxo_entry_dict.set_item(
+        // Use flat format (WASM SDK parity)
+        dict.set_item("amount", self.amount())?;
+        dict.set_item(
             "scriptPublicKey",
             self.script_public_key().try_to_pydict(py)?,
         )?;
-        utxo_entry_dict.set_item("blockDaaScore", self.block_daa_score())?;
-        utxo_entry_dict.set_item("isCoinbase", self.is_coinbase())?;
-
-        dict.set_item("utxoEntry", utxo_entry_dict)?;
+        dict.set_item("blockDaaScore", self.block_daa_score())?;
+        dict.set_item("isCoinbase", self.is_coinbase())?;
 
         Ok(dict)
     }

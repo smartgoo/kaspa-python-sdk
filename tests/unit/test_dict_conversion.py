@@ -184,40 +184,66 @@ class TestUtxoEntryReferenceDict:
     """Tests for UtxoEntryReference to_dict/from_dict methods."""
 
     def test_utxo_entry_reference_to_dict(self):
-        """Test UtxoEntryReference to_dict method."""
+        """Test UtxoEntryReference to_dict method produces flat format."""
+        entry_dict = {
+            "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
+            "outpoint": {"transactionId": "a" * 64, "index": 0},
+            "amount": 1000000,
+            "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
+            "blockDaaScore": 12345,
+            "isCoinbase": False,
+        }
+        entry_ref = UtxoEntryReference.from_dict(entry_dict)
+
+        d = entry_ref.to_dict()
+        assert isinstance(d, dict)
+        # Flat format keys
+        assert "address" in d
+        assert "outpoint" in d
+        assert "amount" in d
+        assert "scriptPublicKey" in d
+        assert "blockDaaScore" in d
+        assert "isCoinbase" in d
+        # Should NOT have nested utxoEntry
+        assert "utxoEntry" not in d
+
+    def test_utxo_entry_reference_from_dict_flat_format(self):
+        """Test UtxoEntryReference from_dict with flat format."""
+        entry_dict = {
+            "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
+            "outpoint": {"transactionId": "a" * 64, "index": 0},
+            "amount": 1000000,
+            "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
+            "blockDaaScore": 12345,
+            "isCoinbase": False,
+        }
+        entry_ref = UtxoEntryReference.from_dict(entry_dict)
+        assert entry_ref.amount == 1000000
+
+    def test_utxo_entry_reference_from_dict_nested_format(self):
+        """Test UtxoEntryReference from_dict with nested format (compatible with utxos returned via RPC)."""
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
             "outpoint": {"transactionId": "a" * 64, "index": 0},
             "utxoEntry": {
-                "amount": 1000000,
+                "amount": 2000000,
                 "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
                 "blockDaaScore": 12345,
                 "isCoinbase": False,
             },
         }
         entry_ref = UtxoEntryReference.from_dict(entry_dict)
-
-        d = entry_ref.to_dict()
-        assert isinstance(d, dict)
-        assert "address" in d
-        assert "outpoint" in d
-        assert "utxoEntry" in d
-        assert "amount" in d["utxoEntry"]
-        assert "scriptPublicKey" in d["utxoEntry"]
-        assert "blockDaaScore" in d["utxoEntry"]
-        assert "isCoinbase" in d["utxoEntry"]
+        assert entry_ref.amount == 2000000
 
     def test_utxo_entry_reference_from_dict_roundtrip(self):
         """Test UtxoEntryReference to_dict/from_dict round-trip."""
         entry_dict = {
             "address": "kaspa:qr0lr4ml9fn3chekrqmjdkergxl93l4wrk3dankcgvjq776s9wn9jkdskewva",
             "outpoint": {"transactionId": "a" * 64, "index": 0},
-            "utxoEntry": {
-                "amount": 1000000,
-                "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
-                "blockDaaScore": 12345,
-                "isCoinbase": False,
-            },
+            "amount": 1000000,
+            "scriptPublicKey": {"version": 0, "script": "20852be1b87fca94453a35027c550a3ccdbebb5913106029f3a8bf18152bf93bffac"},
+            "blockDaaScore": 12345,
+            "isCoinbase": False,
         }
         original = UtxoEntryReference.from_dict(entry_dict)
 

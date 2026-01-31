@@ -1,4 +1,4 @@
-use crate::crypto::hashes::PyHash;
+use crate::{consensus::convert::TryToPyDict, crypto::hashes::PyHash};
 use kaspa_consensus_client::{TransactionOutpoint, TransactionOutpointInner};
 use kaspa_consensus_core::tx::TransactionIndexType;
 use pyo3::{
@@ -69,21 +69,22 @@ impl PyTransactionOutpoint {
     /// Returns:
     ///     dict: the TransactionOutpoint in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.inner().clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a TransactionOutpoint from a dictionary.
     ///
     /// Args:
     ///     dict: Dictionary containing transaction outpoint fields with keys:
-    ///         'transactionId', 'index'.
+    ///         - 'transactionId' (str): The transaction ID as hex string
+    ///         - 'index' (int): The output index
     ///
     /// Returns:
     ///     TransactionOutpoint: A new TransactionOutpoint instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)

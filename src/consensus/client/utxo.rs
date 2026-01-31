@@ -1,11 +1,15 @@
 use super::outpoint::PyTransactionOutpoint;
-use crate::{address::PyAddress, consensus::core::script_public_key::PyScriptPublicKey};
+use crate::{
+    address::PyAddress,
+    consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey},
+    types::PyBinary,
+};
 use kaspa_consensus_client::{UtxoEntry, UtxoEntryReference};
 use kaspa_utils::hex::FromHex;
 use pyo3::{
-    exceptions::{PyException, PyKeyError},
+    exceptions::{PyKeyError, PyValueError},
     prelude::*,
-    types::{PyDict, PyType},
+    types::{PyDict, PyList, PyType},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::sync::Arc;
@@ -82,22 +86,26 @@ impl PyUtxoEntry {
     /// Returns:
     ///     dict: the UtxoEntry in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a UtxoEntry from a dictionary.
     ///
     /// Args:
     ///     dict: Dictionary containing utxo entry fields with keys:
-    ///         'address', 'outpoint', `amount`, `scriptPublicKey`,
-    ///         `blockDaaScore`, `isCoinbase`.
+    ///         - 'address' (str | None): The address string
+    ///         - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+    ///         - 'amount' (int): The UTXO value in sompi
+    ///         - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
+    ///         - 'blockDaaScore' (int): Block DAA score
+    ///         - 'isCoinbase' (bool): Whether from coinbase transaction
     ///
     /// Returns:
     ///     UtxoEntry: A new UtxoEntry instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)
@@ -127,8 +135,66 @@ impl From<UtxoEntry> for PyUtxoEntry {
 impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntry {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let utxo_entry: UtxoEntry = serde_pyobject::from_pyobject(dict.clone())?;
-        Ok(Self(utxo_entry))
+        let address = if let Some(addr_item) = dict.get_item("address")? {
+            if addr_item.is_none() {
+                None
+            } else {
+                Some(PyAddress::try_from(addr_item.extract::<String>()?)?)
+            }
+        } else {
+            None
+        };
+
+        let outpoint = PyTransactionOutpoint::try_from(
+            dict.get_item("outpoint")?
+                .ok_or_else(|| PyKeyError::new_err("Key `outpoint` not present"))?
+                .cast::<PyDict>()?,
+        )?;
+
+        let amount: u64 = dict
+            .get_item("amount")?
+            .ok_or_else(|| PyKeyError::new_err("Key `amount` not present"))?
+            .extract()?;
+
+        let spk_obj = dict
+            .get_item("scriptPublicKey")?
+            .ok_or_else(|| PyKeyError::new_err("Key `scriptPublicKey` not present"))?;
+        let script_public_key = if let Ok(spk) = spk_obj.extract::<PyScriptPublicKey>() {
+            spk
+        } else if let Ok(spk_dict) = spk_obj.cast::<PyDict>() {
+            PyScriptPublicKey::constructor(
+                spk_dict.as_any().get_item("version")?.extract::<u16>()?,
+                spk_dict
+                    .as_any()
+                    .get_item("script")?
+                    .extract::<PyBinary>()?,
+            )?
+        } else {
+            return Err(PyValueError::new_err(
+                "Value for `scriptPublicKey` must be type ScriptPublicKey or dict",
+            ));
+        };
+
+        let block_daa_score: u64 = dict
+            .get_item("blockDaaScore")?
+            .ok_or_else(|| PyKeyError::new_err("Key `blockDaaScore` not present"))?
+            .extract()?;
+
+        let is_coinbase: bool = dict
+            .get_item("isCoinbase")?
+            .ok_or_else(|| PyKeyError::new_err("Key `isCoinbase` not present"))?
+            .extract()?;
+
+        let utxo = UtxoEntry {
+            address: address.map(|a| a.into()),
+            outpoint: outpoint.into(),
+            amount,
+            script_public_key: script_public_key.into(),
+            block_daa_score,
+            is_coinbase,
+        };
+
+        Ok(Self(utxo))
     }
 }
 
@@ -188,8 +254,17 @@ impl PyUtxoEntries {
     /// Returns:
     ///     dict: the UtxoEntries in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        let utxos = self
+            .0
+            .clone()
+            .iter()
+            .map(|utxo_ref| utxo_ref.try_to_pydict(py))
+            .collect::<PyResult<Vec<Bound<'_, PyDict>>>>()?;
+
+        let dict = PyDict::new(py);
+        dict.set_item("utxos", PyList::new(py, utxos)?)?;
+
+        Ok(dict)
     }
 
     // Cannot be derived via pyclass(eq) as wrapped PyUtxoEntries type does not derive PartialEq/Eq
@@ -275,14 +350,41 @@ impl PyUtxoEntryReference {
         self.0.utxo.script_public_key.clone().into()
     }
 
-    /// Get a dictionary representation of the Transaction.
+    /// Get a dictionary representation of the UtxoEntryReference.
     /// Note that this creates a second separate object on the Python heap.
     ///
     /// Returns:
-    ///     dict: the Transaction in dictionary form.
+    ///     dict: the UtxoEntryReference in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
+    }
+
+    /// Create a UtxoEntryReference from a dictionary.
+    ///
+    /// Supports two formats:
+    ///
+    /// Flat format:
+    ///     - 'address' (str | None): The address string
+    ///     - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+    ///     - 'amount' (int): The UTXO value in sompi
+    ///     - 'scriptPublicKey' (dict | str): Dict with 'version' and 'script', or hex string
+    ///     - 'blockDaaScore' (int): Block DAA score
+    ///     - 'isCoinbase' (bool): Whether from coinbase transaction
+    ///
+    /// Nested format:
+    ///     - 'address' (str | None): The address string
+    ///     - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+    ///     - 'utxoEntry' (dict): Nested dict containing amount, scriptPublicKey, blockDaaScore, isCoinbase
+    ///
+    /// Returns:
+    ///     UtxoEntryReference: A new UtxoEntryReference instance.
+    ///
+    /// Raises:
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
+    #[classmethod]
+    fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
+        Self::try_from(dict)
     }
 }
 
@@ -307,11 +409,16 @@ impl From<UtxoEntryReference> for PyUtxoEntryReference {
 impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntryReference {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let address = PyAddress::try_from(
-            dict.get_item("address")?
-                .ok_or_else(|| PyKeyError::new_err("Key `address` not present"))?
-                .extract::<String>()?,
-        )?;
+        // Parse address (optional in flat format, required in nested)
+        let address = if let Some(addr_item) = dict.get_item("address")? {
+            if addr_item.is_none() {
+                None
+            } else {
+                Some(PyAddress::try_from(addr_item.extract::<String>()?)?)
+            }
+        } else {
+            None
+        };
 
         let outpoint = PyTransactionOutpoint::try_from(
             dict.get_item("outpoint")?
@@ -319,36 +426,53 @@ impl TryFrom<&Bound<'_, PyDict>> for PyUtxoEntryReference {
                 .cast::<PyDict>()?,
         )?;
 
-        let utxo_entry_value = dict
-            .get_item("utxoEntry")?
-            .ok_or_else(|| PyKeyError::new_err("Key `utxoEntry` not present"))?;
-        let utxo_entry = utxo_entry_value.cast::<PyDict>()?;
+        // Determine if using nested format (utxoEntry key) or flat format
+        let source_dict = if let Some(utxo_entry_any) = dict.get_item("utxoEntry")? {
+            // Nested format: read from utxoEntry dict
+            utxo_entry_any.cast::<PyDict>()?.clone()
+        } else {
+            // Flat format: read directly from dict
+            dict.clone()
+        };
 
-        let amount: u64 = utxo_entry
+        let amount: u64 = source_dict
             .get_item("amount")?
             .ok_or_else(|| PyKeyError::new_err("Key `amount` not present"))?
             .extract()?;
 
-        let script_public_key = PyScriptPublicKey::from_hex(
-            utxo_entry
-                .get_item("scriptPublicKey")?
-                .ok_or_else(|| PyKeyError::new_err("Key `scriptPublicKey` not present"))?
-                .extract::<&str>()?,
-        )
-        .map_err(|err| PyException::new_err(format!("{}", err)))?;
+        let spk_obj = source_dict
+            .get_item("scriptPublicKey")?
+            .ok_or_else(|| PyKeyError::new_err("Key `scriptPublicKey` not present"))?;
+        let script_public_key = if let Ok(spk) = spk_obj.extract::<PyScriptPublicKey>() {
+            spk
+        } else if let Ok(spk_str) = spk_obj.extract::<String>() {
+            PyScriptPublicKey::from_hex(&spk_str)?
+        } else if let Ok(spk_dict) = spk_obj.cast::<PyDict>() {
+            PyScriptPublicKey::constructor(
+                spk_dict.as_any().get_item("version")?.extract::<u16>()?,
+                spk_dict
+                    .as_any()
+                    .get_item("script")?
+                    .extract::<PyBinary>()?,
+            )?
+        } else {
+            return Err(PyValueError::new_err(
+                "Value for `scriptPublicKey` must be type ScriptPublicKey, str, or dict",
+            ));
+        };
 
-        let block_daa_score: u64 = utxo_entry
+        let block_daa_score: u64 = source_dict
             .get_item("blockDaaScore")?
             .ok_or_else(|| PyKeyError::new_err("Key `blockDaaScore` not present"))?
             .extract()?;
 
-        let is_coinbase: bool = utxo_entry
+        let is_coinbase: bool = source_dict
             .get_item("isCoinbase")?
-            .ok_or_else(|| PyKeyError::new_err("Key `is_coinbase` not present"))?
+            .ok_or_else(|| PyKeyError::new_err("Key `isCoinbase` not present"))?
             .extract()?;
 
         let utxo = UtxoEntry {
-            address: Some(address.into()),
+            address: address.map(|a| a.into()),
             outpoint: outpoint.into(),
             amount,
             script_public_key: script_public_key.into(),

@@ -2240,14 +2240,22 @@ class Transaction:
         
         Args:
             dict: Dictionary containing transaction fields with keys:
-                'id', 'version', `inputs`, `outputs`, `lockTime`,
-                `subnetworkId, `gas`, `payload`, `mass`.
+                - 'id' (str): Transaction ID as hex string
+                - 'version' (int): Transaction version number
+                - 'inputs' (list[dict]): List of input dictionaries
+                - 'outputs' (list[dict]): List of output dictionaries
+                - 'lockTime' (int): Lock time value
+                - 'subnetworkId' (str): Subnetwork ID as hex string
+                - 'gas' (int): Gas limit
+                - 'payload' (str): Payload as hex string
+                - 'mass' (int): Transaction mass
         
         Returns:
             Transaction: A new Transaction instance.
         
         Raises:
-            Exception: If required keys are missing or values are invalid.
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
     def __eq__(self, other: Transaction) -> builtins.bool: ...
 
@@ -2359,13 +2367,18 @@ class TransactionInput:
         
         Args:
             dict: Dictionary containing transaction input fields with keys:
-                'previousOutpoint', 'signatureScript', 'sequence', 'sigOpCount'.
+                - 'previousOutpoint' (dict): Dict with 'transactionId' (str) and 'index' (int) keys
+                - 'signatureScript' (str | None): The signature script as hex string
+                - 'sequence' (int): Sequence number
+                - 'sigOpCount' (int): Signature operation count
+                - 'utxo' (dict | None): Optional UTXO entry reference dict
         
         Returns:
             TransactionInput: A new TransactionInput instance.
         
         Raises:
-            Exception: If required keys are missing or values are invalid.
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
     def __eq__(self, other: TransactionInput) -> builtins.bool: ...
 
@@ -2425,13 +2438,15 @@ class TransactionOutpoint:
         
         Args:
             dict: Dictionary containing transaction outpoint fields with keys:
-                'transactionId', 'index'.
+                - 'transactionId' (str): The transaction ID as hex string
+                - 'index' (int): The output index
         
         Returns:
             TransactionOutpoint: A new TransactionOutpoint instance.
         
         Raises:
-            Exception: If required keys are missing or values are invalid.
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
     def __eq__(self, other: TransactionOutpoint) -> builtins.bool: ...
 
@@ -2501,13 +2516,15 @@ class TransactionOutput:
         
         Args:
             dict: Dictionary containing transaction output fields with keys:
-                'value', 'scriptPublicKey'.
+                - 'value' (int): The output value in sompi
+                - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
         
         Returns:
             TransactionOutput: A new TransactionOutput instance.
         
         Raises:
-            Exception: If required keys are missing or values are invalid.
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
     def __eq__(self, other: TransactionOutput) -> builtins.bool: ...
 
@@ -2695,14 +2712,19 @@ class UtxoEntry:
         
         Args:
             dict: Dictionary containing utxo entry fields with keys:
-                'address', 'outpoint', `amount`, `scriptPublicKey`,
-                `blockDaaScore`, `isCoinbase`.
+                - 'address' (str | None): The address string
+                - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+                - 'amount' (int): The UTXO value in sompi
+                - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
+                - 'blockDaaScore' (int): Block DAA score
+                - 'isCoinbase' (bool): Whether from coinbase transaction
         
         Returns:
             UtxoEntry: A new UtxoEntry instance.
         
         Raises:
-            Exception: If required keys are missing or values are invalid.
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
     def __eq__(self, other: UtxoEntry) -> builtins.bool: ...
 
@@ -2772,11 +2794,38 @@ class UtxoEntryReference:
     def __eq__(self, other: builtins.object) -> builtins.bool: ...
     def to_dict(self) -> dict:
         r"""
-        Get a dictionary representation of the Transaction.
+        Get a dictionary representation of the UtxoEntryReference.
         Note that this creates a second separate object on the Python heap.
         
         Returns:
-            dict: the Transaction in dictionary form.
+            dict: the UtxoEntryReference in dictionary form.
+        """
+    @classmethod
+    def from_dict(cls, dict: dict) -> UtxoEntryReference:
+        r"""
+        Create a UtxoEntryReference from a dictionary.
+        
+        Supports two formats:
+        
+        Flat format:
+            - 'address' (str | None): The address string
+            - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+            - 'amount' (int): The UTXO value in sompi
+            - 'scriptPublicKey' (dict | str): Dict with 'version' and 'script', or hex string
+            - 'blockDaaScore' (int): Block DAA score
+            - 'isCoinbase' (bool): Whether from coinbase transaction
+        
+        Nested format:
+            - 'address' (str | None): The address string
+            - 'outpoint' (dict): Transaction outpoint with 'transactionId' and 'index'
+            - 'utxoEntry' (dict): Nested dict containing amount, scriptPublicKey, blockDaaScore, isCoinbase
+        
+        Returns:
+            UtxoEntryReference: A new UtxoEntryReference instance.
+        
+        Raises:
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
         """
 
 @typing.final

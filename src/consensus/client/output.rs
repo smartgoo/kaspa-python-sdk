@@ -1,11 +1,15 @@
-use kaspa_consensus_client::{TransactionOutput, TransactionOutputInner};
+use kaspa_consensus_client::TransactionOutput;
 use pyo3::{
+    exceptions::PyValueError,
     prelude::*,
     types::{PyDict, PyType},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-use crate::consensus::core::script_public_key::PyScriptPublicKey;
+use crate::{
+    consensus::{convert::TryToPyDict, core::script_public_key::PyScriptPublicKey},
+    types::PyBinary,
+};
 
 /// A transaction output defining a payment destination.
 ///
@@ -75,21 +79,22 @@ impl PyTransactionOutput {
     /// Returns:
     ///     dict: the TransactionOutput in dictionary form.
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = serde_pyobject::to_pyobject(py, &self.0.inner().clone())?;
-        Ok(dict.cast_into()?)
+        self.0.try_to_pydict(py)
     }
 
     /// Create a TransactionOutput from a dictionary.
     ///
     /// Args:
     ///     dict: Dictionary containing transaction output fields with keys:
-    ///         'value', 'scriptPublicKey'.
+    ///         - 'value' (int): The output value in sompi
+    ///         - 'scriptPublicKey' (dict): Dict with 'version' (int) and 'script' (str) keys
     ///
     /// Returns:
     ///     TransactionOutput: A new TransactionOutput instance.
     ///
     /// Raises:
-    ///     Exception: If required keys are missing or values are invalid.
+    ///     KeyError: If required keys are missing.
+    ///     ValueError: If values are invalid.
     #[classmethod]
     fn from_dict(_cls: &Bound<'_, PyType>, dict: &Bound<'_, PyDict>) -> PyResult<Self> {
         Self::try_from(dict)
@@ -119,8 +124,22 @@ impl From<PyTransactionOutput> for TransactionOutput {
 impl TryFrom<&Bound<'_, PyDict>> for PyTransactionOutput {
     type Error = PyErr;
     fn try_from(dict: &Bound<PyDict>) -> PyResult<Self> {
-        let inner: TransactionOutputInner = serde_pyobject::from_pyobject(dict.clone())?;
-        let output = TransactionOutput::new(inner.value, inner.script_public_key);
-        Ok(Self(output))
+        let value = dict.as_any().get_item("value")?.extract::<u64>()?;
+
+        let spk_obj = dict.as_any().get_item("scriptPublicKey")?;
+        let spk = if let Ok(spk) = spk_obj.extract::<PyScriptPublicKey>() {
+            spk
+        } else if let Ok(dict) = spk_obj.cast::<PyDict>() {
+            PyScriptPublicKey::constructor(
+                dict.as_any().get_item("version")?.extract::<u16>()?,
+                dict.as_any().get_item("script")?.extract::<PyBinary>()?,
+            )?
+        } else {
+            return Err(PyValueError::new_err(
+                "Value for `scriptPublicKey` must be type ScriptPublicKey or dict",
+            ));
+        };
+
+        Ok(Self::ctor(value, spk))
     }
 }

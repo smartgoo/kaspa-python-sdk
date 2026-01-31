@@ -53,9 +53,9 @@ impl PyPSKT {
             None => PyPSKT::from(State::Creator(PSKT::<Creator>::default())),
             Some(p) => {
                 if let Ok(s) = p.extract::<String>() {
-                    let inner = serde_json::from_str(&s)
-                        .map_err(|_| Error::from(WasmError::InvalidPayload))?;
-                    PyPSKT::from(State::NoOp(Some(inner)))
+                    let inner: State = serde_json::from_str(&s)
+                        .map_err(|err| Error::from(WasmError::Ctor(err.to_string())))?;
+                    PyPSKT::from(inner)
                 } else if let Ok(py_tx) = p.extract::<PyTransaction>() {
                     let tx: Transaction = py_tx.into();
                     let inner: Inner = tx

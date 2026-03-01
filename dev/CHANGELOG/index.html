@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/kaspa.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2029,6 +2029,8 @@
       
         
       
+        
+      
     
     
     
@@ -2285,6 +2287,34 @@
     
   
     SighashType
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/Enums/UtxoProcessorEvent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UtxoProcessorEvent
   
 
     
@@ -7580,6 +7610,8 @@
 <li><code>UtxoProcessor</code> and <code>UtxoContext</code> bindings for UTXO tracking and mature range access.</li>
 <li><code>UtxoProcessor</code> maturity setters (<code>set_coinbase_transaction_maturity_daa</code>, <code>set_user_transaction_maturity_daa</code>).</li>
 <li><code>UtxoContext.pending()</code> for pending UTXO access (implemented via processor pending map; exact snapshot parity would require rusty-kaspa exposure).</li>
+<li><code>UtxoProcessor</code> event listeners (<code>add_event_listener</code>, <code>remove_event_listener</code>, <code>remove_all_event_listeners</code>).</li>
+<li>Enum <code>PyUtxoProcessorEvent</code> exposed to Python as <code>UtxoProcessorEvent</code>.</li>
 <li>Submodule <code>exceptions</code> where custom exceptions will be located. Currently empty given no custom exceptions exist (yet).</li>
 <li>Added <code>version</code> getter for <code>ScriptPublicKey</code>.</li>
 </ul>
@@ -7596,8 +7628,12 @@
 <li><code>PublicKeyGenerator.from_master_xprv()</code> accepts <code>xprv</code> parameter as both a <code>str</code> or <code>XPrv</code> instance now.</li>
 <li><code>Generator</code>, <code>create_transactions</code>, and <code>estimate_transactions</code> now accept <code>UtxoContext</code> entries (network_id optional for context inputs).</li>
 <li>Python 3.9 is no longer supported. Minimum supported version is now 3.10.</li>
+<li>Fix ScriptBuilder <code>add_op</code>/<code>add_ops</code> functions. <code>add_op</code> incorrectly allowed mulitple ops to be passed. <code>add_ops</code> incorrectly allowed a single op to be passed.</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>kaspa.pyi</code>: add overloads for <code>UtxoProcessor.add_event_listener</code> / <code>remove_event_listener</code> (typing only).</li>
+</ul>
 <h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Python 3.9 is no longer supported. Minimum supported version is now 3.10.</li>

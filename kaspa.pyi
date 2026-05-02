@@ -2107,6 +2107,19 @@ class TransactionInput:
             value: The number of signature operations.
         """
     @property
+    def compute_budget(self) -> builtins.int:
+        r"""
+        The compute budget for this input.
+        """
+    @compute_budget.setter
+    def compute_budget(self, value: builtins.int) -> None:
+        r"""
+        Set the compute budget for this input.
+        
+        Args:
+            value: The compute budget.
+        """
+    @property
     def utxo(self) -> typing.Optional[UtxoEntryReference]:
         r"""
         The UTXO entry reference for transaction signing, or None if not set.
@@ -2119,7 +2132,7 @@ class TransactionInput:
         Args:
             value: The signature script as bytes or hex string.
         """
-    def __new__(cls, previous_outpoint: TransactionOutpoint, signature_script: Binary, sequence: builtins.int, sig_op_count: builtins.int, utxo: typing.Optional[UtxoEntryReference] = None) -> TransactionInput:
+    def __new__(cls, previous_outpoint: TransactionOutpoint, signature_script: Binary, sequence: builtins.int, sig_op_count: builtins.int, compute_budget: builtins.int = 0, utxo: typing.Optional[UtxoEntryReference] = None) -> TransactionInput:
         r"""
         Create a new transaction input.
         
@@ -2128,6 +2141,7 @@ class TransactionInput:
             signature_script: The unlocking script (signature).
             sequence: Sequence number for relative time locks.
             sig_op_count: Number of signature operations.
+            compute_budget: Compute budget for this input (default: 0).
             utxo: Optional UTXO entry reference for signing.
         
         Returns:
@@ -2152,6 +2166,7 @@ class TransactionInput:
                 - 'signatureScript' (str | None): The signature script as hex string
                 - 'sequence' (int): Sequence number
                 - 'sigOpCount' (int): Signature operation count
+                - 'computeBudget' (int, optional): Compute budget for this input (default: 0)
                 - 'utxo' (dict | None): Optional UTXO entry reference dict
         
         Returns:
@@ -3199,12 +3214,12 @@ class Opcodes(enum.Enum):
     OpCovOutputCount = ...
     OpCovOutputIdx = ...
     OpChainblockSeqCommit = ...
-    OpUnknown213 = ...
+    OpOutputCovenantId = ...
     OpUnknown214 = ...
-    OpUnknown215 = ...
-    OpUnknown216 = ...
-    OpUnknown217 = ...
-    OpUnknown218 = ...
+    OpCheckSigFromStack = ...
+    OpCheckSigFromStackECDSA = ...
+    OpBlake3 = ...
+    OpBlake3WithKey = ...
     OpUnknown219 = ...
     OpUnknown220 = ...
     OpUnknown221 = ...

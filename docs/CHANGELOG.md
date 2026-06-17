@@ -5,6 +5,9 @@ search:
 
 ## [Unreleased]
 
+### Fixed
+- Linux wheel builds now compile OpenSSL from source via the `openssl` crate's `vendored` feature. `openssl-sys` (pulled in transitively through `native-tls`/`tungstenite` for the wRPC `wss://` client) dropped support for OpenSSL 1.0.2, which the manylinux2014 release image ships, breaking the release build. Vendoring removes the dependency on the build container's system OpenSSL while keeping the broad manylinux2014 (glibc 2.17+) wheel compatibility.
+
 ## [2.0.0] - 2026-06-06
 
 ### Highlights

@@ -28,6 +28,10 @@ kaspa-utils = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "90db
 kaspa-wallet-core = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "90dbf07" }
 kaspa-wallet-keys = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "90dbf07" }
 kaspa-wrpc-client = { git = "https://github.com/kaspanet/rusty-kaspa.git", rev = "90dbf07" }
+# Pulled in transitively via native-tls (tungstenite/wRPC wss client). The `vendored`
+# feature compiles OpenSSL from source so wheel builds don't depend on the CI container's
+# system OpenSSL (manylinux2014 ships 1.0.2, too old for openssl-sys >=0.9.x).
+openssl = { version = "0.10", features = ["vendored"] }
 paste = "1.0"
 pyo3 = { version = "0.27.1", features = ['multiple-pymethods'] }
 pyo3-async-runtimes = { version = "0.27.0", features = ['tokio-runtime'] }
